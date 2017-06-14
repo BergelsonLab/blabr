@@ -9,7 +9,7 @@ get_all_basiclevel <- function(branch = NULL, commit = NULL, type="feather") {
 get_cdi_spreadsheet <- function(branch = NULL, commit = NULL, type="feather") {
   switch(type,
          "csv" = get_df_file('cdi_spreadsheet', "cdi.csv", branch, commit),
-         "feather" = get_df_file('motor_spreadsheet', "cdi.feather", branch, commit)
+         "feather" = get_df_file('cdi_spreadsheet', "cdi.feather", branch, commit)
          )
 }
 
