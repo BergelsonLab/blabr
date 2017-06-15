@@ -1,14 +1,10 @@
-
-if (tolower(.Platform$OS.type) == "windows") {
-  git_bin <- "/bin/git"
-} else {
-  git_bin <- '/usr/local/bin/git'
-}
+git_bin <- Sys.which("git")
 
 home_dir <- path.expand('~')
 blab_data <- file.path(home_dir, "BLAB_DATA")
 
 sync_to_upstream <- function(repo, branch) {
+  print(git_bin)
   repo_path <- file.path(blab_data, repo)
   handle <- subprocess::spawn_process(git_bin, c('-C', repo_path, 'pull', 'origin', branch))
   subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
@@ -17,6 +13,7 @@ sync_to_upstream <- function(repo, branch) {
 }
 
 checkout_commit <- function(repo, commit) {
+  print(git_bin)
   repo_path <- file.path(blab_data, repo)
   handle <- subprocess::spawn_process(git_bin, c('-C', repo_path, 'checkout', commit))
   subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
@@ -25,6 +22,7 @@ checkout_commit <- function(repo, commit) {
 }
 
 checkout_branch <- function(repo, branch) {
+  print(git_bin)
   repo_path <- file.path(blab_data, repo)
   handle <- subprocess::spawn_process(git_bin, c('-C', repo_path, 'checkout', branch))
   subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
