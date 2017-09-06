@@ -1,3 +1,4 @@
+#this is the script that syncs data, or something.
 git_bin <- Sys.which("git")
 
 home_dir <- path.expand('~')
