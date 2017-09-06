@@ -30,6 +30,8 @@ checkout_branch <- function(repo, branch) {
   subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
 }
 
+# 🐟
+
 sync_repo <- function(repo= "" , branch = NULL, commit = NULL) {
   if (!is.null(branch)) {
     checkout_branch(repo, branch)
