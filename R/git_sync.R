@@ -21,6 +21,8 @@ checkout_commit <- function(repo, commit) {
   subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
 }
 
+# help
+
 checkout_branch <- function(repo, branch) {
   print(git_bin)
   repo_path <- file.path(blab_data, repo)
@@ -43,5 +45,3 @@ sync_repo <- function(repo= "" , branch = NULL, commit = NULL) {
     sync_to_upstream(repo, branch)
   }
 }
-
-# help
