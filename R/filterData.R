@@ -4,9 +4,9 @@ library(feather)
 #this function accepts a vector of column names and the output file 
 #type ("csv" or "feather"); returns a new tibble with unique 3 digit
 #ID code for each subject number, output a file with selected columns
-filterData <- function(colNameList, fileType) {
+anonymous <- function(df, colNameList, fileType) {
   #Import data
-  tibble <- read_csv("all_basiclevel.csv")
+  tibble <- df
   #get all subject number without replicates
   subjectNumcol <- tibble[["SubjectNumber"]]
   subjectNum <- subjectList(subjectNumcol)
@@ -51,5 +51,3 @@ subjectList <- function(list) {
   }
   return (output)
 }
-
-output <- filterData(c("object", "id"), "csv")
