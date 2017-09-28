@@ -1,6 +1,4 @@
-library(tidyverse)
 library(blabr)
-library(feather)
 
 ################################################
 # you should set the following paths yourself: #
@@ -41,3 +39,5 @@ videostats <- concat_all_bl(videomonths, all_video_out)
 # all basiclevel
 all_bl <- join_full_audio_video(audiostats, videostats, all_bl_csv_out)
 write_feather(all_bl, all_bl_fth_out)
+
+
