@@ -16,9 +16,8 @@ all_audio_out <- "../output/all_audio.csv"
 # all_video.csv output
 all_video_out <- "../output/all_video.csv"
 
-# all_basiclevel output
-all_bl_csv_out <- "../output/all_basiclevel.csv"
-all_bl_fth_out <- "../output/all_basiclevel.feather"
+# all_basiclevel output name without extension (it will add the .csv and .feather)
+all_bl_out <- "../output/all_basiclevel"
 
 
 
@@ -37,7 +36,5 @@ videomonths <- concat_month_bl(all_bl_dir, per_month_output_dir, "video")
 videostats <- concat_all_bl(videomonths, all_video_out)
 
 # all basiclevel
-all_bl <- join_full_audio_video(audiostats, videostats, all_bl_csv_out)
-write_feather(all_bl, all_bl_fth_out)
-
+all_bl <- join_full_audio_video(audiostats, videostats, all_bl_out)
 
