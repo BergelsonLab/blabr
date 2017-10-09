@@ -105,7 +105,7 @@ concat_all_bl <- function(x, output=NULL) {
 #'
 #' @param audiostats the full audio basic level dataframe
 #' @param videostats the full video basic level dataframe
-#' @param output if specified, the output path to write csv file
+#' @param output if specified, the output name for csv and feather files (without extension)
 #'
 #' @return the joined dataframe
 #' @export
@@ -118,7 +118,7 @@ concat_all_bl <- function(x, output=NULL) {
 #' videostats <- concat_all_bl(videomonths, "all_video.csv")
 
 #' joined_data <- join_full_audio_video(audiostats, videostats)
-join_full_audio_video <- function(audiostats, videostats, output=NULL) {
+join_full_audio_video <- function(audiostats, videostats, output_name=NULL) {
   df <- videostats%>%
         dplyr::full_join(audiostats)%>%
         dplyr::mutate(id = as.factor(id),
@@ -141,8 +141,9 @@ join_full_audio_video <- function(audiostats, videostats, output=NULL) {
                                                         "u")))%>%
        dplyr::filter(!is.na(basic_level))
 
-  if (!is.null(output)) {
-    write.csv(df, output, row.names = FALSE)
+  if (!is.null(output_name)) {
+    write.csv(df, paste0(output_name, ".csv"), row.names = FALSE)
+    feather::write_feather(df, paste0(output_name, ".feather"))
   }
   return(df)
 }
