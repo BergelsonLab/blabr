@@ -139,13 +139,20 @@ join_full_audio_video <- function(audiostats, videostats, output_name=NULL) {
                                                         "n",
                                                         "i",
                                                         "u")))%>%
-       dplyr::filter(!is.na(basic_level))
+       dplyr::filter(!is.na(basic_level)) %>%
+       dplyr::filter(!grepl("%com:", basic_level))
 
-  if (!is.null(output_name)) {
-    write.csv(df, paste0(output_name, ".csv"), row.names = FALSE)
-    feather::write_feather(df, paste0(output_name, ".feather"))
+  check_result <- check_codes(df)
+  if (!nrow(check_result) == 0) {
+    print("THERE WERE ERRORS FOUND IN THE CODES.....returning errors")
+    return(check_result)
+  } else {
+    if (!is.null(output_name)) {
+      write.csv(df, paste0(output_name, ".csv"), row.names = FALSE)
+      feather::write_feather(df, paste0(output_name, ".feather"))
+    }
+    return(df)
   }
-  return(df)
 }
 
 
