@@ -100,4 +100,12 @@ removeLowData <- function(gazeData=NULL,
   return(gazeData)
 }
 
+outlier <- function(cross_item_mean_proptcorrTT) {
+  (cross_item_mean_proptcorrTT >
+     (mean(cross_item_mean_proptcorrTT) +
+        3*(sd(cross_item_mean_proptcorrTT))) |
+     cross_item_mean_proptcorrTT <
+     (mean(cross_item_mean_proptcorrTT) -
+        3*(sd(cross_item_mean_proptcorrTT))))
+}
 
