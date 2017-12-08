@@ -12,7 +12,7 @@ subj_mos <- c("06", "07", "08", "09", "10", "11",
 
 check_codes <- function(df) {
   x <- subset(df, !(utterance_type %in% c("d", "r", "q", "n", "s", "i", "u")) |
-                  !(object_present %in% c("y", "n")) |
+                  !(object_present %in% c("y", "n", "u")) |
                   !(is.numeric(onset) & is.numeric(offset)) |
                   !(subj %in% subj_nums) |
                   !(month %in% subj_mos))
