@@ -10,7 +10,7 @@ subj_nums <- c("01", "02", "03", "04", "05", "06",
 subj_mos <- c("06", "07", "08", "09", "10", "11",
               "12", "13", "14", "15", "16", "17")
 
-check_codes <- function(df) {
+check_annot_codes <- function(df) {
   x <- subset(df, !(utterance_type %in% c("d", "r", "q", "n", "s", "i", "u")) |
                   !(object_present %in% c("y", "n", "u")) |
                   !(is.numeric(onset) & is.numeric(offset)) |

@@ -171,7 +171,7 @@ big_aggregate <- function(x, output=NULL) {
     write.csv(big_df, output, row.names=FALSE)
   }
 
-  # check_result <- check_codes(big_df)
+  check_result <- check_annot_codes(big_df)
 
   return(big_df)
 }
