@@ -101,7 +101,6 @@ removeLowData <- function(gazeData=NULL,
 }
 
 outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
-  print("hello")
   (cross_item_mean_proptcorrTT >
      (mean(cross_item_mean_proptcorrTT) +
         num_sd*(sd(cross_item_mean_proptcorrTT))) |
@@ -114,5 +113,4 @@ expandFixList <- function(d, binSize=20){
   timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
   data.frame(timeBin=timeBin,FixationID=d$FixationID)
 }
-
 
