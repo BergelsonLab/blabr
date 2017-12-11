@@ -74,7 +74,7 @@ object_present_exp <- function(x) {
 
 count_device_and_toy <- function(x) {
   x %>%
-    filter(speaker %in% c("TOY","TVN","TVF", "TVM","TVS","TVB"))%>%
+    filter(speaker %in% c("TOY","TVN","TVM","TVS","TVB"))%>%
     group_by(subj, month, audio_video, speaker)%>%
     tally()%>%
     spread(speaker, n)
@@ -135,8 +135,8 @@ big_aggregate <- function(x, output=NULL) {
               mutate(prop_mom = MOT/numtokens,
                      prop_dad = FAT/numtokens,
                      prop_parent = prop_mom+prop_dad,
-                     prop_tech = (TVN+TVF+TVS+TVM+TOY+TVB)/numtokens,
-                     tech = (TVN+TVF+TVS+TVM+TOY+TVB),
+                     prop_tech = (TVN+TVS+TVM+TOY+TVB)/numtokens,
+                     tech = (TVN+TVS+TVM+TOY+TVB),
                      propd = d/numtokens,
                      propi = i/numtokens,
                      propn = n/numtokens,
@@ -158,7 +158,7 @@ big_aggregate <- function(x, output=NULL) {
                                                r/numtokens,
                                                n/numtokens,
                                                i/numtokens)),2))%>%
-              dplyr::select(-TVF, -TVM, -TVS, -TVF, -TVN, -TVB)%>%
+              dplyr::select(-TVM, -TVS, -TVN, -TVB)%>%
               left_join(six_to_seventeen_home_noun_chi_onset)%>%
               mutate(posttalk =  ifelse(as.numeric(as.character(month))<noun_chi_onset|
                                           is.na(noun_chi_onset),F,T))
@@ -166,8 +166,6 @@ big_aggregate <- function(x, output=NULL) {
   if (!is.null(output)) {
     write.csv(big_df, output, row.names=FALSE)
   }
-
-  check_result <- check_annot_codes(big_df)
 
   return(big_df)
 }
