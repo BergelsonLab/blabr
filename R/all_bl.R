@@ -1,19 +1,16 @@
 library(entropy)
 
-basic_level_tested_words <- c("baby","babies","babe","baby+doll",
-                              "babydoll","ball ","ball","bally",
-                              "blanket","blankie","blankey","blanky",
-                              "book","books", "bottle","ba+ba",
-                              "baba", "babas","ba","car", "car+car",
-                              "diaper", "diape","diapey","diapee",
-                              "diapers", "diatee","didey", "foot",
-                              "footsy","footy","feet","feetsie",
-                              "footsie","feetsy","feety","hair",
-                              "hairs","hand","hands", "juice","juices",
-                              "juice+box","juices","juice+boxes",
-                              "juicey", "milk","milkies","milky",
-                              "milk+water","milk+jug","milks","mouth",
-                              "nose","nosey","spoon","spoony","stroller")
+basic_level_tested_words <- c("baby","babe","baby+doll", "ball","bally",
+                              "blanket","blankey","blanky", "book","books",
+                              "bottle","baba","ba", "car", "car+car","diaper",
+                              "diape","diapey","diapers","diatee","didey","diadey",
+                              "foot","footsy","footy","feet","feetsie","footsie",
+                              "feetsy","feety", "hair","hairs", "hand", "juice",
+                              "juices","juice+box","juice+boxes","juicey",
+                              "milk","milkies","milky","milk+water","milk+jug",
+                              "milks", "mouth", "nose","nosey", "spoon","spoony",
+                              "stroller")
+
 
 add_chi_noun_onset <- function(x) {
   x%>%
