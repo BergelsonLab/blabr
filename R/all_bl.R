@@ -35,7 +35,7 @@ count_experimentwords <- function(x) {
 
 count_mot_fat <- function(x) {
   x %>%
-    filter(speaker %in%c("MOT","FAT"))%>%
+    filter(speaker %in% c("MOT","FAT"))%>%
     group_by(subj, month, audio_video, speaker)%>%
     tally()%>%
     spread(speaker, n)
@@ -92,7 +92,7 @@ count_chi <- function(x) {
 count_chi_types <- function(x) {
   x %>%
     filter(speaker %in% c("CHI"))%>%
-    group_by(subj, month,audio_video)%>%
+    group_by(subj, month, audio_video)%>%
     dplyr::select(subj, month, basic_level)%>%
     distinct(basic_level)%>%
     tally()%>%
@@ -101,9 +101,8 @@ count_chi_types <- function(x) {
 
 chi_noun_onset <- function(x) {
   x %>%
-    group_by(subj,noun_chi_onset)%>%
-    distinct()%>%
-    dplyr::select(subj, noun_chi_onset)
+    dplyr::select(subj, noun_chi_onset)%>%
+    distinct()
 }
 
 
