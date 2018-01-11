@@ -10,16 +10,18 @@ subj_nums <- c("01", "02", "03", "04", "05", "06",
 subj_mos <- c("06", "07", "08", "09", "10", "11",
               "12", "13", "14", "15", "16", "17")
 
-check_annot_codes <- function(df) {
-  x <- subset(df, !(utterance_type %in% c("d", "r", "q", "n", "s", "i", "u")) |
-                  !(object_present %in% c("y", "n", "u")) |
+utt_type <- c("d", "r", "q", "n", "s", "i", "u")
+obj_pres <- c("y", "n", "u")
+
+check_annot_codes <- function(df, keep_na=FALSE) {
+  if (keep_na) {
+    utt_type <- c(utt_type, NA)
+    obj_pres <- c(obj_pres, NA)
+  }
+  x <- subset(df, !(utterance_type %in% utt_type) |
+                  !(object_present %in% obj_pres) |
                   !(is.numeric(onset) & is.numeric(offset)) |
                   !(subj %in% subj_nums) |
                   !(month %in% subj_mos))
   x
 }
-
-
-
-
-# check_codes(all_bl)

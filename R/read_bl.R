@@ -118,7 +118,7 @@ concat_all_bl <- function(x, output=NULL) {
 #' videostats <- concat_all_bl(videomonths, "all_video.csv")
 
 #' joined_data <- join_full_audio_video(audiostats, videostats)
-join_full_audio_video <- function(audiostats, videostats, output_name=NULL) {
+join_full_audio_video <- function(audiostats, videostats, output_name=NULL, keep_na=FALSE) {
   df <- videostats%>%
         dplyr::full_join(audiostats)%>%
         dplyr::mutate(id = as.factor(id),
@@ -139,12 +139,17 @@ join_full_audio_video <- function(audiostats, videostats, output_name=NULL) {
                                                         "n",
                                                         "i",
                                                         "u")))%>%
-       dplyr::filter(!is.na(basic_level)) %>%
-       dplyr::filter(!grepl("%com:", basic_level))
+    dplyr::filter(!grepl("%com:", object))
 
-  check_result <- check_codes(df)
+
+  if(!keep_na) {
+    df <- dplyr::filter(df, !is.na(basic_level))
+  }
+
+  check_result <- check_annot_codes(df, keep_na)
+
   if (!nrow(check_result) == 0) {
-    print("THERE WERE ERRORS FOUND IN THE CODES.....returning errors")
+    cat("\n\nTHERE WERE ERRORS FOUND IN THE CODES.....returning errors\n\n")
     return(check_result)
   } else {
     if (!is.null(output_name)) {

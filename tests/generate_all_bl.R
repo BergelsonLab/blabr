@@ -1,11 +1,11 @@
 library(blabr)
-
+library(tidyverse)
 ################################################
 # you should set the following paths yourself: #
 ################################################
 
 # folder with all the individual basiclevel csv's
-all_bl_dir <- "../all_bl/10-26-17"
+all_bl_dir <- "../all_bl/11-22-17"
 
 # folder to output the by-month csv's to
 per_month_output_dir <- "../basiclevel_bymonth"
@@ -38,4 +38,3 @@ videostats <- concat_all_bl(videomonths, all_video_out)
 
 # all basiclevel
 all_bl <- join_full_audio_video(audiostats, videostats, all_bl_out)
-
