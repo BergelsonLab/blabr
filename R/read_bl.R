@@ -118,7 +118,9 @@ concat_all_bl <- function(x, output=NULL) {
 #' videostats <- concat_all_bl(videomonths, "all_video.csv")
 
 #' joined_data <- join_full_audio_video(audiostats, videostats)
-join_full_audio_video <- function(audiostats, videostats, output_name=NULL, keep_na=FALSE) {
+join_full_audio_video <- function(audiostats, videostats,
+                                  output_name=NULL, keep_na=FALSE,
+                                  keep_comments=FALSE) {
   df <- videostats%>%
         dplyr::full_join(audiostats)%>%
         dplyr::mutate(id = as.factor(id),
@@ -138,9 +140,10 @@ join_full_audio_video <- function(audiostats, videostats, output_name=NULL, keep
                                                         "r",
                                                         "n",
                                                         "i",
-                                                        "u")))%>%
-    dplyr::filter(!grepl("%com:", object))
-
+                                                        "u")))
+  if (!keep_comments) {
+    df <- dplyr::filter(df, !grepl("%com:", object))
+  }
 
   if(!keep_na) {
     df <- dplyr::filter(df, !is.na(basic_level))
