@@ -143,6 +143,8 @@ join_full_audio_video <- function(audiostats, videostats,
                                                         "u")))
   if (!keep_comments) {
     df <- dplyr::filter(df, !grepl("%com:", object))
+  } else {
+    keep_na <- TRUE
   }
 
   if(!keep_na) {
