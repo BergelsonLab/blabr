@@ -36,6 +36,17 @@ get_cdi_spreadsheet <- function(branch = NULL, commit = NULL, type="feather") {
          )
 }
 
+
+#' The the motor questionaire spreadsheet for the SEEDLingS babies
+#'
+#' @param branch git branch to pull from
+#' @param commit git commit to pull
+#' @param type "feather" or "csv". defaults to "feather"
+#'
+#' @return a tibble contaiing the SEEDLingS Motor Questionaire spreadsheet
+#' @export
+#'
+#' @examples
 get_motor_spreadsheet <- function(branch = NULL, commit = NULL, type="feather") {
   switch(type,
          "csv" = get_df_file('motor_spreadsheet', "motor.csv", branch, commit),
