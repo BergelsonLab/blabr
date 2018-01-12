@@ -20,5 +20,9 @@ a tibble containing the all_basicalevel data
 Get the all_basiclevel data
 }
 \examples{
+# get the latest
 all_bl <- get_all_basiclevel()
+
+# get version at a specific commit
+all_bl <- get_all_basiclevel(commit='833356d604fa2ea020d7984a7f6be612ffea862c')
 }
