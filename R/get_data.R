@@ -1,4 +1,15 @@
 
+#' Get the all_basiclevel data
+#'
+#' @param branch git branch to pull from
+#' @param commit git commit to pull
+#' @param type "feather" or "csv". defaults to "feather"
+#'
+#' @return a tibble containing the all_basicalevel data
+#' @export
+#'
+#' @examples
+#' all_bl <- get_all_basiclevel()
 get_all_basiclevel <- function(branch = NULL, commit = NULL, type="feather") {
   switch(type,
          "csv" = get_df_file('all_basiclevel', "all_basiclevel.csv", branch, commit),
@@ -6,6 +17,18 @@ get_all_basiclevel <- function(branch = NULL, commit = NULL, type="feather") {
          )
 }
 
+
+#' Get the CDI spreadsheet for SEEDLingS babies
+#'
+#' @param branch git branch to pull from
+#' @param commit git commit to pull
+#' @param type "feather" or "csv". defaults to "feather"
+#'
+#' @return a tibble containing the SEEDLingS CDI spreadsheet
+#' @export
+#'
+#' @examples
+#' cdi <- get_cdi_spreadsheet()
 get_cdi_spreadsheet <- function(branch = NULL, commit = NULL, type="feather") {
   switch(type,
          "csv" = get_df_file('cdi_spreadsheet', "cdi.csv", branch, commit),
@@ -20,6 +43,10 @@ get_motor_spreadsheet <- function(branch = NULL, commit = NULL, type="feather") 
          )
 }
 
+get_reliability <- function(av, month, branch = NULL, commit = NULL) {
+  fname <- paste0(av, "_", month, ".csv")
+  get_df_file('reliability', fname, branch, commit)
+}
 
 get_df_file <- function(repo, filename, branch, commit) {
   sync_repo(repo, branch, commit)
