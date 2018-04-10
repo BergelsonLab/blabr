@@ -5,7 +5,7 @@ library(tidyverse)
 ################################################
 
 # folder with all the individual basiclevel csv's
-all_bl_dir <- "../all_bl/11-22-17"
+all_bl_dir <- "../all_bl/01-26-18"
 
 # folder to output the by-month csv's to
 per_month_output_dir <- "../basiclevel_bymonth"

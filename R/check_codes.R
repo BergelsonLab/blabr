@@ -10,8 +10,8 @@ subj_nums <- c("01", "02", "03", "04", "05", "06",
 subj_mos <- c("06", "07", "08", "09", "10", "11",
               "12", "13", "14", "15", "16", "17")
 
-utt_type <- c("d", "r", "q", "n", "s", "i", "u")
-obj_pres <- c("y", "n", "u")
+utt_type <- c("d", "r", "q", "n", "s", "i", "u", "o")
+obj_pres <- c("y", "n", "u", "o")
 
 check_annot_codes <- function(df, keep_na=FALSE) {
   if (keep_na) {
