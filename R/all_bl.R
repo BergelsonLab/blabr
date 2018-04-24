@@ -107,7 +107,7 @@ chi_noun_onset <- function(x) {
 }
 
 
-big_aggregate <- function(x, output=NULL) {
+big_aggregate <- function(x, exclude=NULL, output=NULL) {
   fat_mot_count <- count_mot_fat(x)
   num_experimentwords <- count_experimentwords(x)
   six_to_seventeen_home_utt_count <- count_utterance(x)
@@ -172,6 +172,10 @@ big_aggregate <- function(x, output=NULL) {
 
   if (!is.null(output)) {
     write.csv(big_df, output, row.names=FALSE)
+  }
+
+  if (!is.null(exclude)) {
+    big_df = big_df[,!(names(big_df) %in% exclude)]
   }
 
   return(big_df)
