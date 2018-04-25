@@ -93,8 +93,7 @@ RemoveLowData <- function(gazeData=NULL,
            missing_TF = (lowdata)>floor(maxMissing/timeBin)) %>%
     select(Trial, SubjectNumber, missing_TF)
 
-  gazeData <- left_join(gazeData, lowdata_bins) %>%
-    filter(missing_TF == F)
+  gazeData <- left_join(gazeData, lowdata_bins)
 
   return(gazeData)
 }
