@@ -5,4 +5,3 @@ cdi_words = c("baa baa","choo choo","cockadoodledoo","grrr","meow","moo","ouch",
 on_cdi <- function(input) {
   mutate(input, in_cdi = basic_level %in% cdi_words)
 }
-}
