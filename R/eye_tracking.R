@@ -45,7 +45,7 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
   return(dataFull)
 }
 
-removeLowData <- function(gazeData=NULL,
+RemoveLowData <- function(gazeData=NULL,
                           subsetData=NULL,
                           maxBins=NULL,
                           maxMissing=NULL,
@@ -90,7 +90,7 @@ removeLowData <- function(gazeData=NULL,
 
   lowdata_bins <- left_join(number_timebins, elsewhere_bins) %>%
     mutate(lowdata = missing_bins + elsewhere,
-           missing_TF = (lowdata)>floor(3089/20)) %>%
+           missing_TF = (lowdata)>floor(maxMissing/timeBin)) %>%
     select(Trial, SubjectNumber, missing_TF)
 
   gazeData <- left_join(gazeData, lowdata_bins) %>%
