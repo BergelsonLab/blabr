@@ -106,7 +106,24 @@ chi_noun_onset <- function(x) {
     dplyr::distinct()
 }
 
-
+#' Add aggregations columns into an all_basiclevel tibble
+#'
+#' @param x an all_basiclevel dataframe
+#' @param exclude columns to exclude from the final output
+#' @param output an output path to save the result to
+#'
+#' @return a tibble containing the all_basicalevel data
+#' @export
+#'
+#' @examples
+#' # get all the aggregations
+#' all_bl <- get_all_basiclevel()
+#' big_agg_allbl <- big_aggregate(all_bl)
+#'
+#' # return everything except the 'type_token_ratio' and 'prop_dad' columns
+#'
+#' bigagg_allbl_reduced <- big_aggregate(all_bl, exclude=c('type_token_ratio', 'prop_dad'))
+#'
 big_aggregate <- function(x, exclude=NULL, output=NULL) {
   fat_mot_count <- count_mot_fat(x)
   num_experimentwords <- count_experimentwords(x)
