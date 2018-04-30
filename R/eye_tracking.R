@@ -45,17 +45,17 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
   return(dataFull)
 }
 
-RemoveLowData <- function(gazeData=NULL,
-                          subsetData=NULL,
-                          maxBins=NULL,
-                          maxMissing=NULL,
-                          binSize=20,
-                          propt="propt",
-                          timeBin="timeBin",
-                          TrialNumber="TrialNumber",
-                          SubjectNumber="SubjectNumber"){
+RemoveLowData <- function(gazeData = NULL,
+                          subsetWin,
+                          maxBins = NULL,
+                          maxMissing = NULL,
+                          binSize = 20,
+                          propt = "propt",
+                          timeBin = "timeBin",
+                          Trial = "Trial",
+                          SubjectNumber = "SubjectNumber") {
   # this function is for making sure there's at least X amount of data in a trial; there are two potential sources of missing data: 1) off screen 2) elsewhere, not in an interest area
-  #gazeData is the dataset, subsetData is the column name that contains "Y" indicating that's the part in which we are making sure there's enough data,
+  #gazeData is the dataset, subsetWin is the column name that contains "Y" indicating that's the part in which we are making sure there's enough data,
   #maxBins is how many bins there could have been in the trial,
   #minLength is how much data is the minimum to keep the trial, (not arg)
   #maxMissing= in real time, how many ms of data need to be there
@@ -65,9 +65,11 @@ RemoveLowData <- function(gazeData=NULL,
 
   #timeBin is the (20 ms) bin the trial that each line is
 
-  gazeData2 <- gazeData %>%
-    filter(subsetData == "Y")
 
+  gazeData2 <- gazeData %>%
+    filter(gazeData[,subsetWin] == "Y")
+
+  print(dim(gazeData2))
   #1) offscreen: those timebins don't exist with my version of binifyFixations so how many timebins
   # are there in relation to the maximum given the trial length?
 
@@ -83,17 +85,17 @@ RemoveLowData <- function(gazeData=NULL,
   elsewhere_bins <- gazeData2 %>%
     group_by(Trial, SubjectNumber) %>%
     tally(is.na(propt)) %>%
-    mutate(elsewhere = n) %>%
+    mutate(elsewhere_bins = n) %>%
     select(-n)
 
   # This is all the low data from either source
 
   lowdata_bins <- left_join(number_timebins, elsewhere_bins) %>%
-    mutate(lowdata = missing_bins + elsewhere,
-           missing_TF = (lowdata)>floor(maxMissing/timeBin)) %>%
+    mutate(lowdata = missing_bins + elsewhere_bins) %>%
+    mutate(missing_TF = lowdata >floor(maxMissing/binSize)) %>%
     select(Trial, SubjectNumber, missing_TF)
 
-  gazeData <- left_join(gazeData, lowdata_bins)
+  gazeData <- left_join(gazeData, lowdata_bins) %>% filter(missing_TF == F)
 
   return(gazeData)
 }
