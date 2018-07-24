@@ -99,8 +99,8 @@ RemoveLowData <- function(gazeData,
     filter(missing_TF == F) %>%  # This actually removes the low data bins for you
     select(-missing_TF)
 
-  return(gazeData)
   message("low data bins have now been removed from this dataframe.")
+  return(gazeData)
 }
 
 
