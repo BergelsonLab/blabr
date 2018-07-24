@@ -100,7 +100,7 @@ RemoveLowData <- function(gazeData,
     select(-missing_TF)
 
   return(gazeData)
-  print("low data bins have now been removed from this dataframe.")
+  message("low data bins have now been removed from this dataframe.")
 }
 
 
