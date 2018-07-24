@@ -45,7 +45,7 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
   return(dataFull)
 }
 
-RemoveLowData <- function(gazeData = NULL,
+RemoveLowData <- function(gazeData,
                           subsetWin,
                           maxBins = NULL,
                           maxMissing = NULL,
@@ -95,9 +95,12 @@ RemoveLowData <- function(gazeData = NULL,
     mutate(missing_TF = lowdata >floor(maxMissing/binSize)) %>%
     select(Trial, SubjectNumber, missing_TF)
 
-  gazeData <- left_join(gazeData, lowdata_bins) %>% filter(missing_TF == F)
+  gazeData <- left_join(gazeData, lowdata_bins) %>%
+    filter(missing_TF == F) %>%  # This actually removes the low data bins for you
+    select(-missing_TF)
 
   return(gazeData)
+  print("low data bins have now been removed from this dataframe.")
 }
 
 
