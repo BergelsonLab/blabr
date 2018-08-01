@@ -77,7 +77,7 @@ FindLowData <- function(gazeData,
     group_by(Trial, SubjectNumber) %>%
     tally() %>%
     mutate(bins = n) %>%
-    select(-n)%>%
+    dplyr::select(-n)%>%
     mutate(missing_bins = maxBins - bins)
 
   #2)elsewhere: let's see how many NAs we have for propt, our proportion of target looking
@@ -86,14 +86,14 @@ FindLowData <- function(gazeData,
     group_by(Trial, SubjectNumber) %>%
     tally(is.na(propt)) %>%
     mutate(elsewhere_bins = n) %>%
-    select(-n)
+    dplyr::select(-n)
 
   # This is all the low data from either source
 
   lowdata_bins <- left_join(number_timebins, elsewhere_bins) %>%
     mutate(lowdata = missing_bins + elsewhere_bins) %>%
     mutate(missing_TF = lowdata >floor(maxMissing/binSize)) %>%
-    select(Trial, SubjectNumber, missing_TF)
+    dplyr::select(Trial, SubjectNumber, missing_TF)
 
   gazeData <- left_join(gazeData, lowdata_bins)
 
@@ -134,7 +134,7 @@ RemoveLowData <- function(gazeData,
     group_by(Trial, SubjectNumber) %>%
     tally() %>%
     mutate(bins = n) %>%
-    select(-n)%>%
+    dplyr::select(-n)%>%
     mutate(missing_bins = maxBins - bins)
 
   #2)elsewhere: let's see how many NAs we have for propt, our proportion of target looking
@@ -143,18 +143,18 @@ RemoveLowData <- function(gazeData,
     group_by(Trial, SubjectNumber) %>%
     tally(is.na(propt)) %>%
     mutate(elsewhere_bins = n) %>%
-    select(-n)
+    dplyr::select(-n)
 
   # This is all the low data from either source
 
   lowdata_bins <- left_join(number_timebins, elsewhere_bins) %>%
     mutate(lowdata = missing_bins + elsewhere_bins) %>%
     mutate(missing_TF = lowdata >floor(maxMissing/binSize)) %>%
-    select(Trial, SubjectNumber, missing_TF)
+    dplyr::select(Trial, SubjectNumber, missing_TF)
 
   gazeData <- left_join(gazeData, lowdata_bins) %>%
     filter(missing_TF == F) %>%
-    select(-missing_TF)
+    dplyr::select(-missing_TF)
 
   message("Low data rows have been removed. To identify them in a new column without removing them, use blabr::FindLowData.")
   return(gazeData)
@@ -201,7 +201,7 @@ RemoveFrozenTrials <- function(gazeData,
     group_by(SubjectNumber, Trial) %>%
     mutate(frozen = ifelse(length(levels(fct_explicit_na(gaze, na_level = "NA"))) == 1, T, F)) %>%
     filter(frozen == F) %>%
-    select(-frozen)
+    dplyr::select(-frozen)
 
   message("frozen trials have been removed. To identify them in a new column without removing them, use blabr::FindFrozenTrials.")
   return(gazeData)
