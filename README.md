@@ -1,6 +1,6 @@
 # blabr
 
-An R library for working in the BLAB.
+An R library for working in the BLAB. 
 
 
 ### install blabr
