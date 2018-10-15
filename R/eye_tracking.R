@@ -1,3 +1,21 @@
+load_tsv <- function(fixrep_path, val_guess_max = 100000){
+  read_tsv(fixrep_path, na=character(), guess_max = val_guess_max)
+}
+
+fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinished=TRUE, remove_practice=TRUE){
+  fix_report <- load_tsv(fixrep_path, val_guess_max)
+  if (remove_unfinished){
+    fix_report <- fix_report %>%
+      filter(!is.na(order))
+  }
+  if(remove_practice){
+    fix_report <- fix_report %>%
+      filter(practice=="n")
+  }
+
+  return(fix_report)
+}
+
 binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber","Target","T"), maxTime=NULL){
   #convert a list of fixations to bins
   #binSize determines the size of each bin in ms
