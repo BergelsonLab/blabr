@@ -2,19 +2,38 @@ load_tsv <- function(fixrep_path, val_guess_max = 100000){
   read_tsv(fixrep_path, na=character(), guess_max = val_guess_max)
 }
 
+object2string <- function(obj){
+  # Gets string from name of the object, ex object2string(blop) returns "blop"
+  deparse(substitue(obj))
+}
+
+string2object <- function(string_name, val){
+  assign(string_name, val)
+  # how to return it?
+  # eval(parse(text = string_name))
+}
+
+
+#################################################################################
+
 fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinished=TRUE, remove_practice=TRUE){
+  # load tsv file
   fix_report <- load_tsv(fixrep_path, val_guess_max)
+  # remove incomplete studies
   if (remove_unfinished){
     fix_report <- fix_report %>%
       filter(!is.na(order))
   }
+  # remove practice rows
   if(remove_practice){
     fix_report <- fix_report %>%
       filter(practice=="n")
   }
 
-  return(fix_report)
+  return(fix_report) # necessary? or just `fix_report`?
 }
+
+#################################################################################
 
 binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber","Target","T"), maxTime=NULL){
   #convert a list of fixations to bins
@@ -62,6 +81,56 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
 
   return(dataFull)
 }
+
+#################################################################################
+# find key press issues and create doc to correct them
+keypress_issues <- function(data, study = "eye_tracking_study", practice_trials = c("p1", "p2", "p3", "p4"), output_dir = "data/", out_csv = TRUE){ # or study = NULL and take data[:-4]
+  keypress_issues <- data %>%
+    filter(RT == -1 & !Trial %in% practice_trials) %>%
+    group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)%>%
+    distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, RT, AudioTarget)
+  if (out_csv){
+    write_csv(keypress_issues, paste(output_dir, "keypress_issues_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv"))
+  }
+  keypress_issues #return?
+}
+
+#################################################################################
+# retrieve corrected kp
+keypress_retrieved <- function(filename, drop_list = c("video_pop_time", "video_targetonset", "notes")){
+  retrieved_kp <- read_excel(filename) %>%
+    dplyr::select(-one_of(drop_list))
+  retrieved_kp #return?
+}
+
+#################################################################################
+
+get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSION_LABEL", "CURRENT_MSG_TIME", "TRIAL_INDEX", "AudioTarget", "Trial")){
+
+  mesrep_temp <- mesrep_all %>% #subset of mesrep_all
+    dplyr::select(one_of(final_columns, "CURRENT_MSG_TEXT", "RT")) %>%
+    mutate(RT = as.numeric(as.character(RT)),
+           Trial=as.numeric(Trial))
+
+  good_kp_mesrep <- mesrep_temp %>% # message reports corresponding to good key presses
+    filter(CURRENT_MSG_TEXT == "EL_BUTTON_CRIT_WORD") %>%
+    dplyr::select(one_of(final_columns))
+
+  fixed_kp_mesrep <- mesrep_temp %>% # message reports corresponding to fixed key presses
+    filter(CURRENT_MSG_TEXT=="PLAY_POP" & RT=="-1") %>%
+    left_join(fixed_kp %>% filter(outcome=="FIX")) %>%
+    dplyr::rename(PLAY_POP=CURRENT_MSG_TIME) %>%
+    mutate(CURRENT_MSG_TIME = PLAY_POP+ms_diff) %>%
+    dplyr::select(one_of(final_columns))
+
+  mesrep <- fixed_kp_mesrep %>%
+    bind_rows(good_kp_mesrep)
+
+  mesrep # return?
+}
+
+#################################################################################
+
 #FindLowData----
 FindLowData <- function(gazeData,
                           subsetWin,
@@ -118,6 +187,8 @@ FindLowData <- function(gazeData,
   message("new column missing_TF has been added. When T, the row has low data.")
   return(gazeData)
 }
+
+#################################################################################
 
 #RemoveLowData ----
 RemoveLowData <- function(gazeData,
@@ -178,6 +249,8 @@ RemoveLowData <- function(gazeData,
   return(gazeData)
 }
 
+#################################################################################
+
 #Outlier----
 outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
   (cross_item_mean_proptcorrTT >
@@ -188,11 +261,15 @@ outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
         num_sd*(sd(cross_item_mean_proptcorrTT))))
 }
 
+#################################################################################
+
 #expandFixList----
 expandFixList <- function(d, binSize=20){
   timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
   data.frame(timeBin=timeBin,FixationID=d$FixationID)
 }
+
+#################################################################################
 
 #FindFrozenTrials----
 FindFrozenTrials <- function(gazeData,
@@ -208,6 +285,7 @@ FindFrozenTrials <- function(gazeData,
  return(gazeData)
 }
 
+#################################################################################
 
 #RemoveFrozenTrials-----
 RemoveFrozenTrials <- function(gazeData,
