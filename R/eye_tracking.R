@@ -153,6 +153,12 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 
 #################################################################################
 
+to_factors <- function(df){
+  df[sapply(df, is.character)] <- lapply(df[sapply(df, is.character)],
+                                         as.factor)
+  df
+}
+
 
 #FindLowData----
 FindLowData <- function(gazeData,
