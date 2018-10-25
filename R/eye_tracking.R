@@ -66,7 +66,8 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
 
   data <- gaze %>%
     group_by(FixationID) %>%
-    do(expandFixList(., binSize=binSize))
+    do(expandFixList(., binSize=binSize)) %>%
+    ungroup()
 
   #there is a border case in which two redundant bins can be generated
   #clean them up by keeping the second one
@@ -90,13 +91,13 @@ keypress_issues <- function(data, study = "eye_tracking_study", practice_trials 
     group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)%>%
     distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, RT, AudioTarget)
   if (out_csv){
-    write_csv(keypress_issues, paste(output_dir, "keypress_issues_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv"))
+    write_csv(keypress_issues, paste(output_dir, "keypress_issues_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
   }
   keypress_issues #return?
 }
 
 #################################################################################
-# retrieve corrected kp
+# retrieve corrected kp OR retrieve correct late target onset // separate functions?
 keypress_retrieved <- function(filename, drop_list = c("video_pop_time", "video_targetonset", "notes")){
   retrieved_kp <- read_excel(filename) %>%
     dplyr::select(-one_of(drop_list))
@@ -123,13 +124,35 @@ get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSIO
     mutate(CURRENT_MSG_TIME = PLAY_POP+ms_diff) %>%
     dplyr::select(one_of(final_columns))
 
-  mesrep <- fixed_kp_mesrep %>%
+  mesrep <- fixed_kp_mesrep %>% # merge both reports
     bind_rows(good_kp_mesrep)
 
   mesrep # return?
 }
 
 #################################################################################
+
+get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_study", output_dir = "data/", out_csv = TRUE){
+  late_target_onset <- data %>%
+    filter(CURRENT_MSG_TIME>max_time) %>%
+    group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget) %>%
+    distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)
+  if(out_csv){
+    write_csv(late_target_onset, paste(output_dir, "late_target_onset_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
+  }
+  late_target_onset
+}
+
+#################################################################################
+# retrieve corrected kp OR retrieve correct late target onset // separate functions? ## IDENTICAL TO KP FUNCTION
+late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "video_targetonset", "notes")){
+  retrieved_late_target <- read_excel(filename) %>%
+    dplyr::select(-one_of(drop_list))
+  retrieved_late_target #return?
+}
+
+#################################################################################
+
 
 #FindLowData----
 FindLowData <- function(gazeData,
