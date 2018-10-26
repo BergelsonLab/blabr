@@ -13,6 +13,12 @@ string2object <- function(string_name, val){
   # eval(parse(text = string_name))
 }
 
+to_factors <- function(df){
+  df[sapply(df, is.character)] <- lapply(df[sapply(df, is.character)],
+                                         as.factor)
+  df
+}
+
 
 #################################################################################
 
@@ -153,12 +159,37 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 
 #################################################################################
 
-to_factors <- function(df){
-  df[sapply(df, is.character)] <- lapply(df[sapply(df, is.character)],
-                                         as.factor)
-  df
-}
+#################################################################################
 
+
+get_exclude <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time = 2000, med_window_time = 3500, long_window_time = 5000){
+  # TODO what is that 18 number, where is it coming from?
+  short_window_lim = short_window_time/bin_size
+  med_window_lim = med_window_time/bin_size
+  long_window_lim = long_window_time/bin_size
+  exclude <- fix_mes_age %>%
+    mutate(Nonset = (timeBin-floor(TargetOnset/bin_size))*bin_size,
+         lowest = (TargetOnset/bin_size)+nb_1, # TODO nb_1 used here only
+         short_max = (TargetOnset/bin_size)+short_window_lim,
+         med_max = (TargetOnset/bin_size)+med_window_lim,
+         long_max = (TargetOnset/bin_size)+long_window_lim,
+         prewin = factor(ifelse(Time <= TargetOnset, "Y", "N")),
+         longwin = factor(ifelse((timeBin >= lowest &
+                                    timeBin <= long_max),"Y", "N")),# this is a 367-5s window bc 5000/20 = 250
+         whichwin_long = factor(ifelse(prewin == "Y","pre",
+                                       ifelse(longwin == "Y", "long", "neither"))),
+         medwin = factor(ifelse((timeBin >= lowest &
+                                   timeBin <= med_max),"Y","N")),# this is a 367-3500ms window bc 3500/20 = 175
+         whichwin_med = factor(ifelse(prewin == "Y","pre",
+                                      ifelse(longwin == "Y", "med", "neither"))),
+         shortwin = factor(ifelse((timeBin >= lowest &
+                                     timeBin <= ((TargetOnset/bin_size)+short_window_lim)),"Y","N")),# this is a 367-2s window bc 2000/20 = 100
+         whichwin_short = factor(ifelse(prewin=="Y","pre",
+                                        ifelse(longwin=="Y","short","neither")))) %>%
+    select(-lowest, -short_max, -med_max, -long_max)
+
+  exclude
+}
 
 #FindLowData----
 FindLowData <- function(gazeData,
