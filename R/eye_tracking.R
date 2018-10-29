@@ -13,7 +13,7 @@ string2object <- function(string_name, val){
   # eval(parse(text = string_name))
 }
 
-to_factors <- function(df){
+characters_to_factors <- function(df){
   df[sapply(df, is.character)] <- lapply(df[sapply(df, is.character)],
                                          as.factor)
   df
