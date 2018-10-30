@@ -342,7 +342,7 @@ RemoveLowData <- function(gazeData,
 
 #################################################################################
 
-get_pairs <- function(data, study = "eye_tracking", output_dir = '/data/', out_csv = TRUE){
+get_pairs <- function(data, study = "eye_tracking", output_dir = 'data/', out_csv = TRUE){
   res <- data %>%
     group_by(SubjectNumber) %>%
     distinct(Pair)
