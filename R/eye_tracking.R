@@ -270,8 +270,10 @@ FindLowData <- function(gazeData,
 #RemoveLowData ----
 RemoveLowData <- function(gazeData,
                         subsetWin,
-                        maxBins = NULL,
-                        maxMissing = NULL,
+                        # maxBins = NULL,
+                        # maxMissing = NULL,
+                        window_size = NULL,
+                        nb_2 = 0,
                         binSize = 20,
                         propt = "propt",
                         timeBin = "timeBin",
@@ -288,6 +290,18 @@ RemoveLowData <- function(gazeData,
 
   #timeBin is the (20 ms) bin the trial that each line is
 
+  if (is.null(window_size)){
+    if (subsetWin=="longwin"){
+      window_size <- 5000
+    } else if (subsetWin=="medwin"){
+      window_size <- 3500
+    } else if (subsetWin=="shortwin"){
+      window_size <- 2000
+    }
+  }
+
+  maxBins <- as.integer((window_size - nb_2)/binSize)
+  maxMissing <- as.integer((window_size - nb_2) - ((window_size - nb_2)/3))
 
   gazeData2 <- gazeData %>%
     filter(gazeData[,subsetWin] == "Y")
@@ -324,6 +338,18 @@ RemoveLowData <- function(gazeData,
 
   message("Low data rows have been removed. To identify them in a new column without removing them, use blabr::FindLowData.")
   return(gazeData)
+}
+
+#################################################################################
+
+get_pairs(data, study = "eye_tracking", output_dir = '/data/', out_csv = TRUE){
+  res <- data %>%
+    group_by(SubjectNumber) %>%
+    distinct(Pair)
+  if (out_csv){
+    write_csv(res, paste(output_dir, "pairs_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
+  }
+  res
 }
 
 #################################################################################
