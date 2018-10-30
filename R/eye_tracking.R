@@ -159,7 +159,6 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 
 #################################################################################
 
-#################################################################################
 
 
 get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time = 2000, med_window_time = 3500, long_window_time = 5000){
@@ -191,26 +190,44 @@ get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time
   exclude
 }
 
+#################################################################################
+
 #FindLowData----
 FindLowData <- function(gazeData,
                           subsetWin,
-                          maxBins = NULL,
-                          maxMissing = NULL,
+                          # maxBins = NULL,
+                          # maxMissing = NULL,
+                          window_size = NULL,
+                          nb_2 = 0,
                           binSize = 20,
                           propt = "propt",
                           timeBin = "timeBin",
                           Trial = "Trial",
                           SubjectNumber = "SubjectNumber") {
   # this function is for making sure there's at least X amount of data in a trial; there are two potential sources of missing data: 1) off screen 2) elsewhere, not in an interest area
-  #gazeData is the dataset, subsetWin is the column name that contains "Y" indicating that's the part in which we are making sure there's enough data,
-  #maxBins is how many bins there could have been in the trial,
-  #minLength is how much data is the minimum to keep the trial, (not arg)
-  #maxMissing= in real time, how many ms of data need to be there
+  # gazeData is the dataset,
+  # subsetWin is the column name that contains "Y" indicating that's the part in which we are making sure there's enough data,
+  # maxBins is how many bins there could have been in the trial,
+  # minLength is how much data is the minimum to keep the trial, (not arg)
+  # maxMissing= in real time, how many ms of data need to be there
 
   #binSize is what size of bins the fixations were turned into, this will usually be 20ms,
   #propt is proportion of target looking,
 
   #timeBin is the (20 ms) bin the trial that each line is
+
+  if (!window_size){
+    if (subsetWin=="longwin"){
+      window_size <- 5000
+    } else if (subsetWin=="medwin"){
+      window_size <- 3500
+    } else if (subsetWin=="shortwin"){
+      window_size <- 2000
+    }
+  }
+
+  maxBins <- as.integer((window_size - nb_2)/binSize)
+  maxMissing <- as.integer((window_size - nb_2) - ((window_size - nb_2)/3))
 
 
   gazeData2 <- gazeData %>%
