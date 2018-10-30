@@ -216,7 +216,7 @@ FindLowData <- function(gazeData,
 
   #timeBin is the (20 ms) bin the trial that each line is
 
-  if (!window_size){
+  if (is.null(window_size)){
     if (subsetWin=="longwin"){
       window_size <- 5000
     } else if (subsetWin=="medwin"){
