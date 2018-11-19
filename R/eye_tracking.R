@@ -91,7 +91,7 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
 
 #################################################################################
 # find key press issues and create doc to correct them
-keypress_issues <- function(data, study = "eye_tracking_study", practice_trials = c("p1", "p2", "p3", "p4"), output_dir = "data/", out_csv = TRUE){ # or study = NULL and take data[:-4]
+keypress_issues <- function(data, study = "eye_tracking_study", practice_trials = c("p1", "p2", "p3", "p4"), output_dir = "../data/", out_csv = TRUE){ # or study = NULL and take data[:-4]
   keypress_issues <- data %>%
     filter(RT == -1 & !Trial %in% practice_trials) %>%
     group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)%>%
@@ -138,7 +138,7 @@ get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSIO
 
 #################################################################################
 
-get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_study", output_dir = "data/", out_csv = TRUE){
+get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_study", output_dir = "../data/", out_csv = TRUE){
   late_target_onset <- data %>%
     filter(CURRENT_MSG_TIME>max_time) %>%
     group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget) %>%
@@ -342,12 +342,14 @@ RemoveLowData <- function(gazeData,
 
 #################################################################################
 
-get_pairs <- function(data, study = "eye_tracking", output_dir = 'data/', out_csv = TRUE){
+get_pairs <- function(data, study = "eye_tracking", output_dir = '../data/', out_csv = TRUE){
   res <- data %>%
     group_by(SubjectNumber) %>%
     distinct(Pair)
   if (out_csv){
-    write_csv(res, paste(output_dir, "pairs_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
+    name <- paste(output_dir, "pairs_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep='')
+    print(name)
+    write_csv(res, name)
   }
   res
 }
