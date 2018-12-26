@@ -407,3 +407,8 @@ RemoveFrozenTrials <- function(gazeData,
   message("frozen trials have been removed. To identify them in a new column without removing them, use blabr::FindFrozenTrials.")
   return(gazeData)
 }
+
+# expandFixList <- function(d, binSize=20){
+#   timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
+#   data.frame(timeBin=timeBin,FixationID=d$FixationID)
+# }
