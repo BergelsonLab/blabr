@@ -5,7 +5,7 @@ audio_cnames <- c("tier", "object", "utterance_type", "object_present",
 
 video_cnames <- c("ordinal", "onset", "offset",
                   "object", "utterance_type", "object_present",
-                  "speaker", "basic_level", "labeled_object.id")
+                  "speaker", "basic_level", "annotid")
 
 #' Collect basic level files
 #'
@@ -213,7 +213,8 @@ rename_video_header <- function(x) {
                      object = labeled_object.object,
                      utterance_type = labeled_object.utterance_type,
                      object_present = labeled_object.object_present,
-                     speaker = labeled_object.speaker
+                     speaker = labeled_object.speaker,
+                     annotid = labeled_object.id
   )
   if ("labeled_object.basic_level" %in% colnames(df)) {
     df <- dplyr::rename(df, basic_level = labeled_object.basic_level)
