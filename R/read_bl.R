@@ -1,11 +1,11 @@
 bl_types <- c("audio", "video")
 
 audio_cnames <- c("tier", "object", "utterance_type", "object_present",
-                  "speaker", "timestamp", "basic_level")
+                  "speaker", "timestamp", "basic_level", "annotid")
 
 video_cnames <- c("ordinal", "onset", "offset",
                   "object", "utterance_type", "object_present",
-                  "speaker", "basic_level")
+                  "speaker", "basic_level", "labeled_object.id")
 
 #' Collect basic level files
 #'
