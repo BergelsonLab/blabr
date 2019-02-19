@@ -15,7 +15,9 @@ devtools::install_github('BergelsonLab/blabr')
 
 ### setup environment
 
-You need to have a copy of the **BLAB_DATA** directory in your home folder. You can get a copy from Opus (Seedlings/Compiled_Data/BLAB_DATA).
+You need to have a copy of the **BLAB_DATA** directory in your home folder. Clone the following BLAB_DATA repository (https://github.com/BergelsonLab/BLAB_DATA) to get an updated version of the data used in this package. Clone the repository, update the submodules and checkout to the master branch to get the latest version.
+
+
 
 
 ### test if it worked
