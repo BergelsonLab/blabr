@@ -1,7 +1,9 @@
 library(tidyverse)
 library(feather)
-all_bl <- read_feather("Z:/Seedlings/Compiled_Data/BLAB_DATA/all_basiclevel/all_basiclevel.feather")
-all_data <- all_bl
+library(blabr)
+all_bl <- get_all_basiclevel()
+all_bl_NA <- read_feather("Z:/Seedlings/Code/blab/all_basiclevel/all_basiclevel_NA.feather") %>% # 335860 x 15
+  select(-tier)
 
 ## Weeding out Multiples ----
 # some object words have more than one basic_level. We narrowed them down using the following code
@@ -56,18 +58,19 @@ NAs <- NAs %>%
 
 # Reading everything back in and combining it into a new situation ----
 # Gladys made me a new all_basic_level but that includes the rows that usually get filtered out for not having NAs!
-all_bl_NA <- read_csv("Z:/Seedlings/Code/blab/output/all_basiclevel_with_na.csv") %>% # 330017 x 14
-  select(-tier)
+all_bl_NA <- read_feather("Z:/Seedlings/Code/blab/all_basiclevel/all_basiclevel_NA.feather") %>% # 335860 x 15
+  select(-tier) %>%
+  distinct(annotid, keep_all = T)
 
 NAs <- read_csv("NAs_bl.csv") # 1686 x 2
 
 NAs %>%
   filter(is.na(basic_level)) # none
 
-all_global_bl <- read_csv("all_global_bl.csv") %>%   #13913 x 2
-  distinct(object)
+all_global_bl <- read_csv("all_global_bl.csv") %>%   #13911 x 2
+  distinct(object, .keep_all = T)
 
-all_global_bl_with_NAs <- full_join(all_global_bl, NAs) #15174 lines... 425 fewer lines than expected. Looks like some things were inconsistently NA'd.
+all_global_bl_with_NAs <- full_join(all_global_bl, NAs) #15172 lines... 425 fewer lines than expected. Looks like some things were inconsistently NA'd.
 #Basic_leveling is not an exact science.
 anti_join(all_global_bl, NAs) # doing the math the other way. There are 13,488 unmatched records in all_global_bl, which is 425 fewer than the total. checks out
 
@@ -110,5 +113,9 @@ everything <- left_join(all_bl_NA, all_bl_disamb)
 
 left_join(all_bl_NA, all_bl_NA)
 
+all_bl_NA %>%
+  distinct(annotid)
 
+all_bl %>%
+  distinct(annotid)
 
