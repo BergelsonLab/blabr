@@ -119,7 +119,7 @@ concat_all_bl <- function(x, output=NULL) {
 
 #' joined_data <- join_full_audio_video(audiostats, videostats)
 join_full_audio_video <- function(audiostats, videostats,
-                                  output_name=NULL, keep_na=FALSE,
+                                  output_name=NULL, keep_na=TRUE,
                                   keep_comments=FALSE) {
   df <- videostats%>%
         dplyr::full_join(audiostats)%>%
