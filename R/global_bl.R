@@ -1,6 +1,7 @@
 library(tidyverse)
 library(feather)
-all_bl <- read_feather("Z:/Seedlings/Compiled_Data/BLAB_DATA/all_basiclevel/all_basiclevel.feather")
+# all_bl <- read_feather("Z:/Seedlings/Compiled_Data/BLAB_DATA/all_basiclevel/all_basiclevel.feather")
+all_bl <- get_all_basiclevel()
 all_data <- all_bl
 
 ## Weeding out Multiples ----
