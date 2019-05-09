@@ -44,6 +44,7 @@ concat_month_bl <- function(input, output=NULL, type) {
   the_files <- collect_bl_files(input, type)
 
   read_one_video <- function(x) {
+    print(x)
     df <- readr::read_csv(x) %>% rename_video_header(.)
     df <- df[,video_cnames]
     tibble::add_column(df, id=rep(basename(x), times=length(df$object)))
