@@ -59,6 +59,7 @@ concat_month_bl <- function(input, output=NULL, type) {
 
   read_all <- function(x) {
     if (type == "audio") {
+      print("read audio")
       purrr::map_df(x$files, read_one_audio)
     } else {
       purrr::map_df(x$files, read_one_video)
