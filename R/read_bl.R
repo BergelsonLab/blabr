@@ -44,6 +44,7 @@ concat_month_bl <- function(input, output=NULL, type) {
   the_files <- collect_bl_files(input, type)
 
   read_one_video <- function(x) {
+    print(x)
     df <- readr::read_csv(x) %>% rename_video_header(.)
     df <- df[,video_cnames]
     tibble::add_column(df, id=rep(basename(x), times=length(df$object)))
@@ -58,6 +59,7 @@ concat_month_bl <- function(input, output=NULL, type) {
 
   read_all <- function(x) {
     if (type == "audio") {
+      print("read audio")
       purrr::map_df(x$files, read_one_audio)
     } else {
       purrr::map_df(x$files, read_one_video)
