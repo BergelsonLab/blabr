@@ -7,7 +7,7 @@ cdi_words =
     "deer",	"diaper",	"dinner",	"dish",	"doctor",	"dog",	"doll",	"donkey",	"donut",	"door",	"downtown",	"drawer",	"dress",	"drink",	"dryer",	"duck",
     "ear",	"egg",	"eggs",	"elephant",	"eye",
     "face",	"farm",	"finger",	"fireman",	"firetruck",	"fish",	"flag",	"flower",	"food",	"foot",	"fork",	"french+fries",	"french+fry",	"frog",
-    "game",	"garage",	"garbage",	"garden",	"gas station",	"giraffe",	"girl",	"glass",	"glasses",	"glove",	"gloves",	"glue",	"goose",	"grape",	"grapes",	"grass",	"green+bean",	"green+beans",	"gum",
+    "game",	"garage",	"garbage",	"garden",	"gas+station",	"giraffe",	"girl",	"glass",	"glasses",	"glove",	"gloves",	"glue",	"goose",	"grape",	"grapes",	"grass",	"green+bean",	"green+beans",	"gum",
     "hair",	"hamburger",	"hammer",	"hand",	"hat",	"head",	"helicopter",	"hen",	"high+chair",	"home",	"horse",	"hose",	"house",
     "ice",	"ice+cream",
     "jacket",	"jar",	"jeans",	"jello",	"jelly",	"juice",
