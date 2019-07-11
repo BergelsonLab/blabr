@@ -23,12 +23,12 @@ theme_blab <- function () {
       legend.background = element_rect(fill = "white"),
       legend.box.background = element_rect(colour = "black"),
       legend.key.size = unit(1.75, units = "picas"),
-      legend.text = element_text(margin = margin(l = 6)),
+      legend.text = element_text(margin = margin(l = 0)),
       legend.key = element_rect(fill="transparent", colour=NA),
       axis.text = element_text(colour = "black"),
       axis.title = element_text(size = 24),
-      panel.grid.major = element_line(colour = "grey90", size = .2),
-      panel.grid.minor = element_line(colour = "grey95", size = .1),
+      panel.grid.major = element_line(colour = "grey85", size = .3),
+      panel.grid.minor = element_line(colour = "grey92", size = .3),
       strip.background = element_rect(fill = "#440154"),
       strip.text = element_text(colour = "white", size = 18, margin = margin(t = 5, 0, b = 5, 0))
     )
