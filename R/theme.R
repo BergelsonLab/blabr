@@ -9,9 +9,10 @@ ifelse(Sys.info()['sysname'][[1]] == "Windows",
 extrafont::loadfonts(device = "pdf")
 library(tidyverse)
 
-df <- tibble(x = c("a", "a", "a", "a", "b", "b", "b", "b"),
-            y = c(1,2,3,4,3,4,5,6),
-            z = as_factor(c("This", "is", "the", "Best", "Plot", "you'll", "Ever", "see")))
+df <- tibble(TheQuickBrownFox = c("a", "a", "a", "a", "b", "b", "b", "b"),
+            JumpedOverTheLazyDog = c(1,2,3,4,3,4,5,6),
+            z = as_factor(c("This", "is", "the", "Best", "Plot", "you'll", "Ever", "see")),
+            facet = c("little","little","big","big","little","little","big","big"))
 
 theme_blab <- function () {
   theme_bw(base_size=18, base_family="Franklin Gothic Medium") %+replace%
@@ -19,23 +20,26 @@ theme_blab <- function () {
       panel.background  = element_rect(fill = "white"),
       panel.border = element_rect(fill = NA, colour = "black"),
       plot.background = element_rect(fill="transparent", colour=NA),
-      legend.background = element_blank(),
+      legend.background = element_rect(fill = "white"),
       legend.box.background = element_rect(colour = "black"),
+      legend.key.size = unit(1.75, units = "picas"),
+      legend.text = element_text(margin = margin(l = 6)),
       legend.key = element_rect(fill="transparent", colour=NA),
       axis.text = element_text(colour = "black"),
+      axis.title = element_text(size = 24),
       panel.grid.major = element_line(colour = "grey90", size = .2),
       panel.grid.minor = element_line(colour = "grey95", size = .1),
       strip.background = element_rect(fill = "#440154"),
-      strip.text = element_text(colour = "white", size = 14, margin = margin(t = 5, 0, b = 5, 0))
+      strip.text = element_text(colour = "white", size = 18, margin = margin(t = 5, 0, b = 5, 0))
     )
 }
 
-plot <- ggplot(df, aes(x = x, y = y, fill = z)) +
+plot <- ggplot(df, aes(x = TheQuickBrownFox, y = JumpedOverTheLazyDog, fill = z)) +
   stat_summary(geom = "bar", position = "dodge") +
-  ggtitle("I think we've arrived") +
   scale_fill_viridis(discrete = T) +
-  facet_grid(~x) +
-  theme_blab()
+  facet_grid(~facet) +
+  theme_blab() +
+  theme(legend.title = element_blank())
 plot
 ggsave(plot, filename = "plot.png", bg ="transparent")
 
