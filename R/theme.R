@@ -1,6 +1,5 @@
 library(viridis)
 library(extrafont)
-font_install(paths = "fonts/")
 font_import(paths = "fonts/", prompt = F)
 if(Sys.info()['sysname'][[1]] == "Windows") {loadfonts(device = "win")}
 loadfonts(device = "pdf")
