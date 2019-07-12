@@ -7,6 +7,11 @@ library(tidyverse)
 fonts()
 
 theme_blab <- function () {
+  library(extrafont)
+  font_import(paths = "fonts/", prompt = F)
+  if(Sys.info()['sysname'][[1]] == "Windows") {loadfonts(device = "win")}
+  loadfonts(device = "pdf")
+  loadfonts(device = "postscript")
   theme_bw(base_size=18, base_family="Franklin Gothic Medium") %+replace%
     theme(
       panel.background  = element_rect(fill = "white"),
