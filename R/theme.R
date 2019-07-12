@@ -1,8 +1,7 @@
 library(viridis)
 library(extrafont)
 font_import(paths = "fonts/", prompt = F)
-ifelse(Sys.info()['sysname'][[1]] == "Windows",
-       loadfonts(device = "win"), NULL)
+if(Sys.info()['sysname'][[1]] == "Windows") {loadfonts(device = "win")}
 loadfonts(device = "pdf")
 library(tidyverse)
 
