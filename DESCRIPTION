@@ -19,5 +19,7 @@ Imports:
   readr,
   tidyr,
   entropy,
-  irr
+  irr,
+  viridis,
+  extrafont
 RoxygenNote: 6.0.1
