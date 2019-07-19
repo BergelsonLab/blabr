@@ -1,13 +1,13 @@
-library(extrafont)
-font_import(paths = "fonts/", prompt = F)
-if(Sys.info()['sysname'][[1]] == "Windows") {loadfonts(device = "win")}
-loadfonts(device = "pdf")
-loadfonts(device = "postscript")
+# library(extrafont)
+# font_import(paths = "fonts/", prompt = F)
+# if(Sys.info()['sysname'][[1]] == "Windows") {loadfonts(device = "win")}
+# loadfonts(device = "pdf")
+# loadfonts(device = "postscript")
 library(tidyverse)
-fonts()
+# fonts()
 
 theme_blab <- function () {
-  theme_bw(base_size=18, base_family="Franklin Gothic Medium") %+replace%
+  theme_bw(base_size=18, base_family="") %+replace%
     theme(
       panel.background  = element_rect(fill = "white"),
       panel.border = element_rect(fill = NA, colour = "black"),
