@@ -23,7 +23,7 @@ theme_blab <- function () {
       legend.background = element_rect(fill = "white"),
       legend.box.background = element_rect(colour = "black"),
       legend.key.size = unit(1.75, units = "picas"),
-      legend.text = element_text(margin = margin(l = 0)),
+      legend.text = element_text(margin = margin(l = 3)),
       legend.key = element_rect(fill="transparent", colour=NA),
       axis.text = element_text(colour = "black"),
       axis.title = element_text(size = 24),
