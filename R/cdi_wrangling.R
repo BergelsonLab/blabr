@@ -8,9 +8,20 @@ cdi_get_words <- function(data, cdi_type = "wg") {
     dplyr::select(data, subject_id, completed, `baa baa`:then)
   }
 
-  ifelse(cdi_type == "WG" | cdi_type == "wg", dict <- system.file("extdata", "English_WG_dictionary.csv", package = "blabr"),
-         ifelse(cdi_type == "WS" |cdi_type == "ws", dict <- system.file("extdata", "English_WG_dictionary.csv", package = "blabr"),
-                stop("This function does not support that CDI type. Did you mean WS or WG?")))
+  dict <- if (cdi_type == "WG" | cdi_type == "wg") {
+    system.file("extdata", "English_WG_dictionary.csv", package ="blabr")
+  }
+  else {
+    if (cdi_type == "WS" |cdi_type == "ws") {
+      system.file("extdata", "English_WS_dictionary.csv", package = "blabr")
+    }
+    else {
+      stop("This function does not support that CDI type. Did you mean WS or WG?")
+    }
+  }
+  # ifelse(cdi_type == "WG" | cdi_type == "wg", dict <- system.file("extdata", "English_WG_dictionary.csv", package = "blabr"),
+  #        ifelse(cdi_type == "WS" |cdi_type == "ws", dict <- system.file("extdata", "English_WG_dictionary.csv", package = "blabr"),
+  #               stop("This function does not support that CDI type. Did you mean WS or WG?")))
 
   dict <- dict %>%
     filter(item_type == "word")
@@ -64,5 +75,6 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
       rename(CDIprod = produces)
   }
   return(data)
-
 }
+
+cdi_get_words(my_dat)
