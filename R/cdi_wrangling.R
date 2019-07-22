@@ -8,8 +8,8 @@ cdi_get_words <- function(data, cdi_type = "wg") {
     dplyr::select(data, subject_id, completed, `baa baa`:then)
   }
 
-  ifelse(cdi_type == "WG" | cdi_type == "wg", dict <- read_csv("CDI_dict/English_WG_dictionary.csv"),
-         ifelse(cdi_type == "WS" |cdi_type == "ws", dict <- read_csv("CDI_dict/English_WS_dictionary.csv"),
+  ifelse(cdi_type == "WG" | cdi_type == "wg", dict <- read_csv("../CDI_dict/English_WG_dictionary.csv"),
+         ifelse(cdi_type == "WS" |cdi_type == "ws", dict <- read_csv("../CDI_dict/English_WS_dictionary.csv"),
                 stop("This function does not support that CDI type. Did you mean WS or WG?")))
 
   dict <- dict %>%
@@ -22,12 +22,6 @@ cdi_get_words <- function(data, cdi_type = "wg") {
 
   return(data)
 }
-
-CDI_scores <- read_csv("test_data/test_cdi_ws.csv")
-
-
-attempt <- cdi_get_words(CDI_scores, cdi_type = "WS")
-data <- attempt
 
 get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
 
@@ -72,5 +66,3 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
   return(data)
 
 }
-
-attempt2 <- get_vocab_score(attempt, cdi_type = "WS", remove_incomplete = F)
