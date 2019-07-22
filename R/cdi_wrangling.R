@@ -77,4 +77,3 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
   return(data)
 }
 
-cdi_get_words(my_dat)
