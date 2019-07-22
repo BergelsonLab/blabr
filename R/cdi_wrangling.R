@@ -1,18 +1,14 @@
 library(tidyverse)
 
-data <- read_csv("test_data/test_cdi_data.csv") %>%
-  dplyr::select(subject_id, completed, item_1:item_680)
+CDI_scores <- read_csv("test_data/test_cdi_data.csv")
 
-cdi_type = "WS"
+rename_cdi_cols <- function(data, cdi_type = "wg") {
 
-#rename_cdi_cols <- function(data, cdi_type = "wg") {
-
-
-ifelse(cdi_type == "wg" | cdi_type == "WG",
-       dplyr::select(data, subject_id, completed, item_34:item_429),
-       ifelse(cdi_type == "WS" |cdi_type == "ws",
-              dplyr::select(data, subject_id, completed, item_1:item_680),
-              stop()))
+  data <- if (cdi_type == "wg" | cdi_type == "WG") {
+    dplyr::select(data, subject_id, completed, item_34:item_429)
+  } else {
+    dplyr::select(data, subject_id, completed, item_1:item_680)
+  }
 
   ifelse(cdi_type == "WG" | cdi_type == "wg", dict <- read_csv("CDI_dict/English_WG_dictionary.csv"),
          ifelse(cdi_type == "WS" |cdi_type == "ws", dict <- read_csv("CDI_dict/English_WS_dictionary.csv"),
@@ -26,8 +22,8 @@ ifelse(cdi_type == "wg" | cdi_type == "WG",
 
   names(data) <- as.character(new_names)
 
-#  return(data)
-#}
+  return(data)
+}
 
 attempt <- rename_cdi_cols(CDI_scores, cdi_type = "ws")
 
