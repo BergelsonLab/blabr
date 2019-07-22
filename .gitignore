@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-*.csv
 *.txt
 *.feather
 *.DS_Store
