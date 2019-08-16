@@ -412,3 +412,191 @@ RemoveFrozenTrials <- function(gazeData,
 #   timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
 #   data.frame(timeBin=timeBin,FixationID=d$FixationID)
 # }
+
+#################################################################################
+
+getTrialRT = function(gt, delay_ms, metadata_cols, buffer_ms=200, include_non_roi_label=T){
+
+    # Get the response time for a trial if the participant is looking somewhere other than the target at the time they hear the disambiguating signal
+
+    # Arguments
+    # `gt`: gaze trials: a subset of a fixation report dataframe corresponding to a single trial
+    # `delay_ms`: duration in ms before a fixation could reflect the disambiguating cue    
+    # `metadata_cols`: trial-level metadata columns to pass through to the yielded trial-level RT records
+    # `buffer_ms`: how far back, in ms, should this function look for non-NA fixations?
+    # `include_non_roi_label`: should RTs be calculated for trials where the participant is not looking at an ROI ("."), equivalent to if they were looking at a distractor. True = treat like a disctractor and compute RT; False = treat like a target and return NA
+
+    # Returns:
+    # A dataframe with a single row representing a trial. includes:
+        # `rt`: response time
+        # `time_to_last_nonna`: how long (in ms) since previous non-NA trial? Defined iff 0 time is NA but there's another fixation less than buffer_ms previous    
+        # `track_loss_at_0`: was the fixation at delay_ms originally NA? (before attempting recovery)
+        # [...] all metadadata columns specified by metadata_cols
+
+
+    fix_before_disambig = subset(gt, CURRENT_FIX_START < delay_ms)
+    last_fix = fix_before_disambig[order(
+        fix_before_disambig$CURRENT_FIX_INDEX, decreasing = T),][1,]
+
+    
+    if (!is.na(last_fix$CURRENT_FIX_INTEREST_AREA_LABEL)){
+        # use the identity at time 0
+        time_to_last_nonna = NA
+        track_loss_at_0 = F        
+    } else {
+        # there's track loss at time 0, so use this recovery rule. Recovery is parameterized by how far back to look for a non-NA fixation; up to buffer_ms
+        track_loss_at_0 = T        
+        non_na_fix_before_disambig = subset(gt, CURRENT_FIX_START < delay_ms & CURRENT_FIX_INTEREST_AREA_LABEL 
+                            %in% c("TARGET","DISTRACTOR"))        
+        
+        non_na_fix_before_disambig = non_na_fix_before_disambig[order(non_na_fix_before_disambig$CURRENT_FIX_INDEX, decreasing=T),]
+
+        last_fix = non_na_fix_before_disambig[1,]
+        diff = (delay_ms - last_fix$CURRENT_FIX_END) 
+        # current_fix_end will be smaller than delay_ms
+        if (diff < buffer_ms){ 
+            time_to_last_nonna = diff
+        }  else {
+            time_to_last_nonna = NA
+        } 
+    }
+
+    
+    if (last_fix$CURRENT_FIX_INTEREST_AREA_LABEL == 'DISTRACTOR'){
+        # fixated on the distractor at last fixation, compute RT
+        first_to_target_ms = subset(gt, CURRENT_FIX_START > delay_ms & 
+               CURRENT_FIX_INTEREST_AREA_LABEL == 'TARGET')[1,]$CURRENT_FIX_START
+        # this is wrt 0, so no calculation
+    
+    } else if (last_fix$CURRENT_FIX_INTEREST_AREA_LABEL == 'TARGET'){
+        # looking at the target at last fixation, RT is NA
+        first_to_target_ms = NA # particiapnt was already looking at the target at disambig; can't use
+        
+    } else if (last_fix$CURRENT_FIX_INTEREST_AREA_LABEL == "."){
+        # fixated outside an ROI at time 0; unreliable saccade time
+        if (include_non_roi_label){
+            first_to_target_ms = subset(gt, CURRENT_FIX_START > delay_ms & 
+               CURRENT_FIX_INTEREST_AREA_LABEL == 'TARGET')[1,]$CURRENT_FIX_START
+        } else {
+            first_to_target_ms = NA 
+        }    
+
+    } else {
+        stop('Fixation label at time 0 not recognized')
+    }
+
+    rdf = data.frame(rt = first_to_target_ms, time_to_last_nonna=time_to_last_nonna, track_loss_at_0 = track_loss_at_0)
+    for (metadata_col in metadata_cols){ 
+        #propagate the metadata from the fixation report to the trial record
+        rdf[[metadata_col]] = gt[1,metadata_col]
+    }
+    return(rdf)
+}
+
+#################################################################################
+
+getParticipantRTs = function(delay_ms, fixreport,
+    metadata_cols, buffer_ms=200, include_non_roi_label=T){
+
+    # Get RT for each trial in a fixation report (Wrapper function for `getTrialRT`). If you want to add gaze-contingent information to a fixbin dataframe, see the function `augmentFixbinsWithFixationAtOnset`
+
+
+    # Arguments
+    #  `delay_ms`: duration in ms before a fixation could reflect the disambiguating cue
+    # `fixreport`: dataframe fixation report. 
+        # CURRENT_FIX_START and CURRENT_FIX_END **must** already be adjusted before running this function so that they are 0-referenced: start of disambiguating region is 0 ms for each trial. How this is achieved may vary across studies.
+    # `metadata_cols`: trial-level metadata columns to pass through to the yielded trial-level RT records
+    # `buffer_ms`: how far back, in ms, should this function look for non-NA fixations?
+    # `include_non_roi_label`: should RTs be calculated for trials where the participant is not looking at an ROI ("."), equivalent to if they were looking at a distractor. True = treat like a disctractor and compute RT; False = treat like a target and return NA
+
+    # Returns:
+    # A dataframe where each record is a trial. includes:
+    # `rt`: response time
+        # `time_to_last_nonna`: how long (in ms) since previous non-NA trial? Defined iff 0 time is NA but there's another fixation less than buffer_ms previous    
+        # `track_loss_at_0`: was the fixation at delay_ms originally NA? (before attempting recovery)
+        # [...] all metadadata columns specified by metadata_cols
+
+    gaze_trials = split(fixreport, fixreport$TRIAL_INDEX)
+    participant_df = do.call('rbind', lapply(gaze_trials, function(x){
+        getTrialRT(x, delay_ms, metadata_cols)
+    }))        
+    return(participant_df)    
+}
+
+#################################################################################
+
+augmentFixbinsWithFixationAtOnset = function(delay_ms, fixbins, buffer_ms=200){
+
+    # Arguments
+    #  `delay_ms`: duration in ms before a fixation could reflect the disambiguating cue
+    # `fixbins`: dataframe with fixbins for a participant 
+        # timeBins **must** already be adjusted before running this function so that they are 0-referenced: start of disambiguating region is 0 ms for each trial. How this is achieved may vary across studies.    
+    # `buffer_ms`: how far back, in ms, should this function look for non-NA fixations?
+    
+
+    # Returns
+    # fixbins with additional columns:
+    # label_at_onset = {"DISTRACTOR", "TARGET", ".", NA}
+    # time_to_last_nonna = int, how far back the function had to go to find a non-NA bin
+    # `track_loss_at_0`: was the fixation bin at delay_ms originally NA? (before attempting recovery)
+
+    fixbins_by_trial = split(fixbins, fixbins$TRIAL_INDEX)
+    participant_fixbins = do.call('rbind', lapply(fixbins_by_trial, function(x){
+        augmentTrialWithFixationAtOnset(delay_ms, x,buffer_ms)
+    }))        
+    return(participant_fixbins)    
+}   
+
+#################################################################################
+
+augmentTrialWithFixationAtOnset = function(delay_ms, trial_fixbins, buffer_ms=200){
+
+    # Arguments
+    #  `delay_ms`: duration in ms before a fixation could reflect the disambiguating cue
+    # `trial_fixbins`: dataframe with fixbins for a specific trial
+        # timeBins **must** already be adjusted before running this function so that they are 0-referenced: start of disambiguating region is 0 ms for each trial. How this is achieved may vary across studies.    
+    # `buffer_ms`: how far back, in ms, should this function look for non-NA fixations?
+    
+
+    # Returns
+    # fixbins with additional columns:
+    # label_at_onset = {"DISTRACTOR", "TARGET", ".", NA}
+    # time_to_last_nonna = int, how far back the function had to go to find a non-NA bin
+    # `track_loss_at_0`: was the fixation bin at delay_ms originally NA? (before attempting recovery)
+
+    # order by timeBin, increasing        
+    trial_fixbins = trial_fixbins[order(trial_fixbins$timeBin),]
+
+
+    fix_before_disambig = subset(trial_fixbins, timeBin < delay_ms)
+    last_fixbin = fix_before_disambig[order(
+        fix_before_disambig$timeBin, decreasing = T),][1,]
+
+    
+    if (!is.na(last_fixbin$CURRENT_FIX_INTEREST_AREA_LABEL)){
+        # use the ROI label at time 0
+        time_to_last_nonna = NA
+        track_loss_at_0 = F        
+    } else {
+        # there's track loss at time 0, so use this recovery rule. Recovery is parameterized by how far back to look for a non-NA fixbin; up to buffer_ms
+        track_loss_at_0 = T        
+        non_na_fixbin_before_disambig = subset(trial_fixbins, timeBin < delay_ms & CURRENT_FIX_INTEREST_AREA_LABEL 
+                            %in% c("TARGET","DISTRACTOR"))        
+        non_na_fix_before_disambig = non_na_fix_before_disambig[order(non_na_fix_before_disambig$timeBin, decreasing=T),]
+        last_fixbin = non_na_fixbin_before_disambig[1,]
+        diff = (delay_ms - last_fixbin$CURRENT_FIX_END) 
+        # current_fix_end will be smaller than delay_ms
+        if (diff < buffer_ms){ 
+            time_to_last_nonna = diff
+        }  else {
+            time_to_last_nonna = NA
+        } 
+    }
+    
+    # augment trial_fixbins with the values
+    trial_fixbins$label_at_onset = last_fixbin$CURRENT_FIX_INTEREST_AREA_LABEL
+    trial_fixbins$time_to_last_nonna = time_to_last_nonna
+    trial_fixbins$track_loss_at_0 = track_loss_at_0
+
+    return(trial_fixbins)
+}
