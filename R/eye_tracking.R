@@ -162,7 +162,7 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 
 
 get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time = 2000, med_window_time = 3500, long_window_time = 5000){
-  # TODO what is that 18 number, where is it coming from?
+  # TODO what is that 18 number, where is it coming from? eb: 18 is closest 20ms bin to 367 i.e. magic window onset from fernald et al
   short_window_lim = short_window_time/bin_size
   med_window_lim = med_window_time/bin_size
   long_window_lim = long_window_time/bin_size
@@ -185,7 +185,7 @@ get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time
                                      timeBin <= ((TargetOnset/bin_size)+short_window_lim)),"Y","N")),# this is a 367-2s window bc 2000/20 = 100
          whichwin_short = factor(ifelse(prewin=="Y","pre",
                                         ifelse(longwin=="Y","short","neither")))) %>%
-    select(-lowest, -short_max, -med_max, -long_max)
+    dplyr::select(-lowest, -short_max, -med_max, -long_max)
 
   exclude
 }
