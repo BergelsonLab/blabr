@@ -1,0 +1,4 @@
+name: Eyetracking Dataprep Template
+description: >
+   This walks you through how we tend to clean a set of eyetracking data for analysis
+create_dir: FALSE

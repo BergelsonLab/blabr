@@ -1,0 +1,489 @@
+---
+title: "Template Title"
+author: "Your Name"
+date: "last knit `r format(Sys.time())`"
+output:
+  html_document: default
+  pdf_document: 
+    latex_engine: xelatex
+---
+
+# Data Prep for Eyetracking
+
+<!-- Use this template to prep your eyetracking data. 
+* Delete the comments you don't need (but leave the useful ones that will explain to later you what something i!) 
+* fill in our actual study info where relevant -->
+
+## Study Name Goes Here
+<!-- Put a little info here: 
+What study is it? When was it run? What age kids? Other details? -->
+
+What we need for this 
+
+- the message report (if you had key presses and in some other specific cases)
+- the fixation report from dataview (eyetracker output)
+
+running this file in its entirety will produce the BINNED file
+
+Suggested directory structure/settings (assumed below): 
+
+* your study is an Rproject in your github folder with the subfolders:
+  + data with subfolder called 'eyetracking'
+  + data_prep [your file made from this template should live in here!]
+  + data_analysis
+  + paper
+* you have your knit directory set to 'project directory' 
+(click little triangle next to 'knit' above to chang this)
+See https://github.com/BergelsonLab/yoursmy for an example
+
+**Note:** general approach below: read the notes, uncomment the code
+edit as needed, run bit by bit. 
+
+## Loading Libraries ----------------------------------------------
+
+```{r load_libraries}
+#notes: if you don't have these installed, uncomment  the next 3 lines
+# install.packages(c("devtools","tidyverse","readxl","forcats", "skimr"),
+#                  repos = "http://cran.us.r-project.org")
+# devtools::install_github("BergelsonLab/blabr")
+
+library(devtools)
+library(tidyverse)
+library(readxl)
+library(forcats)
+library(blabr)
+library(skimr)
+
+
+options(tibble.width = Inf)
+options(dplyr.width = 100)
+
+```
+
+Change the following to TRUE if you want to generate the result output files for
+all the functions below (but not the chunk at the very bottom of this rmd)
+```{r outputfile_generation}
+
+generate_output_file = FALSE
+
+```
+
+## Loading data ----------------------------------------------
+
+Loading fixations report: 
+
+* do a find and replace all for 'study name' with...your study name.
+* uncomment the line below and put your file path and study name there!
+
+```{r load_data}
+
+# studyname <- fixations_report("data/eyetracking/studyname_fixrep_filename.xls") 
+# if you had and want to keep practice trials, use remove_practice=FALSE
+
+```
+
+Get an idea of what is in the data we just loaded
+
+Careful, these are quite big
+uncomment the next set of lines and look CAREFULLY at the output here. 
+
+* are there any NAs? why? 
+* is the range of values for EACH variable right? 
+
+look into it! 
+
+```{r preview_main, eval=FALSE}
+
+# summary(studyname)
+# glimpse(studyname)
+# skim(studyname)
+# colnames(studyname)
+```
+
+Convert fixations data into 20ms bins 
+
+Each dataset is a little different, below you'll want to flag which columns
+you want to keep, and what each of them is. Some of them may be the same as below,
+but some may not! 
+Uncomment and edit the block below as appropriate
+
+**Note:** There's often nested commenting for code blocks, your pobably  want to uncomment
+the whole chunk,  but leave the comments on the code that were double commented
+```{r binify}
+
+
+# studyname_bin <- binifyFixations(studyname, 
+#                     keepCols=c("RECORDING_SESSION_LABEL",#subject number
+# "CURRENT_FIX_INTEREST_AREA_LABEL",#TARGET or DISTRACTOR
+# "CURRENT_FIX_X", #actual x coordinate
+# "CURRENT_FIX_Y", #actual y coordinate
+# "TRIAL_INDEX",#5-36
+# "RT",#from images showing up to target onset
+# "TRIAL_START_TIME",
+# "AudioTarget",#name of sound file, e.g. where_diaper.wav
+# "Carrier",#can, do, look, where
+# "DistractorImage","TargetImage", # image file name e.g. apple.jpg
+# "DistractorLoc","TargetLoc", 
+# #location of target and distractor [320,512] or [960,512] for the test trials
+# "Pair",
+# "TargetSide","Trial","TrialType")) #L or R, 1-32, between or within
+# #note: Trial is 1-32; TRIAL_INDEX (later renamed TrialCountingPractice; 5-36 bc
+# #practice trials)
+```
+
+
+Look at binified data
+
+```{r preview_binified}
+#dim(studyname_bin) # put the dimensions here; useful for debugging!
+```
+
+## Key press issues
+If your study didn't have an experimenter pressing a key, you can cut this whole section!
+
+### Writing out keypressissues, reading in retrieved_keypress ---------------
+There are often a handful of trials with a keypress issue
+I.e. these trials have no log of experimenter pressing button when target word started
+ this could be bc parent didn't say target word, or experimenter error 
+(mistake or bc baby screaming, etc.)
+Uncomment below and look at the result!
+
+```{r keypress_issues}
+
+#keypressissues_studyname <- keypress_issues(studyname_bin, study="studyname", out_csv=generate_output_file, output_dir="data/eyetracking/manual_trial_checks/")
+#keypressissues_studyname
+```
+
+once it's been fixed, the line below will read in the fixed times when uncommented
+
+and then we can fix them with the retrieved times
+
+```{r fix_kp_issues}
+
+#ret_kp_studyname <- keypress_retrieved("data/eyetracking/manual_trial_checks/retrieved_keypress_studyname.xlsx")
+
+# N.B.: ret_kp_studyname tells us how many trials had a missing press 
+#nrow(ret_kp_studyname)
+
+#& how many were fixed offlne
+#filter(ret_kp_studyname, outcome=="FIX")
+```
+
+
+### mesrep read in, cleanup, filter, merge with keypress -------------------
+ if your dataset doesn't have the parent saying the sentence, you may not need
+the msg rep at all
+```{r load_preview_message_report}
+
+#studyname_mesrep_all <- load_tsv("data/eyetracking/studyname_mesrep_filename.xls")
+#summary(studyname_mesrep_all)
+```
+
+we generally  just need the button press column and time, trial, and subj (called "EL_BUTTON_CRIT_WORD" in the mesrep, unless you renamed it)
+
+```{r message_report}
+
+#studyname_mesrep <- get_mesrep(studyname_mesrep_all, ret_kp_studyname)
+
+
+```
+
+
+
+### latetargetonset: write out, read in checked_lt -----------------------------
+
+
+Now we have to double check the outlier really late keypress times (i.e. target onset times):
+The default for this function is set to a conservative 6s
+Visual inspection confirms this, so we double check those over 6s
+How many are there?
+
+```{r plot_select_outliers}
+# qplot(studyname_mesrep$CURRENT_MSG_TIME)
+# 
+# latetargetonset_studyname <- get_late_target_onset(studyname_mesrep, 
+#                             out_csv = generate_output_file,
+#                             output_dir="data/eyetracking/manual_trial_checks/")
+# # FYI this is usually slightly more conservative than using 3sds:
+# mean(studyname_mesrep$CURRENT_MSG_TIME, na.rm=T)+
+#   3*sd(studyname_mesrep$CURRENT_MSG_TIME, na.rm=T)
+# # (they're basically never shorter than 3sd)
+# val_lessthan3<- mean(studyname_mesrep$CURRENT_MSG_TIME, na.rm=T) -
+#   3*sd(studyname_mesrep$CURRENT_MSG_TIME, na.rm=T)
+# 
+# filter(studyname_mesrep, CURRENT_MSG_TIME< val_lessthan3)
+# 
+# #This pulls out needed trials for checking against the video footage
+# nrow(latetargetonset_studyname)
+```
+
+and then once fixed we read in the updated excel version.
+Looking at the videos of the study will reveal whether the keypress was correctly late,
+or experimenter error. The latter we're able to fix from the video and message report, if we have the video.
+
+**The code below needs to be individualized for your col names, be thorough!**
+```{r updated_message_report}
+# checked_lt_studyname <- late_target_retrieved("data/eyetracking/manual_trial_checks/checked_latetargetonset_studyname.xlsx")
+
+# studyname_mesrep <- studyname_mesrep_all %>%
+#   mutate(Trial=as.numeric(Trial)) %>% # fyi this turns p1:p4 (practice) to NA
+#   filter(CURRENT_MSG_TEXT=="PLAY_POP") %>%
+#   dplyr::select(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, RT, 
+#                 AudioTarget, CURRENT_MSG_TIME) %>%
+#   inner_join(checked_lt_studyname %>% filter(outcome=="FIX")) %>%
+#   dplyr::rename(PLAY_POP=CURRENT_MSG_TIME) %>%
+#   mutate(CURRENT_MSG_TIME_test = PLAY_POP+ms_diff) %>%
+#   dplyr::select(RECORDING_SESSION_LABEL, CURRENT_MSG_TIME_test, 
+#                 TRIAL_INDEX, AudioTarget, Trial) %>%
+#   right_join(studyname_mesrep) %>%
+#   mutate(CURRENT_MSG_TIME = ifelse(!is.na(CURRENT_MSG_TIME_test), 
+#                                    CURRENT_MSG_TIME_test, CURRENT_MSG_TIME),
+#          Trial= as.character(Trial)) 
+# # brings back p1:p4 from the join if you have it
+
+
+# metanote: should turn the above into a function
+```
+
+**Note:** CURRENT_MSG_TIME_test that's not NA is a sign that late keypress was fixed
+
+
+### merging fix/mes  ----------------------------------
+
+Overview of the data
+
+```{r preview_bin_mesrep, eval=FALSE}
+# summary(studyname_bin)
+# dim(studyname_mesrep)
+# summary(studyname_mesrep)
+```
+
+now we can merge the message report file with the fixation report file so we 
+get the target onset times, 
+merging binned fixation data and message report, and rename a few columns
+
+* your column names may differ--check and rename after uncommenting!
+```{r merge_bin_mes}
+# studyname_fix_mes_clean_1 <- left_join(studyname_bin, studyname_mesrep) %>% 
+#   dplyr::rename(SubjectNumber = RECORDING_SESSION_LABEL, 
+#                 TargetOnset = CURRENT_MSG_TIME, 
+#                 gaze = CURRENT_FIX_INTEREST_AREA_LABEL,
+#                 TrialCountingPractice = TRIAL_INDEX)
+# 
+# studyname_fix_mes_clean <- studyname_fix_mes_clean_1 %>%
+#   # filter no press trials,
+#   filter(!is.na(TargetOnset)) %>% 
+#   # divide pairs in two columns
+#   # create a column for the stitem of pair and a second column for the 2nd item 
+
+#   separate(Pair, c("first","second"), sep = "_", remove = F, extra="drop")%>% 
+#   mutate(gaze = fct_recode(gaze, NULL = "."), # gaze becomes a factor
+#          # make the gaze variable into a binary 1,0 for proportions later)
+#       propt = ifelse(gaze == "TARGET", 1, ifelse(gaze == "DISTRACTOR", 0, NA)),
+#          # remove the .jpg from the TargetImage
+#      targetnum = as.factor(gsub(".jpg", "", TargetImage)),
+#          #remove the .jpg from the TargetImage and the number (e.g. bottle3)
+#      target = as.factor(gsub("\\d+", "", targetnum)),
+#          #is the target the first or second image
+#      num = factor(ifelse(as.character(second) == as.character(target), "two", "one")),
+
+#          Trial = as.numeric(Trial),
+#          RT = as.numeric(RT)
+#   ) %>%
+#   # all (and only) character columns as factors
+#   characters_to_factors()
+```
+
+**Note:** if you skipped the section above due to no keypress, you probably still want to rename some
+columns, make sure things are the right type (numeric, factor, character) etc.
+
+**Note2:** below, the dataframe is now called studyname_fix_mes_clean. Rename yours as needed
+if you didn't have to do the key press stuff
+~~~~~~~~~~~~~~~~~~~~~~~~~~  
+
+## THIS PART FOR EVERY STUDY IS PAINFUL AND NECESSARY!!! LOOK AT ALL DATA VERY CAREFULLY!!!
+
+spend time summarizing & glimpsing & probing & grouping your eyetracking data tibble.
+
+* does everything have the levels it should? 
+* are there NAs that are unexpected? 
+* are there data in the wrong possible values? 
+* check run-time study notes on eyetracking computer for any anomalies! 
+
+## Fix Misnamed subjects, false starts, and known errors ----------------------
+Sometimes when running subjects experimenters accidentally name the files wrong,
+with extra digits, typos, etc. or computer barfs and needs restarted, etc.
+
+```{r check_subject_names, warning=FALSE}
+
+#unique(studyname_fix_mes_clean$SubjectNumber)
+```
+
+Which subjects have clear errors in naming? 
+**list those Ss here:** 
+
+* wrongname1 
+* wrongname2 
+
+Do the notes say any file should be fully dropped bc of experimenter error or other reasons? 
+e.g. "s16 was just the warmup trials and then experiment cashed; s162 is the right file for that baby"
+
+Any other weird anomalies you found? Errors in the data source? Notes you need to act on?
+**list those  here** and fix by adding code below!
+
+
+```{r pre_data_exclusion}
+#sample code for fully removing or renaming files; your will depend on your subject names of course
+# studyname_test_preexclude_fixes <- studyname_fix_mes_clean %>% # 
+#   filter(SubjectNumber!="y16") %>% 
+#   mutate(SubjectNumber = fct_recode(SubjectNumber,
+#                                      "y16"= "y162",
+#                                      "y18"= "y018",
+#                                     "y17" = "y017"))
+
+```
+
+
+now we're actually making new columns for noun onset, & our windows of interest       
+
+```{r window_interest}
+#n.b. the function automatically makes the most common 3 wins the lab uses, 
+#367-200,3500,5000
+
+# this will usually have been preregistered unless study is more exploratory
+#studyname_test_preexclude <- get_windows(studyname_test_preexclude_fixes, 
+#                                       bin_size = 20, 
+#                                       nb_1 = 18, 
+#                                       short_window_time = 2000)
+```
+
+
+## DATA Exclusion Processing ---------------------
+## removing low data----------------
+
+time: 2000
+time_bin: 20
+time before reaction can be linked to cue: 367
+
+explaining the math in the FindLowData function, which tags trials with data from less than 1/3 of the window of analysis (assumes 20ms bins) 
+
+*  e.g.: shortwin (e.g. Swingley & Aslin 367-2000ms window) 
+(2000-367)/20 = 82 max bins, and 1/3 of that has to be there so 
+(1/3) * (2000-367) = 1540 has to be there, 
+(2000-367) - ((1/3) * (2000-367)) & 1089 can be missing 
+
+```{r data_exclusion}
+# studyname_test_taglowdata <-studyname_test_preexclude %>% 
+#   FindLowData(gazeData = ., "shortwin", nb_2 = 367) %>%
+#   dplyr::rename('lowdata_short' = 'missing_TF')
+# 
+# summary(studyname_test_taglowdata)
+```
+
+First we want to take a simple look at how many data rows there are for each Ss,
+how many data rows where they're looking at T or D, and a graph of this.
+This doesn't take into account the lowdata we just tagged just yet
+
+**Note:** if your columns names are different, you may need to adjust code below
+
+```{r find_data_to_exclude}
+# data_rows <- studyname_test_taglowdata %>% 
+#   group_by(SubjectNumber) %>% 
+#   tally() %>% 
+#   arrange(-n)
+# 
+# td_rows <- studyname_test_taglowdata %>% 
+#   group_by(SubjectNumber) %>% 
+#   filter(gaze %in% c("DISTRACTOR", "TARGET")) %>% 
+#   tally() %>% 
+#   arrange(-n) %>% 
+#   rename(td_n = n)
+# coarse_data_quantity_SS <- td_rows %>% 
+#   left_join(data_rows) %>% 
+#   mutate(prop_td = td_n/n,
+#          prop_n_overmax_data = n/(max(n)),
+#          prop_td_overmax_td = td_n/(max(td_n)))
+# 
+# ggplot(studyname_test_taglowdata, aes(CURRENT_FIX_X, CURRENT_FIX_Y, 
+#                                       color = gaze))+
+#   geom_point(shape=1)+facet_wrap(~SubjectNumber)
+
+```
+
+from this it will be clear if
+
+* you got essentially no data from a subject, **list those Ss here:**
+
+* Which Ss contributed not that much data overall. 
+ **list those Ss here:**
+
+But you can't tell yet if they were perfect for the trials they did do!
+Now we look at this based on how many trials Ss had with looking in at least
+1/3 of the window of interest
+
+**Note:** your max_trial_num may not be 32! change as needed! 
+(make sure you're considering practice trials or lack there ofproperly in your numbering of Trial, etc)
+```{r subject_level_excludes}
+# Ss_stopped_early <- studyname_test_taglowdata %>% 
+#   group_by(SubjectNumber) %>% 
+#   summarise(max_trial_num=max(Trial)) %>% 
+#   filter(max_trial_num<32)
+# 
+# #if more than half low_data, child excluded
+# #nb the reason to get rid of the NAs is that if there was NO gaze in a bin, it's
+# #NA, e.g. looked totally off screen from 150ms to 3000ms after target onset would
+# # have NA for lowdata_short
+# excluded_short <- studyname_test_taglowdata %>%
+#   filter(lowdata_short == T | is.na(lowdata_short)) %>%
+#   dplyr::select(SubjectNumber, Trial) %>%
+#   group_by(SubjectNumber, Trial) %>%
+#   dplyr::summarize() %>%
+#   dplyr::count() %>%
+#   dplyr::filter(n>=16)
+
+
+```
+
+Which Ss are out based on <50% of trials
+with at least 1/3 of the window of data?
+ **list those Ss here:**
+
+### Compare to Participant Tracking Notes
+
+**put a copy of your participant_tracking.xlsx spreadsheet in your data folder!** 
+
+(you may need to generate this xlsx from the shared googledoc) 
+
+
+Usually, we get lots of overlap with who the notes says is was fussy/unusable and who the data said was fussy/unusable
+**list the subjects** the participant_tracking said are 'N/maybe' for 'usable' here, &  why e.g. 
+
+* #y11	|N	|Poor calib, no valid, squirmy 
+* #y12	|Maybe	|fussy, poor track. Headphones weren't on mom for trial 5 
+* #y19	|Maybe	|Terrible calib, no valid, very fussy but did settle once experiment got going 
+* #y21	|Maybe	|lots of tears, which made it hard to track her. Good calib and valid but she was crying through most of it. 
+* #y28	|Maybe	|bad track. Eye tracker needed to be restarted and she had to wait. No calib/valid  because she wouldn't look at the dots. Lots of leaning back and forth. 
+
+
+### Inconsistencies: which children did the data-driven process flag, but the notes didn't, or vice versa? 
+**list them here, along with your decisin and rational** e.g. 
+
+* y20 has low data but notes were less conclusive **REMOVING** 
+  + #y20	|Y	|Perfect calib and valid, wiggly and did not want to look at screen, Repeat 18,19, 34, 35
+* y28 in notes but not in list of low data ***LEAVING IN*** 
+
+Doing this painful process here lets you establish and write the 'exclude' part of your methods BEFORE you've looked at your results
+
+```{r remove_lowdata_Ss}
+# studyname_test <- studyname_test_taglowdata %>% 
+#   filter(!SubjectNumber %in% excluded_short$SubjectNumber)
+
+```
+
+# Uncomment below to Save the data!
+
+```{r save}
+# summary(studyname_test)
+# saveRDS(studyname_test, file = "data/eyetracking/studyname_test.Rds")
+# saveRDS(studyname_test_taglowdata, file = "data/eyetracking/studyname_test_taglowdata.Rds")
+```
