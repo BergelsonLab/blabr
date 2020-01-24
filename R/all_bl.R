@@ -1,19 +1,7 @@
 library(entropy)
 
-basic_level_tested_words <- c("baby","babe","baby+doll", "ball","bally",
-                              "blanket","blankey","blanky", "book","books",
-                              "bottle","baba","ba", "car", "car+car","diaper",
-                              "diape","diapey","diapers","diatee","didey","diadey",
-                              "foot","footsy","footy","feet","feetsie","footsie",
-                              "feetsy","feety", "hair","hairs", "hand", "juice",
-                              "juices","juice+box","juice+boxes","juicey",
-                              "milk","milkies","milky","milk+water","milk+jug",
-                              "milks", "mouth", "nose","nosey", "spoon","spoony",
-                              "stroller")
-
-
 add_chi_noun_onset <- function(x) {
-  x%>%
+  x %>%
     dplyr::filter(speaker == "CHI")%>%
     dplyr::group_by(subj)%>%
     summarise(noun_chi_onset = min(as.numeric(as.character(month))))%>%
@@ -22,15 +10,6 @@ add_chi_noun_onset <- function(x) {
 
 malformed_speaker_codes <- function(x) {
   x %>% dplyr::filter(nchar(as.character(speaker))!=3)
-}
-
-
-count_experimentwords <- function(x) {
-  x %>%
-    dplyr::filter(basic_level %in% basic_level_tested_words) %>%
-    dplyr::group_by(subj, month, audio_video) %>%
-    summarise(num_exp_tokens = n(),
-              num_exp_types = n_distinct(basic_level))
 }
 
 count_mot_fat <- function(x) {
@@ -59,18 +38,6 @@ count_object_present <- function(x) {
     dplyr::mutate(prop_op = y/(n+y))%>%
     dplyr::rename(y_op = y,
            n_op = n)
-}
-
-object_present_exp <- function(x) {
-  x %>%
-    dplyr::filter(basic_level %in% basic_level_tested_words &
-           object_present %in% c("n","y"))%>%
-    dplyr::group_by(subj, month, audio_video, object_present)%>%
-    dplyr::tally()%>%
-    tidyr::spread(object_present, n)%>%
-    dplyr::mutate(prop_op_exp = y/(n+y))%>%
-    dplyr::rename(y_op_exp = y,
-           n_op_exp = n)
 }
 
 count_device_and_toy <- function(x) {
@@ -124,16 +91,20 @@ chi_noun_onset <- function(x) {
 #'
 #' bigagg_allbl_reduced <- big_aggregate(all_bl, exclude=c('type_token_ratio', 'prop_dad'))
 #'
-big_aggregate <- function(x, exclude=NULL, output=NULL) {
+
+big_aggregate <- function(x, exclude = NULL, output = NULL, exclude_chi = FALSE) {
   fat_mot_count <- count_mot_fat(x)
-  num_experimentwords <- count_experimentwords(x)
-  six_to_seventeen_home_utt_count <- count_utterance(x)
   six_to_seventeen_home_device_count <- count_device_and_toy(x)
-  six_to_seventeen_home_op <- count_object_present(x)
-  six_to_seventeen_home_op_exp <- object_present_exp(x)
   six_to_seventeen_home_chi_count <- count_chi(x)
   six_to_seventeen_home_chi_type_count <- count_chi_types(x)
   six_to_seventeen_home_noun_chi_onset <- add_chi_noun_onset(x) %>% chi_noun_onset()
+
+  if (exclude_chi == TRUE) {
+    x <- x %>% filter(speaker != "CHI")
+  }
+
+  six_to_seventeen_home_utt_count <- count_utterance(x)
+  six_to_seventeen_home_op <- count_object_present(x)
 
   big_df <- x %>%
               dplyr::group_by(subj, month, SubjectNumber, audio_video)%>%
@@ -141,11 +112,9 @@ big_aggregate <- function(x, exclude=NULL, output=NULL) {
                         numtokens = n(),
                         numtypes = n_distinct(basic_level))%>%
               dplyr::left_join(fat_mot_count)%>%
-              dplyr::left_join(num_experimentwords)%>%
               dplyr::left_join(six_to_seventeen_home_utt_count)%>%
               dplyr::left_join(six_to_seventeen_home_device_count)%>%
               dplyr::left_join(six_to_seventeen_home_op)%>%
-              dplyr::left_join(six_to_seventeen_home_op_exp)%>%
               dplyr::left_join(six_to_seventeen_home_chi_count)%>%
               dplyr::left_join(six_to_seventeen_home_chi_type_count)%>%
 
@@ -157,10 +126,8 @@ big_aggregate <- function(x, exclude=NULL, output=NULL) {
               dplyr::mutate(prop_mom = MOT/numtokens,
                      prop_dad = FAT/numtokens,
                      prop_parent = prop_mom+prop_dad,
-                     # prop_tech = (TVN+TVS+TVM+TOY+TVB)/numtokens,
-                     # tech = (TVN+TVS+TVM+TOY+TVB),
-                     # prop_tech = (TVN+TOY)/numtokens,
-                     # tech = (TVN+TOY),
+                     tech_tokens = (TVN+TOY),
+                     prop_tech = tech_tokens/numtokens,
                      propd = d/numtokens,
                      propi = i/numtokens,
                      propn = n/numtokens,
@@ -168,8 +135,6 @@ big_aggregate <- function(x, exclude=NULL, output=NULL) {
                      propr = r/numtokens,
                      props = s/numtokens,
                      type_token_ratio = numtypes/numtokens,
-                     exp_type_ratio = num_exp_types/numtypes,
-                     exp_token_ratio = num_exp_tokens/numtokens,
                      ent_subj_av = entropy::entropy(c(d/numtokens,
                                              q/numtokens,
                                              s/numtokens,
