@@ -4,31 +4,34 @@ git_bin <- Sys.which("git")
 home_dir <- path.expand('~')
 blab_data <- file.path(home_dir, "BLAB_DATA")
 
-sync_to_upstream <- function(repo, branch) {
-  print(git_bin)
-  repo_path <- file.path(blab_data, repo)
-  handle <- subprocess::spawn_process(git_bin, c('-C', repo_path, 'pull', 'origin', branch))
-  subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
-  print(handle)
-  subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
-}
+# subprocess is no longer being maintained so I'm commenting out most of this script until I can move over to processx::
+# CM, Feb 4 2020
 
-checkout_commit <- function(repo, commit) {
-  print(git_bin)
-  repo_path <- file.path(blab_data, repo)
-  handle <- subprocess::spawn_process(git_bin, c('-C', repo_path, 'checkout', commit))
-  subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
-  print(handle)
-  subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
-}
-
-checkout_branch <- function(repo, branch) {
-  print(git_bin)
-  repo_path <- file.path(blab_data, repo)
-  handle <- subprocess::spawn_process(git_bin, c('-C', repo_path, 'checkout', branch))
-  subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
-  print(handle)
-  subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
+# sync_to_upstream <- function(repo, branch) {
+#   print(git_bin)
+#   repo_path <- file.path(blab_data, repo)
+#   handle <- subprocess::spawn_process(git_bin, c('-C', repo_path, 'pull', 'origin', branch))
+#   subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
+#   print(handle)
+#   subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
+# }
+#
+# checkout_commit <- function(repo, commit) {
+#   print(git_bin)
+#   repo_path <- file.path(blab_data, repo)
+#   handle <- process$new(git_bin, c('-C', repo_path, 'checkout', commit))
+#   subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
+#   print(handle)
+#   subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
+# }
+#
+# checkout_branch <- function(repo, branch) {
+#   print(git_bin)
+#   repo_path <- file.path(blab_data, repo)
+#   handle <- subprocess::spawn_process(git_bin, c('-C', repo_path, 'checkout', branch))
+#   subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
+#   print(handle)
+#   subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
 }
 
 
