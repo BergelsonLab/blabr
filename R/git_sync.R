@@ -32,7 +32,7 @@ blab_data <- file.path(home_dir, "BLAB_DATA")
 #   subprocess::process_wait(handle, subprocess::TIMEOUT_INFINITE)
 #   print(handle)
 #   subprocess::process_read(handle, subprocess::PIPE_STDOUT, timeout = 1000)
-}
+# }
 
 
 sync_repo <- function(repo= "" , branch = NULL, commit = NULL) {
