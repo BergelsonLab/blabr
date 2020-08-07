@@ -28,12 +28,12 @@ fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinis
   # remove incomplete studies
   if (remove_unfinished){
     fix_report <- fix_report %>%
-      filter(!is.na(order))
+      dplyr::filter(!is.na(order))
   }
   # remove practice rows
   if(remove_practice){
     fix_report <- fix_report %>%
-      filter(practice=="n")
+      dplyr::filter(practice=="n")
   }
 
   return(fix_report) # necessary? or just `fix_report`?
@@ -73,7 +73,8 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
   data <- gaze %>%
     group_by(FixationID) %>%
     do(expandFixList(., binSize=binSize)) %>%
-    ungroup()
+    ungroup() %>%
+    as.data.frame()#added by EB 8/7/20 bc the following line's subset breaks on tbls (!?)
 
   #there is a border case in which two redundant bins can be generated
   #clean them up by keeping the second one
@@ -93,7 +94,7 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
 # find key press issues and create doc to correct them
 keypress_issues <- function(data, study = "eye_tracking_study", practice_trials = c("p1", "p2", "p3", "p4"), output_dir = "../data/", out_csv = FALSE){ # or study = NULL and take data[:-4]
   keypress_issues <- data %>%
-    filter(RT == -1 & !Trial %in% practice_trials) %>%
+    dplyr::filter(RT == -1 & !Trial %in% practice_trials) %>%
     group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)%>%
     distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, RT, AudioTarget)
   if (out_csv){
@@ -120,12 +121,12 @@ get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSIO
            Trial=as.numeric(Trial))
 
   good_kp_mesrep <- mesrep_temp %>% # message reports corresponding to good key presses
-    filter(CURRENT_MSG_TEXT == "EL_BUTTON_CRIT_WORD") %>%
+    dplyr::filter(CURRENT_MSG_TEXT == "EL_BUTTON_CRIT_WORD") %>%
     dplyr::select(one_of(final_columns))
 
   fixed_kp_mesrep <- mesrep_temp %>% # message reports corresponding to fixed key presses
-    filter(CURRENT_MSG_TEXT=="PLAY_POP" & RT=="-1") %>%
-    left_join(fixed_kp %>% filter(outcome=="FIX")) %>%
+    dplyr::filter(CURRENT_MSG_TEXT=="PLAY_POP" & RT=="-1") %>%
+    left_join(fixed_kp %>% dplyr::filter(outcome=="FIX")) %>%
     dplyr::rename(PLAY_POP=CURRENT_MSG_TIME) %>%
     mutate(CURRENT_MSG_TIME = PLAY_POP+ms_diff) %>%
     dplyr::select(one_of(final_columns))
@@ -140,7 +141,7 @@ get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSIO
 
 get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_study", output_dir = "../data/", out_csv = FALSE){
   late_target_onset <- data %>%
-    filter(CURRENT_MSG_TIME>max_time) %>%
+    dplyr::filter(CURRENT_MSG_TIME>max_time) %>%
     group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget) %>%
     distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)
   if(out_csv){
@@ -231,7 +232,7 @@ FindLowData <- function(gazeData,
 
 
   gazeData2 <- gazeData %>%
-    filter(gazeData[,subsetWin] == "Y")
+    dplyr::filter(gazeData[,subsetWin] == "Y")
 
   print(dim(gazeData2))
   #1) offscreen: those timebins don't exist with my version of binifyFixations so how many timebins
@@ -304,7 +305,7 @@ RemoveLowData <- function(gazeData,
   maxMissing <- as.integer((window_size - nb_2) - ((window_size - nb_2)/3))
 
   gazeData2 <- gazeData %>%
-    filter(gazeData[,subsetWin] == "Y")
+    dplyr::filter(gazeData[,subsetWin] == "Y")
 
   print(dim(gazeData2))
   #1) offscreen: those timebins don't exist with my version of binifyFixations so how many timebins
@@ -333,7 +334,7 @@ RemoveLowData <- function(gazeData,
     dplyr::select(Trial, SubjectNumber, missing_TF)
 
   gazeData <- left_join(gazeData, lowdata_bins) %>%
-    filter(missing_TF == F) %>%
+    dplyr::filter(missing_TF == F) %>%
     dplyr::select(-missing_TF)
 
   message("Low data rows have been removed. To identify them in a new column without removing them, use blabr::FindLowData.")
@@ -369,6 +370,16 @@ outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
 #################################################################################
 
 #expandFixList----
+# this gives you back a little data frame where for a given FixationID,
+# there's a row for each timeBin, based on the start and stop time  (i.e.
+#(CURRENT_FIX_START) and (FixEnd) of that fixation.
+# e.g. if FixationID #1 went from 30-310ms, it would make a range,
+# ceiling(30/20) : ceiling(90/20), i.e. 2:5, so you'd see
+# timeBin FixationID
+# 2          1
+# 3          1
+# 4          1
+# 5          1
 expandFixList <- function(d, binSize=20){
   timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
   data.frame(timeBin=timeBin,FixationID=d$FixationID)
@@ -401,7 +412,7 @@ RemoveFrozenTrials <- function(gazeData,
   gazeData <-  gazeData %>%
     group_by(SubjectNumber, Trial) %>%
     mutate(frozen = ifelse(length(levels(fct_explicit_na(gaze, na_level = "NA"))) == 1, T, F)) %>%
-    filter(frozen == F) %>%
+    dplyr::filter(frozen == F) %>%
     dplyr::select(-frozen)
 
   message("frozen trials have been removed. To identify them in a new column without removing them, use blabr::FindFrozenTrials.")
