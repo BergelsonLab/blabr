@@ -3,10 +3,16 @@
 An R library for working in the BLAB. 
 
 
-
 ### install blabr
 
-In R:
+First, install the subprocess package. This package has been archived in CRAN, so we will remove it in the near future. Until then, use the following commands:
+
+```R
+packageurl <- "https://cran.r-project.org/src/contrib/Archive/subprocess/subprocess_0.8.3.tar.gz"
+install.packages(packageurl, repos=NULL, type="source")
+```
+
+Then, to install blabr itself:
 
 ```R
 # install.packages("devtools")
