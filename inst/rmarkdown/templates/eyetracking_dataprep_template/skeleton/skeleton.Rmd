@@ -11,7 +11,7 @@ output:
 # Data Prep for Eyetracking
 
 <!-- Use this template to prep your eyetracking data. 
-* Delete the comments you don't need (but leave the useful ones that will explain to later you what something i!) 
+* Delete the comments you don't need (but leave the useful ones that will explain to later you what something is!) 
 * fill in our actual study info where relevant -->
 
 ## Study Name Goes Here
@@ -46,6 +46,7 @@ edit as needed, run bit by bit.
 # install.packages(c("devtools","tidyverse","readxl","forcats", "skimr"),
 #                  repos = "http://cran.us.r-project.org")
 # devtools::install_github("BergelsonLab/blabr")
+# devtools::install_github("dmirman/gazer")
 
 library(devtools)
 library(tidyverse)
@@ -53,6 +54,7 @@ library(readxl)
 library(forcats)
 library(blabr)
 library(skimr)
+library(gazer)
 
 
 options(tibble.width = Inf)
@@ -72,7 +74,7 @@ generate_output_file = FALSE
 
 Loading fixations report: 
 
-* do a find and replace all for 'study name' with...your study name.
+* do a find and replace all for 'studyname' with...your study name.
 * uncomment the line below and put your file path and study name there!
 
 ```{r load_data}
@@ -107,7 +109,7 @@ you want to keep, and what each of them is. Some of them may be the same as belo
 but some may not! 
 Uncomment and edit the block below as appropriate
 
-**Note:** There's often nested commenting for code blocks, your pobably  want to uncomment
+**Note:** There's often nested commenting for code blocks, you probably  want to uncomment
 the whole chunk,  but leave the comments on the code that were double commented
 ```{r binify}
 
@@ -129,7 +131,11 @@ the whole chunk,  but leave the comments on the code that were double commented
 # "TargetSide","Trial","TrialType")) #L or R, 1-32, between or within
 # #note: Trial is 1-32; TRIAL_INDEX (later renamed TrialCountingPractice; 5-36 bc
 # #practice trials)
+
+# skim(studyname_bin)
 ```
+**WAIT** did you actually make sure you had the right columns above and that
+you changed the comments to reflect the values in *YOUR* dataset??**DO IT**
 
 
 Look at binified data
