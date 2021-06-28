@@ -40,6 +40,8 @@ concat_month_bl <- function(input, output=NULL, type) {
   if (!(type %in% bl_types)) {
     stop("your file type is not recognized")
   }
+  collect_errors <- all_errors()
+
 
   the_files <- collect_bl_files(input, type)
 
@@ -60,14 +62,20 @@ concat_month_bl <- function(input, output=NULL, type) {
   read_all <- function(x) {
     if (type == "audio") {
       print("read audio")
-      purrr::map_df(x$files, read_one_audio)
+      ll <- purrr::map(x$files, safely(read_one_audio))
+
     } else {
-      purrr::map_df(x$files, read_one_video)
+      ll <- purrr::map(x$files, safely(read_one_video))
     }
+    ll <- ll %>% transpose()
+    print(ll$error)
+    collect_errors(ll$error)
+    bind_rows(ll$result)
   }
 
   out_ext <- paste0("_all_", type, ".csv")
   by_month <- the_files %>% split(.$month) %>% purrr::map(read_all)
+  collect_errors()
 
   if (!is.null(output)) {
     for (name in names(by_month)) {
@@ -223,3 +231,22 @@ rename_video_header <- function(x) {
   }
   return(df)
 }
+
+
+#' A closure to keep track of al the errors from
+#' reading the csv files. There might be a more
+#' elegant way to concatenate and print all
+#' errors from all files, but this seems to do the
+#' job for now.
+all_errors <- function() {
+  errors <- list()
+  function(value=NULL) {
+    if (is.null(value)) {
+      return(errors)
+    }
+    else {
+      errors <<- c(errors, value)
+    }
+  }
+}
+
