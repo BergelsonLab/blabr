@@ -87,3 +87,30 @@ get_df_file <- function(repo, filename, branch, commit) {
   print(paste("reading file: ", file_path))
   return(result)
 }
+
+
+#' Get the commit hash and date of a dataset
+#'
+#' For a given dataset, returns hash and date of the currently checked out
+#' commit. This can be different from the commit used in the parent BLAB_DATA
+#' repo.
+#'
+#' @param dataset - name of the dataset
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' all_bl_version <- get_dataset_version('all_basiclevel')
+#' print(all_bl_version$commit)
+#' print(all_bl_version$date)
+get_dataset_version <- function(dataset) {
+  submodule.path <- file.path(blab_data, dataset)
+  current.submodule.commit <- system2(git_bin, c('-C', submodule.path,
+                                                 'rev-parse', 'HEAD'),
+                                      wait = TRUE, stdout = TRUE)
+  commit.date <- system2(git_bin, c('-C', submodule.path, 'show', '-s',
+                                    '--format=%ci', current.submodule.commit),
+                         wait = TRUE, stdout = TRUE)
+  return(list(commit=current.submodule.commit, date=commit.date))
+}
