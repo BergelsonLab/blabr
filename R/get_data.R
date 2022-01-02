@@ -82,7 +82,7 @@ get_df_file <- function(repo, filename, branch, commit) {
   if (endsWith(file_path, ".csv")) {
     result <- read.csv(file_path)
   } else if (endsWith(file_path, ".feather")) {
-    result <- feather::read_feather(file_path)
+    result <- arrow::read_feather(file_path)
   }
   print(paste("reading file: ", file_path))
   return(result)

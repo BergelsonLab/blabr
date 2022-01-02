@@ -169,7 +169,7 @@ join_full_audio_video <- function(audiostats, videostats,
   } else {
     if (!is.null(output_name)) {
       write.csv(df, paste0(output_name, ".csv"), row.names = FALSE)
-      feather::write_feather(df, paste0(output_name, ".feather"))
+      arrow::write_feather(df, paste0(output_name, ".feather"))
     }
     return(df)
   }

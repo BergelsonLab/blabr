@@ -1,5 +1,4 @@
 library(tidyverse)
-library(feather)
 
 #this function accepts a vector of column names and the output file 
 #type ("csv" or "feather"); returns a new tibble with unique 3 digit
@@ -37,7 +36,7 @@ anonymous <- function(df, colNameList, fileType) {
     write_csv(newtibble, "filteredData.csv")
   }
   else {
-    write_feather(newtibble, "filteredData.feather")
+    arrow::write_feather(newtibble, "filteredData.feather")
   }
   return (tibble)
 }
