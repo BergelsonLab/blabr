@@ -4,12 +4,10 @@
 \alias{get_motor_spreadsheet}
 \title{The the motor questionaire spreadsheet for the SEEDLingS babies}
 \usage{
-get_motor_spreadsheet(branch = NULL, commit = NULL, type = "feather")
+get_motor_spreadsheet(version = NULL, type = "feather")
 }
 \arguments{
-\item{branch}{git branch to pull from}
-
-\item{commit}{git commit to pull}
+\item{version}{version tag to checkout}
 
 \item{type}{"feather" or "csv". defaults to "feather"}
 }
@@ -18,4 +16,7 @@ a tibble contaiing the SEEDLingS Motor Questionaire spreadsheet
 }
 \description{
 The the motor questionaire spreadsheet for the SEEDLingS babies
+}
+\examples{
+motor <- get_motor_spreadsheet(version = '0.1.0')
 }
