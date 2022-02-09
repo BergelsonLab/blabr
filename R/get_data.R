@@ -150,28 +150,28 @@ get_df_file <- function(repo, filename, version = NULL) {
 }
 
 
-#' Get the commit hash and date of a dataset
+#' Get the version tag of the last downloaded version of a dataset
 #'
-#' For a given dataset, returns hash and date of the currently checked out
-#' commit. This can be different from the commit used in the parent BLAB_DATA
-#' repo.
+#' For a given dataset, returns the version tag of the version that was last
+#' downloaded - the one that is on your computer right now.
 #'
-#' @param dataset - name of the dataset
+#' The main assumed usage is switching from using `get_all_basiclevel()` without
+#' the version argument.
 #'
-#' @return list with two keys: commit and date
+#' Use interactively only and put the actual version string literal in your
+#' code.
+#'
+#' @param dataset dataset name: 'all_basiclevel', 'reliability', etc.
+#'
+#' @return list with two keys: version and date
 #' @export
 #'
 #' @examples
 #' all_bl_version <- get_dataset_version('all_basiclevel')
-#' print(all_bl_version$commit)
+#' print(all_bl_version$version)
 #' print(all_bl_version$date)
 get_dataset_version <- function(dataset) {
-  submodule.path <- file.path(blab_data, dataset)
-  current.submodule.commit <- system2(git_bin, c('-C', submodule.path,
-                                                 'rev-parse', 'HEAD'),
-                                      wait = TRUE, stdout = TRUE)
-  commit.date <- system2(git_bin, c('-C', submodule.path, 'show', '-s',
-                                    '--format=%ci', current.submodule.commit),
-                         wait = TRUE, stdout = TRUE)
-  return(list(commit=current.submodule.commit, date=commit.date))
+  version <- get_current_tag(repo = dataset, tags_already_updated = FALSE)
+  commit_date <- get_current_commit_date(repo = dataset)
+  return(list(version=version, date = commit_date))
 }

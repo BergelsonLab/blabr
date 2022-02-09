@@ -81,3 +81,36 @@ get_latest_tag <- function(repo, tags_already_updated = FALSE) {
   run_git_command(repo, 'tag --sort version:refname | tail -1',
                   return_output = TRUE)
 }
+
+
+#' Find tag label of the currently checked out commit.
+#'
+#' @inherit get_latest_tag params return
+#'
+#' @examples
+#' all_bl <- get_all_basiclevel(version = '0.0.7')
+#' current_tag <- get_current_tag('all_basiclevel')
+#' stopifnot(current_tag == '0.0.7')
+get_current_tag <- function(repo, tags_already_updated = FALSE) {
+  if (!tags_already_updated) {update_tags(repo)}
+  run_git_command(repo, 'describe --tags', return_output = TRUE)
+}
+
+
+#' Get the date of the currently checked out commit
+#'
+#' @inheritParams get_latest_tag
+#'
+#' @return
+#'
+#' @examples
+#' get_current_commit_date('all_basiclevel')
+get_current_commit_date <- function(repo) {
+  current_commit <- run_git_command(repo = repo, command = 'rev-parse HEAD',
+                                    return_output = TRUE)
+  commit_date <- run_git_command(
+    repo = repo,
+    command = glue::glue('show -s --format=%ci {current_commit}'),
+    return_output = TRUE)
+  return(commit_date)
+}
