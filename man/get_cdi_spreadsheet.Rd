@@ -4,12 +4,10 @@
 \alias{get_cdi_spreadsheet}
 \title{Get the CDI spreadsheet for SEEDLingS babies}
 \usage{
-get_cdi_spreadsheet(branch = NULL, commit = NULL, type = "feather")
+get_cdi_spreadsheet(version = NULL, type = "feather")
 }
 \arguments{
-\item{branch}{git branch to pull from}
-
-\item{commit}{git commit to pull}
+\item{version}{version tag to checkout}
 
 \item{type}{"feather" or "csv". defaults to "feather"}
 }
@@ -20,5 +18,5 @@ a tibble containing the SEEDLingS CDI spreadsheet
 Get the CDI spreadsheet for SEEDLingS babies
 }
 \examples{
-cdi <- get_cdi_spreadsheet()
+cdi <- get_cdi_spreadsheet(version='0.0.7')
 }

@@ -4,16 +4,17 @@
 \alias{get_reliability}
 \title{Get the reliability spreadsheets}
 \usage{
-get_reliability(av, month, branch = NULL, commit = NULL)
+get_reliability(av, month, version = NULL)
 }
 \arguments{
 \item{av}{either "audio" or "video"}
 
 \item{month}{the month as a string, e.g. "06"}
 
-\item{branch}{git branch to pull from}
-
-\item{commit}{git commit to pull}
+\item{version}{version tag to checkout}
+}
+\value{
+dataframe with data for the requested modality and month
 }
 \description{
 Get the reliability spreadsheets

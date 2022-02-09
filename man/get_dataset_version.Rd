@@ -2,20 +2,29 @@
 % Please edit documentation in R/get_data.R
 \name{get_dataset_version}
 \alias{get_dataset_version}
-\title{Get the commit hash and date of a dataset}
+\title{Get the version tag of the last downloaded version of a dataset}
 \usage{
 get_dataset_version(dataset)
 }
 \arguments{
-\item{dataset}{- name of the dataset}
+\item{dataset}{dataset name: 'all_basiclevel', 'reliability', etc.}
+}
+\value{
+list with two keys: version and date
 }
 \description{
-For a given dataset, returns hash and date of the currently checked out
-commit. This can be different from the commit used in the parent BLAB_DATA
-repo.
+For a given dataset, returns the version tag of the version that was last
+downloaded - the one that is on your computer right now.
+}
+\details{
+The main assumed usage is switching from using `get_all_basiclevel()` without
+the version argument.
+
+Use interactively only and put the actual version string literal in your
+code.
 }
 \examples{
 all_bl_version <- get_dataset_version('all_basiclevel')
-print(all_bl_version$commit)
+print(all_bl_version$version)
 print(all_bl_version$date)
 }

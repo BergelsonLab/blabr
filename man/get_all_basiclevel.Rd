@@ -4,25 +4,21 @@
 \alias{get_all_basiclevel}
 \title{Get the all_basiclevel data}
 \usage{
-get_all_basiclevel(branch = NULL, commit = NULL, type = "feather")
+get_all_basiclevel(version = NULL, type = "feather")
 }
 \arguments{
-\item{branch}{git branch to pull from}
-
-\item{commit}{git commit to pull}
+\item{version}{version tag to checkout}
 
 \item{type}{"feather" or "csv". defaults to "feather"}
 }
 \value{
-a tibble containing the all_basicalevel data
+a dataframe containing the all_basicalevel data
 }
 \description{
 Get the all_basiclevel data
 }
 \examples{
-# get the latest
-all_bl <- get_all_basiclevel()
 
-# get version at a specific commit
-all_bl <- get_all_basiclevel(commit='833356d604fa2ea020d7984a7f6be612ffea862c')
+# get version with a specific version tag
+all_bl <- get_all_basiclevel(version='0.1.0')
 }
