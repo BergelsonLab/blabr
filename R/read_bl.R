@@ -34,8 +34,6 @@ collect_bl_files <- function(input, type) {
 #'
 #' @return a list of tibbles, each tibble a month's aggregated basic level
 #' @export
-#'
-#' @examples
 concat_month_bl <- function(input, output=NULL, type) {
   if (!(type %in% bl_types)) {
     stop("your file type is not recognized")
@@ -189,8 +187,6 @@ join_full_audio_video <- function(audiostats, videostats,
 #'
 #' @return processed basic level dataframe
 #' @export
-#'
-#' @examples
 process_concat_bl <- function(x) {
   if ("tier" %in% colnames(x)) {
     x %>%
