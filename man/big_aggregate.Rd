@@ -4,7 +4,7 @@
 \alias{big_aggregate}
 \title{Add aggregations columns into an all_basiclevel tibble}
 \usage{
-big_aggregate(x, exclude = NULL, output = NULL)
+big_aggregate(x, exclude = NULL, output = NULL, exclude_chi = FALSE)
 }
 \arguments{
 \item{x}{an all_basiclevel dataframe}
