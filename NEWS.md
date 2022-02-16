@@ -1,3 +1,7 @@
+# blabr 0.2.1
+
+* Suppress git message when checking out a tag.
+
 # blabr 0.2.0
 
 * `get_all_*` functions do not have `branch` and `commit` parameters anymore,

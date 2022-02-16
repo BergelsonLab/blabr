@@ -60,7 +60,8 @@ update_tags <- function(repo) {
 #' @examples
 #' checkout_tag('all_basiclevel', '0.1.0')
 checkout_tag <- function(repo, tag) {
-  run_git_command(repo, glue::glue('checkout tags/{tag}'))
+  # --quiet suppresses message about where HEAD was/is
+  run_git_command(repo, glue::glue('checkout tags/{tag} --quiet'))
 }
 
 
