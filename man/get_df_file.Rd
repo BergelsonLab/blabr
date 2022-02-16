@@ -5,7 +5,7 @@
 \title{Downloads and then loads a csv/feather file from a specified version of a
 dataset}
 \usage{
-get_df_file(repo, filename, version = NULL)
+get_df_file(repo, filename, version = NULL, col_types = NULL)
 }
 \arguments{
 \item{repo}{dataset name: 'all_basiclevel', 'reliability', etc.}
@@ -13,6 +13,8 @@ get_df_file(repo, filename, version = NULL)
 \item{filename}{name of a csv/feather file}
 
 \item{version}{version tag to checkout}
+
+\item{col_types}{Passed to `readr::read_csv` when filename ends with ".csv".}
 }
 \value{
 tibble for feather files, data.frame for csv files
