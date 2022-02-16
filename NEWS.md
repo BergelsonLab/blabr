@@ -1,3 +1,10 @@
+# blabr 0.3.0
+
+* `get_*` functions produce similar results for ".csv" and ".feather" now. The
+  attributes are not exactly the same and the orders of factor levels are
+  different but now the outputs are both tibbles and have the same column types.
+  The similarity is checked with `all.equal(..., check.attributes = FALSE))`
+
 # blabr 0.2.1
 
 * Suppress git message when checking out a tag.
