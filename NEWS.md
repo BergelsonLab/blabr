@@ -11,7 +11,7 @@
 
 # blabr 0.2.0
 
-* `get_all_*` functions do not have `branch` and `commit` parameters anymore,
+* `get_*` functions do not have `branch` and `commit` parameters anymore,
   instead they have a new `version` parameter that currently refers to a tag
   label in the corresponding dataset repository. Using `get_all_*` functions
   without supplying the version argument is discouraged, an appropriate warning
@@ -19,6 +19,8 @@
   
   Motivation for the change:
   - explicitly setting dataset version gives one a chance at reproducible
-    analaysis,
-  - using versions instead of commit hashes
+    analysis,
+  - using versions instead of commit hashes lets us later choose a different
+    non-git storage option. Or, even if we do go with git, the old and new
+    hashes will not clash and/or confuse the users.
 * Added a `NEWS.md` file to track changes to the package.
