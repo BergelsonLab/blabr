@@ -21,7 +21,12 @@ Imports:
   entropy,
   irr,
   viridis,
-  extrafont
+  extrafont,
+  rlena,
+  lubridate,
+  rlang
+Remotes:
+  HomeBankCode/rlena
 RoxygenNote: 6.1.1
 Suggests: 
     testthat (>= 3.0.0)
