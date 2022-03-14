@@ -1,3 +1,11 @@
+# blabr 0.4.0
+
+* add `make_five_min_approximation` function that processes an .its file and outputs a
+  tibble with columns `duration`, `AWC.Actual`, `CTC.Actual`, `CWC.Actual` that are
+  similar to the ones in the LENA's 5min.csv files, except for a different handling of
+  speech segments that cross a 5-min interval border: LENA splits the values between the
+  two intervals, while we consider them to belong to the first one.
+
 # blabr 0.3.0
 
 * `get_*` functions produce similar results for ".csv" and ".feather" now. The
