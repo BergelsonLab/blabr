@@ -2,7 +2,7 @@
 % Please edit documentation in R/lena.R
 \name{make_five_min_approximation}
 \alias{make_five_min_approximation}
-\title{Approxmiate LENA's 5min.csv output}
+\title{Approximate LENA's 5min.csv output}
 \usage{
 make_five_min_approximation(its_xml)
 }
@@ -14,7 +14,7 @@ a tibble with at least these four columns: duration, AWC.Actual,
 CTC.Actual, CWC.Actual
 }
 \description{
-Approxmiate LENA's 5min.csv output
+Approximate LENA's 5min.csv output
 }
 \examples{
 # Download the example ITS file (code from rlena's README)
