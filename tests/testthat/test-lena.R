@@ -2,17 +2,18 @@ library(tools)
 library(digest)
 library(dplyr)
 
-test_that("make_five_min_approximation works", {
-  # Paths
-  pn_opus_path <- Sys.getenv('PN_OPUS_PATH')
-  subject_dir <- file.path(pn_opus_path, 'VIHI/SubjectFiles/LENA/HI/HI_424/HI_424_527/')
-  its_path <- file.path(subject_dir, 'HI_424_527.its')
-  assertthat::are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
-                        check.names = FALSE)
 
-  # Load and process the its file
-  its <- rlena::read_its_file(its_path)
-  five_min <- make_five_min_approximation(its)
+# Paths
+pn_opus_path <- Sys.getenv('PN_OPUS_PATH')
+subject_dir <- file.path(pn_opus_path, 'VIHI/SubjectFiles/LENA/HI/HI_424/HI_424_527/')
+its_path <- file.path(subject_dir, 'HI_424_527.its')
+assertthat::are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
+                      check.names = FALSE)
+its_xml <- rlena::read_its_file(its_path)
+
+test_that("make_five_min_approximation works", {
+
+  five_min <- make_five_min_approximation(its_xml)
 
   # Load LENA's 5min.csv file
   five_min_path <- file.path(subject_dir, 'HI_424_527_lena5min.csv')
@@ -44,5 +45,24 @@ test_that("make_five_min_approximation works", {
     CTC.Actual = "2691ad0a451337ba2d49eb8a762783ee",
     AWC.Actual = "0afd0ffb338176699ce6142f077160e7",
     duration = "31fe2ff3c3195ccfae3559b654fb4d3d")
+  expect_equal(hashes_list, expected_hashes_list)
+})
+
+
+test_that("get_speaker_stats works", {
+  speaker_stats <- get_speaker_stats(its_xml = its_xml,
+                                     intervals = make_five_min_approximation(its_xml))
+  hashes_list <- speaker_stats %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  expected_hashes_list <-
+    list(
+      interval_start = "59301637d61e59ab3e25197818aab760",
+      interval_end = "f891f6b0957d931588cf0c84ad145bf4",
+      spkr = "7ebebd07f0a845c832b8219252449f25",
+      adult_word_count = "36e936da25cce58e42903281bab232c8",
+      utterance_count = "4b3da7892ee4443333266228d82d4999",
+      segment_duration = "be048cfc1c64d01e5af4b8ba049d2229"
+    )
   expect_equal(hashes_list, expected_hashes_list)
 })

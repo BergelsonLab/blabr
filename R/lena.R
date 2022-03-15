@@ -48,3 +48,45 @@ calculate_lena_like_stats <- function(its_xml, period) {
 make_five_min_approximation <- function(its_xml) {
   calculate_lena_like_stats(its_xml, '5 mins')
 }
+
+#' Calculate per-speaker
+#'
+#' @inheritParams calculate_lena_like_stats
+#' @param intervals a tibble with interval_start and interval_end datetime
+#' columns
+#'
+#' @return a tibble with the following columns:
+#' - interval_start, interval_end: same as in the intervals input tibble,
+#' - adult_word_count: non-zero for MAN and FAN only
+#' - utterance_count: for CH* - the sum of childUttCnt, for everyone else - the
+#'   number of conversation segments
+#' @export
+#'
+#' @examples
+get_speaker_stats <- function(its_xml, intervals) {
+  intervals %>%
+    select(interval_start, interval_end) %>%
+    fuzzyjoin::interval_left_join(
+      rlena::gather_segments(its_xml) %>%
+        filter(blkType == 'Conversation') %>%
+        mutate(
+          adult_word_count = case_when(
+            stringr::str_starts(spkr, 'FA') ~ femaleAdultWordCnt,
+            stringr::str_starts(spkr, 'MA') ~ maleAdultWordCnt,
+            TRUE ~ 0),
+          # Only CHN and CHF get to have multiple utterances per segment
+          utterance_count = case_when(
+            stringr::str_starts(spkr, 'CH') ~ childUttCnt,
+            TRUE ~ 1
+          ),
+          segment_duration = endTime - startTime) %>%
+        select(startClockTimeLocal, spkr, adult_word_count, utterance_count,
+               segment_duration),
+      by = c("interval_start" = "startClockTimeLocal",
+             "interval_end" = "startClockTimeLocal")) %>%
+    group_by(interval_start, interval_end, spkr) %>%
+    summarise(across(c(adult_word_count, utterance_count, segment_duration),
+                     sum),
+              .groups = 'drop')
+}
+
