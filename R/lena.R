@@ -1,21 +1,15 @@
-#' Approxmiate LENA's 5min.csv output
+#' Calculate stats similar to those in LENA's 5min.csv files
 #'
 #' @param its_xml xml object created by rlena::read_its_file
+#' @param period interval duration supported by lubridate::period, e.g.,
+#' '2 mins'
 #'
-#' @return a tibble with four columns: duration, AWC.Actual, CTC.Actual, CWC.Actual
+#' @return a tibble with at least these four columns: duration, AWC.Actual,
+#' CTC.Actual, CWC.Actual
 #' @export
-#'
-#' @examples
-#' # Download the example ITS file (code from rlena's README)
-#' # Throws an error during devtools::check()
-#' url <- "https://cdn.rawgit.com/HomeBankCode/lena-its-tools/master/Example/e20160420_165405_010572.its"
-#' tmp <- tempfile()
-#' download.file(url, tmp)
-#' its <- rlena::read_its_file(tmp)
-#' make_five_min_approximation(its_xml = its)
-make_five_min_approximation <- function(its_xml) {
+calculate_lena_like_stats <- function(its_xml, period) {
   rlena::gather_segments(its_xml) %>%
-    dplyr::mutate(five_min_time = lubridate::floor_date(startClockTimeLocal, '5 mins')) %>%
+    dplyr::mutate(five_min_time = lubridate::floor_date(startClockTimeLocal, period)) %>%
     dplyr::group_by(five_min_time) %>%
     dplyr::summarise(
       duration = diff(range(startClockTimeLocal)),
@@ -33,4 +27,21 @@ make_five_min_approximation <- function(its_xml) {
     dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
     dplyr::mutate(CTC.Actual = cumulative_ctc - dplyr::lag(cumulative_ctc, default = 0)) %>%
     dplyr::select(five_min_time, CVC.Actual, CTC.Actual, AWC.Actual, duration)
+}
+
+
+#' Approxmiate LENA's 5min.csv output
+#'
+#' @inherit calculate_lena_like_stats
+#' @export
+#'
+#' @examples
+#' # Download the example ITS file (code from rlena's README)
+#' url <- "https://cdn.rawgit.com/HomeBankCode/lena-its-tools/master/Example/e20160420_165405_010572.its"
+#' tmp <- tempfile()
+#' download.file(url, tmp)
+#' its <- rlena::read_its_file(tmp)
+#' make_five_min_approximation(its_xml = its)
+make_five_min_approximation <- function(its_xml) {
+  calculate_lena_like_stats(its_xml, '5 mins')
 }
