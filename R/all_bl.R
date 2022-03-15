@@ -83,6 +83,7 @@ chi_noun_onset <- function(x) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # get all the aggregations
 #' all_bl <- get_all_basiclevel()
 #' big_agg_allbl <- big_aggregate(all_bl)
@@ -90,7 +91,7 @@ chi_noun_onset <- function(x) {
 #' # return everything except the 'type_token_ratio' and 'prop_dad' columns
 #'
 #' bigagg_allbl_reduced <- big_aggregate(all_bl, exclude=c('type_token_ratio', 'prop_dad'))
-#'
+#' }
 
 big_aggregate <- function(x, exclude = NULL, output = NULL, exclude_chi = FALSE) {
   fat_mot_count <- count_mot_fat(x)

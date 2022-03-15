@@ -21,9 +21,11 @@ the joined dataframe
 Join the audio and video dataframes into one big dataframe
 }
 \examples{
+\dontrun{
 audiomonths <- concat_month_bl("../basiclevel_dataprep/all_bl/", "output/", "audio")
 audiostats <- concat_all_bl(audiomonths, "all_audio.csv")
 videomonths <- concat_month_bl("../basiclevel_dataprep/all_bl/", "output/", "video")
 videostats <- concat_all_bl(videomonths, "all_video.csv")
 joined_data <- join_full_audio_video(audiostats, videostats)
+}
 }

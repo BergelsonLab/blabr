@@ -18,6 +18,8 @@ a tibble with all the basic level data
 Concatenate all the basic level files
 }
 \examples{
+\dontrun{
 x <- concat_month_bl("dir/with/bl/files", "output/folder", "video")
 concat_all_bl(x, "all_video.csv")
+}
 }
