@@ -9,8 +9,10 @@
 #' @export
 calculate_lena_like_stats <- function(its_xml, period) {
   rlena::gather_segments(its_xml) %>%
-    dplyr::mutate(five_min_time = lubridate::floor_date(startClockTimeLocal, period)) %>%
-    dplyr::group_by(five_min_time) %>%
+    dplyr::mutate(
+      interval_start = lubridate::floor_date(startClockTimeLocal, period),
+      interval_end = lubridate::ceiling_date(startClockTimeLocal, period)) %>%
+    dplyr::group_by(interval_start, interval_end) %>%
     dplyr::summarise(
       duration = diff(range(startClockTimeLocal)),
       # If there were not conversational turns, use NA, not -Inf
@@ -22,15 +24,16 @@ calculate_lena_like_stats <- function(its_xml, period) {
       FWC = sum(maleAdultWordCnt, na.rm = T),
       MWC = sum(femaleAdultWordCnt, na.rm = T),
       AWC.Actual = round(FWC + MWC)) %>%
+    ungroup %>%
     # For segments that don't have any conversational turns, use the previous value
     tidyr::fill(cumulative_ctc, .direction = 'down') %>%
     dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
     dplyr::mutate(CTC.Actual = cumulative_ctc - dplyr::lag(cumulative_ctc, default = 0)) %>%
-    dplyr::select(five_min_time, CVC.Actual, CTC.Actual, AWC.Actual, duration)
+    dplyr::select(interval_start, interval_end, CVC.Actual, CTC.Actual, AWC.Actual, duration)
 }
 
 
-#' Approxmiate LENA's 5min.csv output
+#' Approximate LENA's 5min.csv output
 #'
 #' @inherit calculate_lena_like_stats
 #' @export

@@ -1,5 +1,6 @@
 library(tools)
 library(digest)
+library(dplyr)
 
 test_that("make_five_min_approximation works", {
   # Paths
@@ -21,10 +22,11 @@ test_that("make_five_min_approximation works", {
   five_min_lena <- readr::read_csv(five_min_path, show_col_types = FALSE)
 
   # Find rows where the difference is more than we can tolerate
+  larger_ratio <- function(x, y) {exp(abs(log(x) - log(y)))}
   bad_rows <- five_min_lena %>%
-    mutate(five_min_time = lubridate::mdy_hm(Timestamp) - lubridate::hours(1)) %>%
-    select(five_min_time, CTC.Actual, CVC.Actual, AWC.Actual) %>%
-    left_join(five_min, by = 'five_min_time') %>%
+    mutate(interval_start = lubridate::mdy_hm(Timestamp) - lubridate::hours(1)) %>%
+    select(interval_start, CTC.Actual, CVC.Actual, AWC.Actual) %>%
+    left_join(five_min, by = 'interval_start') %>%
     filter((CTC.Actual.x != CTC.Actual.y)
            | (larger_ratio(CVC.Actual.x, CVC.Actual.y) > 1.33)
            | (larger_ratio(AWC.Actual.x, AWC.Actual.y) > 1.33))
@@ -36,7 +38,8 @@ test_that("make_five_min_approximation works", {
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_list <- list(
-    five_min_time = "c8a6801517f999553ed1af4e6300eb87",
+    interval_start = "c8a6801517f999553ed1af4e6300eb87",
+    interval_end = "28328639af5428512d0c316c759315e6",
     CVC.Actual = "5f7b4ed578e18847a1b4efc70e97416b",
     CTC.Actual = "2691ad0a451337ba2d49eb8a762783ee",
     AWC.Actual = "0afd0ffb338176699ce6142f077160e7",
