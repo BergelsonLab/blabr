@@ -1,3 +1,8 @@
+# blabr 0.4.1
+
+* bugfix: 'lag` is now prefixed with `dplyr::` in `make_five_min_approximation`,
+  so that `stats::lag` is not used.
+
 # blabr 0.4.0
 
 * add `make_five_min_approximation` function that processes an .its file and outputs a
