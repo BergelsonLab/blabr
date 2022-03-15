@@ -24,7 +24,7 @@ calculate_lena_like_stats <- function(its_xml, period) {
       FWC = sum(maleAdultWordCnt, na.rm = T),
       MWC = sum(femaleAdultWordCnt, na.rm = T),
       AWC.Actual = round(FWC + MWC)) %>%
-    ungroup %>%
+    dplyr::ungroup() %>%
     # For segments that don't have any conversational turns, use the previous value
     tidyr::fill(cumulative_ctc, .direction = 'down') %>%
     dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
