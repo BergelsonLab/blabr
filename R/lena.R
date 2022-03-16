@@ -99,3 +99,33 @@ get_speaker_stats <- function(its_xml, intervals) {
               .groups = 'drop')
 }
 
+#' Sample intervals randomly
+#'
+#' @inheritParams get_speaker_stats
+#' @param size
+#' @param period What period (e.g., '5 mins') is the main interval size? Only
+#' intervals of this duration will be sampled.
+#' @param allow_fewer Is it OK if there are fewer than size intervals?
+#' @param seed Seed for the random number generator.
+#'
+#' @return A subsample of intervals.
+#' @export
+sample_intervals_randomly <- function(intervals, size, period,
+                                      allow_fewer = FALSE, seed = NULL) {
+  if (!is.null(seed))
+    {withr::local_seed(seed)}
+  else
+    {withr::local_preserve_seed()}
+
+  intervals %>%
+    # Keep only full intervals (the first and last interval of each recording
+    # are usually shorter)
+    dplyr::filter(interval_end - interval_start == lubridate::period(period)) %T>%
+    # Check that there are at least some full intervals
+    {assertthat::assert_that(nrow(.) > 0)} %T>%
+    # Check that there are enough rows left
+    {assertthat::assert_that(allow_fewer | (nrow(.) >= size))} %>%
+    # Finally, sample
+    dplyr::sample_n(min(size, nrow(.))) %>%
+    arrange(interval_start)
+}

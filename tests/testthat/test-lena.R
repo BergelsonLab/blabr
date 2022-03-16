@@ -65,3 +65,34 @@ test_that("get_speaker_stats works", {
     )
   expect_equal(hashes_list, expected_hashes_list)
 })
+
+
+test_that("sample_intervals_randomly works as expected", {
+  intervals <- make_five_min_approximation(its_xml)
+
+  # Running with a seed should produce the same result every time
+  sample_with_seed <- sample_intervals_randomly(intervals, period = '5 mins',
+                                                size = 15, seed = 72)
+  hashes_list <- sample_with_seed %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  expected_hashes_list <-
+    list(
+      interval_start = "d1d26e6cb8477e7f9945ee60a8e6b33a",
+      interval_end = "5d999b9dec4d9b7262f9a76c8f31b88c",
+      CVC.Actual = "4476589ea790d2b76c71680ba7074020",
+      CTC.Actual = "ecea03115886a73217df142388e3e97e",
+      AWC.Actual = "3dd60213a95307a44fc317fded9aa5be"
+    )
+  expect_equal(hashes_list, expected_hashes_list)
+
+  # Running without a seed should produce the same result extremely rarely
+  sample_no_seed <- sample_intervals_randomly(intervals, period = '5 mins',
+                                              size = 15)
+  hashes_list_no_seed <- sample_no_seed %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  # Not a single should match
+  expect_false(any(unlist(hashes_list_no_seed) == unlist(expected_hashes_list)))
+
+})
