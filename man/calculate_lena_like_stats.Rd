@@ -13,8 +13,8 @@ calculate_lena_like_stats(its_xml, period)
 '2 mins'}
 }
 \value{
-a tibble with at least these four columns: duration, AWC.Actual,
-CTC.Actual, CWC.Actual
+a tibble with at least these four columns: interval_start,
+interval_end, AWC.Actual, CTC.Actual, CWC.Actual
 }
 \description{
 Calculate stats similar to those in LENA's 5min.csv files

@@ -10,8 +10,8 @@ make_five_min_approximation(its_xml)
 \item{its_xml}{xml object created by rlena::read_its_file}
 }
 \value{
-a tibble with at least these four columns: duration, AWC.Actual,
-CTC.Actual, CWC.Actual
+a tibble with at least these four columns: interval_start,
+interval_end, AWC.Actual, CTC.Actual, CWC.Actual
 }
 \description{
 Approximate LENA's 5min.csv output

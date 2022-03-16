@@ -4,17 +4,26 @@
 #' @param period interval duration supported by lubridate::period, e.g.,
 #' '2 mins'
 #'
-#' @return a tibble with at least these four columns: duration, AWC.Actual,
-#' CTC.Actual, CWC.Actual
+#' @return a tibble with at least these four columns: interval_start,
+#' interval_end, AWC.Actual, CTC.Actual, CWC.Actual
 #' @export
 calculate_lena_like_stats <- function(its_xml, period) {
   rlena::gather_segments(its_xml) %>%
+    # To keep the intervals to when the recording was on, we'll need recording-
+    # level starts and ends
+    dplyr::inner_join(
+      rlena::gather_recordings(its_xml) %>%
+        dplyr::select(recId,
+               recStartClockTimeLocal = startClockTimeLocal,
+               recEndClockTimeLocal = endClockTimeLocal),
+      by = 'recId') %>%
     dplyr::mutate(
-      interval_start = lubridate::floor_date(startClockTimeLocal, period),
-      interval_end = lubridate::ceiling_date(startClockTimeLocal, period)) %>%
+      interval_start = pmax(lubridate::floor_date(startClockTimeLocal, period),
+                            recStartClockTimeLocal),
+      interval_end = pmin(lubridate::ceiling_date(startClockTimeLocal, period),
+                          recEndClockTimeLocal)) %>%
     dplyr::group_by(interval_start, interval_end) %>%
     dplyr::summarise(
-      duration = diff(range(startClockTimeLocal)),
       # If there were not conversational turns, use NA, not -Inf
       cumulative_ctc = ifelse(
         !all(is.na(convTurnCount)),
@@ -29,7 +38,7 @@ calculate_lena_like_stats <- function(its_xml, period) {
     tidyr::fill(cumulative_ctc, .direction = 'down') %>%
     dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
     dplyr::mutate(CTC.Actual = cumulative_ctc - dplyr::lag(cumulative_ctc, default = 0)) %>%
-    dplyr::select(interval_start, interval_end, CVC.Actual, CTC.Actual, AWC.Actual, duration)
+    dplyr::select(interval_start, interval_end, CVC.Actual, CTC.Actual, AWC.Actual)
 }
 
 

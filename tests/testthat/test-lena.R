@@ -39,12 +39,11 @@ test_that("make_five_min_approximation works", {
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_list <- list(
-    interval_start = "c8a6801517f999553ed1af4e6300eb87",
-    interval_end = "28328639af5428512d0c316c759315e6",
+    interval_start = "30841229360109291c62979020ce221e",
+    interval_end = "5c43749516ccc29c9acf34c95ae217db",
     CVC.Actual = "5f7b4ed578e18847a1b4efc70e97416b",
     CTC.Actual = "2691ad0a451337ba2d49eb8a762783ee",
-    AWC.Actual = "0afd0ffb338176699ce6142f077160e7",
-    duration = "31fe2ff3c3195ccfae3559b654fb4d3d")
+    AWC.Actual = "0afd0ffb338176699ce6142f077160e7")
   expect_equal(hashes_list, expected_hashes_list)
 })
 
@@ -57,8 +56,8 @@ test_that("get_speaker_stats works", {
     as.list
   expected_hashes_list <-
     list(
-      interval_start = "59301637d61e59ab3e25197818aab760",
-      interval_end = "f891f6b0957d931588cf0c84ad145bf4",
+      interval_start = "3944536a218ebdf9beebab9c278e65f8",
+      interval_end = "11aad729d5940139bfc3293435133628",
       spkr = "7ebebd07f0a845c832b8219252449f25",
       adult_word_count = "36e936da25cce58e42903281bab232c8",
       utterance_count = "4b3da7892ee4443333266228d82d4999",
