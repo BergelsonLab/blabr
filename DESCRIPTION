@@ -10,23 +10,26 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-  arrow,
-  glue,
-  tibble,
-  magrittr,
-  purrr,
-  dplyr,
-  readr,
-  tidyr,
-  entropy,
-  irr,
-  viridis,
-  extrafont,
-  rlena,
-  lubridate,
-  rlang,
-  fuzzyjoin,
-  IRanges
+    arrow,
+    glue,
+    tibble,
+    magrittr,
+    purrr,
+    dplyr,
+    readr,
+    tidyr,
+    entropy,
+    irr,
+    viridis,
+    extrafont,
+    rlena,
+    lubridate,
+    rlang,
+    fuzzyjoin,
+    IRanges,
+    assertthat,
+    stringr,
+    withr
 Remotes:
   HomeBankCode/rlena,
   bioc/IRanges

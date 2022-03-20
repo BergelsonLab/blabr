@@ -67,8 +67,10 @@ test_that("get_speaker_stats works", {
 })
 
 
-test_that("sample_intervals_randomly works as expected", {
+test_that("sampling functions work as expected", {
   intervals <- make_five_min_approximation(its_xml)
+
+  # # Random sampling
 
   # Running with a seed should produce the same result every time
   sample_with_seed <- sample_intervals_randomly(intervals, period = '5 mins',
@@ -92,7 +94,31 @@ test_that("sample_intervals_randomly works as expected", {
   hashes_list_no_seed <- sample_no_seed %>%
     summarise(across(everything(), digest)) %>%
     as.list
-  # Not a single should match
+  # Not a single hash should match
   expect_false(any(unlist(hashes_list_no_seed) == unlist(expected_hashes_list)))
 
+  # # Sampling intervals that have a highest value of a metric
+
+  sample_highest <- intervals %>%
+    dplyr::mutate(
+      .tmp_interval_duration = as.numeric(interval_end - interval_start),
+      .tmp_ctc_rate = CTC.Actual * .tmp_interval_duration,
+      .tmp_ctc_normalized = .tmp_ctc_rate / sum(.tmp_ctc_rate),
+      .tmp_cvc_rate = CVC.Actual * .tmp_interval_duration,
+      .tmp_cvc_normalized = .tmp_cvc_rate / sum(.tmp_cvc_rate),
+      ctc_cvc_average = 0.5 * (.tmp_ctc_normalized + .tmp_cvc_normalized)) %>%
+    select(-starts_with('.tmp')) %>%
+    sample_intervals_with_highest(ctc_cvc_average, size = 15, period = '5 mins')
+  hashes_list_highest <- sample_highest_ctc_cvc_average %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  expected_hashes_list_highest <- list(
+    interval_start = "0731efa8e777713e5a713cddc91838d1",
+    interval_end = "fc4387dfb138d38e6fe772dee36fe147",
+    CVC.Actual = "144c30756b0efcf6d0c4ef4ca3164c6c",
+    CTC.Actual = "37ee7861b69895259841030512d72795",
+    AWC.Actual = "eda5667f39bdc3dfd6f25b8add1b59fd",
+    ctc_cvc_average = "a277199f5646bfb4d6ff27c7fb121075"
+  )
+  expect_equal(hashes_list_highest, expected_hashes_list_highest)
 })

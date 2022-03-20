@@ -99,13 +99,37 @@ get_speaker_stats <- function(its_xml, intervals) {
               .groups = 'drop')
 }
 
-#' Sample intervals randomly
+#' Prepare intervals for sampling
+#'
+#' - remove incomplete intervals,
+#' - check that there are still some left after that,
+#' - check that there are at least `size` intervals, unless `allow_fewer` is
+#'   `TRUE`
 #'
 #' @inheritParams get_speaker_stats
-#' @param size
+#' @param size required sample size
 #' @param period What period (e.g., '5 mins') is the main interval size? Only
 #' intervals of this duration will be sampled.
 #' @param allow_fewer Is it OK if there are fewer than size intervals?
+#'
+#' @return intervals with incomplete intervals removed
+#'
+#' @keywords internal
+prepare_intervals_for_sampling <- function(intervals, size, period,
+                                           allow_fewer) {
+  intervals %>%
+    # Keep only full intervals (the first and last interval of each recording
+    # are usually shorter)
+    dplyr::filter(interval_end - interval_start == lubridate::period(period)) %T>%
+    # Check that there are at least some full intervals
+    {assertthat::assert_that(nrow(.) > 0)} %T>%
+    # Check that there are enough rows left
+    {assertthat::assert_that(allow_fewer | (nrow(.) >= size))}
+}
+
+#' Sample intervals randomly
+#'
+#' @inheritParams prepare_intervals_for_sampling
 #' @param seed Seed for the random number generator.
 #'
 #' @return A subsample of intervals.
@@ -118,14 +142,25 @@ sample_intervals_randomly <- function(intervals, size, period,
     {withr::local_preserve_seed()}
 
   intervals %>%
-    # Keep only full intervals (the first and last interval of each recording
-    # are usually shorter)
-    dplyr::filter(interval_end - interval_start == lubridate::period(period)) %T>%
-    # Check that there are at least some full intervals
-    {assertthat::assert_that(nrow(.) > 0)} %T>%
-    # Check that there are enough rows left
-    {assertthat::assert_that(allow_fewer | (nrow(.) >= size))} %>%
-    # Finally, sample
+    prepare_intervals_for_sampling(size = size, period = period,
+                                   allow_fewer = allow_fewer) %>%
     dplyr::sample_n(min(size, nrow(.))) %>%
     arrange(interval_start)
+}
+
+#' Sample intervals that are highest on a given metric
+#'
+#' @inheritParams prepare_intervals_for_sampling
+#' @param column Name of the column whose value is to be maximized.
+#'
+#' @return
+#' @export
+sample_intervals_with_highest <- function(intervals, column, size, period,
+                                          allow_fewer = FALSE) {
+  intervals %>%
+    prepare_intervals_for_sampling(size = size, period = period,
+                                   allow_fewer = allow_fewer) %>%
+    dplyr::arrange({{ column }}) %>%
+    tail(min(size, nrow(.))) %>%
+    dplyr::arrange(interval_start)
 }
