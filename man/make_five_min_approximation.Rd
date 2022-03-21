@@ -2,7 +2,7 @@
 % Please edit documentation in R/lena.R
 \name{make_five_min_approximation}
 \alias{make_five_min_approximation}
-\title{Approxmiate LENA's 5min.csv output}
+\title{Approximate LENA's 5min.csv output}
 \usage{
 make_five_min_approximation(its_xml)
 }
@@ -10,19 +10,17 @@ make_five_min_approximation(its_xml)
 \item{its_xml}{xml object created by rlena::read_its_file}
 }
 \value{
-a tibble with four columns: duration, AWC.Actual, CTC.Actual, CWC.Actual
+a tibble with at least these four columns: interval_start,
+interval_end, AWC.Actual, CTC.Actual, CWC.Actual
 }
 \description{
-Approxmiate LENA's 5min.csv output
+Approximate LENA's 5min.csv output
 }
 \examples{
 # Download the example ITS file (code from rlena's README)
-# Throws an error during devtools::check()
-\dontrun{
 url <- "https://cdn.rawgit.com/HomeBankCode/lena-its-tools/master/Example/e20160420_165405_010572.its"
 tmp <- tempfile()
 download.file(url, tmp)
 its <- rlena::read_its_file(tmp)
 make_five_min_approximation(its_xml = its)
-}
 }

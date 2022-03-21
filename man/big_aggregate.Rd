@@ -20,6 +20,7 @@ a tibble containing the all_basicalevel data
 Add aggregations columns into an all_basiclevel tibble
 }
 \examples{
+\dontrun{
 # get all the aggregations
 all_bl <- get_all_basiclevel()
 big_agg_allbl <- big_aggregate(all_bl)
@@ -27,5 +28,5 @@ big_agg_allbl <- big_aggregate(all_bl)
 # return everything except the 'type_token_ratio' and 'prop_dad' columns
 
 bigagg_allbl_reduced <- big_aggregate(all_bl, exclude=c('type_token_ratio', 'prop_dad'))
-
+}
 }

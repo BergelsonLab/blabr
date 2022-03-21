@@ -96,8 +96,10 @@ concat_month_bl <- function(input, output=NULL, type) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' x <- concat_month_bl("dir/with/bl/files", "output/folder", "video")
 #' concat_all_bl(x, "all_video.csv")
+#' }
 concat_all_bl <- function(x, output=NULL) {
   df <- dplyr::bind_rows(x)
   df <- process_concat_bl(df)
@@ -119,6 +121,7 @@ concat_all_bl <- function(x, output=NULL) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' audiomonths <- concat_month_bl("../basiclevel_dataprep/all_bl/", "output/", "audio")
 #' audiostats <- concat_all_bl(audiomonths, "all_audio.csv")
 
@@ -126,6 +129,7 @@ concat_all_bl <- function(x, output=NULL) {
 #' videostats <- concat_all_bl(videomonths, "all_video.csv")
 
 #' joined_data <- join_full_audio_video(audiostats, videostats)
+#' }
 join_full_audio_video <- function(audiostats, videostats,
                                   output_name=NULL, keep_na=FALSE,
                                   keep_comments=FALSE) {
