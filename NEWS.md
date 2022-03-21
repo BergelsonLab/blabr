@@ -1,3 +1,7 @@
+# blabr 0.4.3
+
+* fix: correctly tell R to install IRanges from BioConductor
+
 # blabr 0.4.2
 
 * LENA: calculate stats, sample intervals in several ways

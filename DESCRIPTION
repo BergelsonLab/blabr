@@ -1,7 +1,7 @@
 Package: blabr
 Type: Package
 Title: a toolbox for working in the BLAB
-Version: 0.4.2
+Version: 0.4.3
 Author: Bergelson Lab
 Maintainer: Andrei Amatuni <andrei.amatuni@gmail.com>
 Description: More about what it does (maybe more than one line)
@@ -30,9 +30,9 @@ Imports:
     assertthat,
     stringr,
     withr
+biocViews:
 Remotes:
-  HomeBankCode/rlena,
-  bioc/IRanges
+  HomeBankCode/rlena
 RoxygenNote: 6.1.1
 Suggests: 
     testthat (>= 3.0.0)
