@@ -121,4 +121,21 @@ test_that("sampling functions work as expected", {
     ctc_cvc_average = "a277199f5646bfb4d6ff27c7fb121075"
   )
   expect_equal(hashes_list_highest, expected_hashes_list_highest)
+
+  # # Sampling intervals every sampling period, e.g. 1 hour
+
+  sample_periodic <- intervals %>%
+    sample_intervals_periodically(interval_period = '5 mins',
+                                  sampling_period = '1 hour')
+  hashes_list_periodic <- sample_periodic %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  expected_hashes_list_periodic <- list(
+      interval_start = "f49d3fc446b5a49ac50df6635e6d1cf8",
+      interval_end = "ac85830a7ac8b274e711adbfbf2fce8e",
+      CVC.Actual = "992180fadc7baef6b47ec03f3bb32b70",
+      CTC.Actual = "d57fe3d809de8e492690c186137e7d9b",
+      AWC.Actual = "431ef29fec4c54716d8b0fe50580030e"
+    )
+  expect_equal(hashes_list_periodic, expected_hashes_list_periodic)
 })

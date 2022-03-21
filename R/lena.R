@@ -70,8 +70,6 @@ make_five_min_approximation <- function(its_xml) {
 #' - utterance_count: for CH* - the sum of childUttCnt, for everyone else - the
 #'   number of conversation segments
 #' @export
-#'
-#' @examples
 get_speaker_stats <- function(its_xml, intervals) {
   intervals %>%
     select(interval_start, interval_end) %>%
@@ -153,7 +151,7 @@ sample_intervals_randomly <- function(intervals, size, period,
 #' @inheritParams prepare_intervals_for_sampling
 #' @param column Name of the column whose value is to be maximized.
 #'
-#' @return
+#' @inherit sample_intervals_randomly return
 #' @export
 sample_intervals_with_highest <- function(intervals, column, size, period,
                                           allow_fewer = FALSE) {
@@ -162,5 +160,25 @@ sample_intervals_with_highest <- function(intervals, column, size, period,
                                    allow_fewer = allow_fewer) %>%
     dplyr::arrange({{ column }}) %>%
     tail(min(size, nrow(.))) %>%
+    dplyr::arrange(interval_start)
+}
+
+#' Sample intervals periodically, e.g. every hour
+#'
+#' @inheritParams prepare_intervals_for_sampling
+#' @param interval_period period used to create the intervals
+#' @param sampling_period period at the end of which we should sample intervals,
+#' e.g., '1 hour'
+#'
+#' @inherit sample_intervals_randomly return
+#' @export
+sample_intervals_periodically <- function(intervals, interval_period,
+                                          sampling_period){
+  intervals %>%
+    prepare_intervals_for_sampling(size = 0, period = interval_period,
+                                   allow_fewer = allow_fewer) %>%
+    dplyr::filter(lubridate::ceiling_date(interval_end,
+                                          unit = sampling_period)
+                  == interval_end) %>%
     dplyr::arrange(interval_start)
 }

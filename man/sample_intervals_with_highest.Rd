@@ -20,6 +20,9 @@ intervals of this duration will be sampled.}
 
 \item{allow_fewer}{Is it OK if there are fewer than size intervals?}
 }
+\value{
+A subsample of intervals.
+}
 \description{
 Sample intervals that are highest on a given metric
 }
