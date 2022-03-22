@@ -176,7 +176,7 @@ sample_intervals_periodically <- function(intervals, interval_period,
                                           sampling_period){
   intervals %>%
     prepare_intervals_for_sampling(size = 0, period = interval_period,
-                                   allow_fewer = allow_fewer) %>%
+                                   allow_fewer = TRUE) %>%
     dplyr::filter(lubridate::ceiling_date(interval_end,
                                           unit = sampling_period)
                   == interval_end) %>%

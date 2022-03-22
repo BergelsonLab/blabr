@@ -109,7 +109,7 @@ test_that("sampling functions work as expected", {
       ctc_cvc_average = 0.5 * (.tmp_ctc_normalized + .tmp_cvc_normalized)) %>%
     select(-starts_with('.tmp')) %>%
     sample_intervals_with_highest(ctc_cvc_average, size = 15, period = '5 mins')
-  hashes_list_highest <- sample_highest_ctc_cvc_average %>%
+  hashes_list_highest <- sample_highest %>%
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_list_highest <- list(

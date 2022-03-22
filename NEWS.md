@@ -1,3 +1,7 @@
+# blabr 0.4.4
+
+* fix: sample_intervals_periodically works now
+
 # blabr 0.4.3
 
 * fix: correctly tell R to install IRanges from BioConductor
