@@ -25,12 +25,9 @@ Imports:
     rlena,
     lubridate,
     rlang,
-    fuzzyjoin,
-    IRanges,
     assertthat,
     stringr,
     withr
-biocViews:
 Remotes:
   HomeBankCode/rlena
 RoxygenNote: 6.1.1
