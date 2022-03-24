@@ -94,12 +94,9 @@ get_speaker_stats <- function(its_xml, intervals) {
   intervals %>%
     # start: conditional left join: startClockTimeLocal within interval
     dplyr::inner_join(segment_stats, by = character()) %>%
-    # Flooring was done implicitly by fuzzyjoin it appears
-    dplyr::mutate(startClockTimeLocalFloor = lubridate::floor_date(startClockTimeLocal, '1 s')) %>%
-    dplyr::filter(interval_start <= startClockTimeLocalFloor
-                  & startClockTimeLocalFloor <= interval_end) %>%
+    dplyr::filter(interval_start <= startClockTimeLocal
+                  & startClockTimeLocal < interval_end) %>%
     dplyr::right_join(intervals, by = c('interval_start', 'interval_end')) %>%
-    select(-startClockTimeLocalFloor) %>%
     # end: conditional left join
     group_by(interval_start, interval_end, spkr) %>%
     summarise(across(c(adult_word_count, utterance_count, segment_duration),
