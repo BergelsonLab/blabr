@@ -1,3 +1,10 @@
+# blabr 0.4.5
+
+* Removed dependency on `fuzzyjoin` and BioConductor package `IRanges` - less
+  problems installing blabr.
+* VIHI LENA intervals for annotation: prevent utterances counting towards two
+  neighbouring intervals.
+
 # blabr 0.4.4
 
 * fix: sample_intervals_periodically works now
