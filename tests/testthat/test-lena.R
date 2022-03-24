@@ -56,12 +56,12 @@ test_that("get_speaker_stats works", {
     as.list
   expected_hashes_list <-
     list(
-      interval_start = "3944536a218ebdf9beebab9c278e65f8",
-      interval_end = "11aad729d5940139bfc3293435133628",
-      spkr = "7ebebd07f0a845c832b8219252449f25",
-      adult_word_count = "36e936da25cce58e42903281bab232c8",
-      utterance_count = "4b3da7892ee4443333266228d82d4999",
-      segment_duration = "be048cfc1c64d01e5af4b8ba049d2229"
+      interval_start = "75ff43e40a186ae138dc9b709b691a45",
+      interval_end = "5e39906727aa950a55bff1f80d4226bb",
+      spkr = "8b19ab3ad09943f2c807002c40ebe943",
+      adult_word_count = "a3dd76d9042133d4ee0a6ccbc654ba48",
+      utterance_count = "d36f09f3bbada305d0925623a9ffb990",
+      segment_duration = "178fa344206b188de05bea4f07fe2b50"
     )
   expect_equal(hashes_list, expected_hashes_list)
 })

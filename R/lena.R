@@ -71,26 +71,33 @@ make_five_min_approximation <- function(its_xml) {
 #'   number of conversation segments
 #' @export
 get_speaker_stats <- function(its_xml, intervals) {
+  # Extract several segment stats (a single utterance or a CHN/CHF
+  # multi-utterance)
+  segment_stats <- rlena::gather_segments(its_xml) %>%
+    filter(blkType == 'Conversation') %>%
+    mutate(
+      adult_word_count = case_when(
+        stringr::str_starts(spkr, 'FA') ~ femaleAdultWordCnt,
+        stringr::str_starts(spkr, 'MA') ~ maleAdultWordCnt,
+        TRUE ~ 0),
+      # Only CHN and CHF get to have multiple utterances per segment
+      utterance_count = case_when(
+        stringr::str_starts(spkr, 'CH') ~ childUttCnt,
+        TRUE ~ 1
+      ),
+      segment_duration = endTime - startTime) %>%
+    select(startClockTimeLocal, spkr, adult_word_count, utterance_count,
+           segment_duration)
+
+  # Match intervals to segments and summarize the stats from above
+  intervals <- intervals %>% select(interval_start, interval_end)
   intervals %>%
-    select(interval_start, interval_end) %>%
-    fuzzyjoin::interval_left_join(
-      rlena::gather_segments(its_xml) %>%
-        filter(blkType == 'Conversation') %>%
-        mutate(
-          adult_word_count = case_when(
-            stringr::str_starts(spkr, 'FA') ~ femaleAdultWordCnt,
-            stringr::str_starts(spkr, 'MA') ~ maleAdultWordCnt,
-            TRUE ~ 0),
-          # Only CHN and CHF get to have multiple utterances per segment
-          utterance_count = case_when(
-            stringr::str_starts(spkr, 'CH') ~ childUttCnt,
-            TRUE ~ 1
-          ),
-          segment_duration = endTime - startTime) %>%
-        select(startClockTimeLocal, spkr, adult_word_count, utterance_count,
-               segment_duration),
-      by = c("interval_start" = "startClockTimeLocal",
-             "interval_end" = "startClockTimeLocal")) %>%
+    # start: conditional left join: startClockTimeLocal within interval
+    dplyr::inner_join(segment_stats, by = character()) %>%
+    dplyr::filter(interval_start <= startClockTimeLocal
+                  & startClockTimeLocal < interval_end) %>%
+    dplyr::right_join(intervals, by = c('interval_start', 'interval_end')) %>%
+    # end: conditional left join
     group_by(interval_start, interval_end, spkr) %>%
     summarise(across(c(adult_word_count, utterance_count, segment_duration),
                      sum),
