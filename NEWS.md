@@ -1,3 +1,14 @@
+# blabr 0.4.6
+
+LENA functions:
+
+* `calculate_lena_like_stats` now outputs an additional column
+  `interval_start_wav` that contains the interval start as the number of
+  milliseconds from the start of the wav file,
+* `sample_intervals_*` functions keep only the necessary columns from the input
+  `intervals_tibble`: `interval_start`, `interval_end`, and - in the case of
+  `sample_intervals_with_highest` - the column whose values was maximized.
+
 # blabr 0.4.5
 
 * Removed dependency on `fuzzyjoin` and BioConductor package `IRanges` - less

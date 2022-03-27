@@ -10,19 +10,29 @@
 calculate_lena_like_stats <- function(its_xml, period) {
   rlena::gather_segments(its_xml) %>%
     # To keep the intervals to when the recording was on, we'll need recording-
-    # level starts and ends
+    # level starts and ends.
+    # Also, all recordings are in a single wav file, so to be able to find
+    # intervals within the
     dplyr::inner_join(
       rlena::gather_recordings(its_xml) %>%
         dplyr::select(recId,
                recStartClockTimeLocal = startClockTimeLocal,
-               recEndClockTimeLocal = endClockTimeLocal),
+               recEndClockTimeLocal = endClockTimeLocal,
+               recStartTimeWav = startTime),
       by = 'recId') %>%
     dplyr::mutate(
       interval_start = pmax(lubridate::floor_date(startClockTimeLocal, period),
                             recStartClockTimeLocal),
       interval_end = pmin(lubridate::ceiling_date(startClockTimeLocal, period),
-                          recEndClockTimeLocal)) %>%
-    dplyr::group_by(interval_start, interval_end) %>%
+                          recEndClockTimeLocal),
+      # When does interval start within the recording, in seconds
+      interval_start_rec = lubridate::interval(recStartClockTimeLocal,
+                                               interval_start)
+                           / lubridate::milliseconds(1),
+      # And within the wav file
+      interval_start_wav = recStartTimeWav * 1000 + interval_start_rec) %>%
+    dplyr::select(-interval_start_rec) %>%
+    dplyr::group_by(interval_start, interval_end, interval_start_wav) %>%
     dplyr::summarise(
       # If there were not conversational turns, use NA, not -Inf
       cumulative_ctc = ifelse(
@@ -38,7 +48,7 @@ calculate_lena_like_stats <- function(its_xml, period) {
     tidyr::fill(cumulative_ctc, .direction = 'down') %>%
     dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
     dplyr::mutate(CTC.Actual = cumulative_ctc - dplyr::lag(cumulative_ctc, default = 0)) %>%
-    dplyr::select(interval_start, interval_end, CVC.Actual, CTC.Actual, AWC.Actual)
+    dplyr::select(interval_start, interval_end, interval_start_wav, CVC.Actual, CTC.Actual, AWC.Actual)
 }
 
 
@@ -147,6 +157,7 @@ sample_intervals_randomly <- function(intervals, size, period,
     {withr::local_preserve_seed()}
 
   intervals %>%
+    select(interval_start, interval_end) %>%
     prepare_intervals_for_sampling(size = size, period = period,
                                    allow_fewer = allow_fewer) %>%
     dplyr::sample_n(min(size, nrow(.))) %>%
@@ -163,6 +174,7 @@ sample_intervals_randomly <- function(intervals, size, period,
 sample_intervals_with_highest <- function(intervals, column, size, period,
                                           allow_fewer = FALSE) {
   intervals %>%
+    select(interval_start, interval_end, {{column}}) %>%
     prepare_intervals_for_sampling(size = size, period = period,
                                    allow_fewer = allow_fewer) %>%
     dplyr::arrange({{ column }}) %>%
@@ -182,6 +194,7 @@ sample_intervals_with_highest <- function(intervals, column, size, period,
 sample_intervals_periodically <- function(intervals, interval_period,
                                           sampling_period){
   intervals %>%
+    select(interval_start, interval_end) %>%
     prepare_intervals_for_sampling(size = 0, period = interval_period,
                                    allow_fewer = TRUE) %>%
     dplyr::filter(lubridate::ceiling_date(interval_end,

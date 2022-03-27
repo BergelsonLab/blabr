@@ -41,6 +41,7 @@ test_that("make_five_min_approximation works", {
   expected_hashes_list <- list(
     interval_start = "30841229360109291c62979020ce221e",
     interval_end = "5c43749516ccc29c9acf34c95ae217db",
+    interval_start_wav = '4e0425f5fe42f2268aca95582dfde58d',
     CVC.Actual = "5f7b4ed578e18847a1b4efc70e97416b",
     CTC.Actual = "2691ad0a451337ba2d49eb8a762783ee",
     AWC.Actual = "0afd0ffb338176699ce6142f077160e7")
@@ -81,10 +82,7 @@ test_that("sampling functions work as expected", {
   expected_hashes_list <-
     list(
       interval_start = "d1d26e6cb8477e7f9945ee60a8e6b33a",
-      interval_end = "5d999b9dec4d9b7262f9a76c8f31b88c",
-      CVC.Actual = "4476589ea790d2b76c71680ba7074020",
-      CTC.Actual = "ecea03115886a73217df142388e3e97e",
-      AWC.Actual = "3dd60213a95307a44fc317fded9aa5be"
+      interval_end = "5d999b9dec4d9b7262f9a76c8f31b88c"
     )
   expect_equal(hashes_list, expected_hashes_list)
 
@@ -115,9 +113,6 @@ test_that("sampling functions work as expected", {
   expected_hashes_list_highest <- list(
     interval_start = "0731efa8e777713e5a713cddc91838d1",
     interval_end = "fc4387dfb138d38e6fe772dee36fe147",
-    CVC.Actual = "144c30756b0efcf6d0c4ef4ca3164c6c",
-    CTC.Actual = "37ee7861b69895259841030512d72795",
-    AWC.Actual = "eda5667f39bdc3dfd6f25b8add1b59fd",
     ctc_cvc_average = "a277199f5646bfb4d6ff27c7fb121075"
   )
   expect_equal(hashes_list_highest, expected_hashes_list_highest)
@@ -132,10 +127,7 @@ test_that("sampling functions work as expected", {
     as.list
   expected_hashes_list_periodic <- list(
       interval_start = "f49d3fc446b5a49ac50df6635e6d1cf8",
-      interval_end = "ac85830a7ac8b274e711adbfbf2fce8e",
-      CVC.Actual = "992180fadc7baef6b47ec03f3bb32b70",
-      CTC.Actual = "d57fe3d809de8e492690c186137e7d9b",
-      AWC.Actual = "431ef29fec4c54716d8b0fe50580030e"
+      interval_end = "ac85830a7ac8b274e711adbfbf2fce8e"
     )
   expect_equal(hashes_list_periodic, expected_hashes_list_periodic)
 })
