@@ -9,41 +9,70 @@ add_global_basic_level <- function(all_basiclevel_na) {
   assertthat::assert_that(sum(is.na(all_basiclevel_na$basic_level)) > 0)
 
   data_dir <- file.path(blab_data, 'global_basic_level', 'data')
-  dict <- readr::read_csv(file.path(data_dir, "global_bl_dictionary.csv"),
-                   guess_max = 20000)
-  disamb_rows <- readr::read_csv(file.path(data_dir,
-                                           "disambiguated_rows.csv")) %>%
-    dplyr::mutate(subj = factor(subj),
-           month = factor(month),
-           ox = "0x",
-           annotid = paste(ox, annotid, sep = "")) %>%
-    select(-ox)
+  dict <- readr::read_csv(
+    file.path(data_dir, "global_bl_dictionary.csv"),
+    col_types = cols(
+      object = col_character(),
+      disambiguate = col_character(),
+      global_bl = col_character()
+    ))
+  disamb_rows <- readr::read_csv(
+    file.path(data_dir, "disambiguated_rows.csv"),
+    col_types = cols(
+      onset = col_double(),
+      offset = col_double(),
+      object = col_character(),
+      utterance_type = col_character(),
+      object_present = col_character(),
+      speaker = col_character(),
+      basic_level = col_character(),
+      annotid = col_character(),
+      id = col_character(),
+      subj = col_double(),
+      month = col_double(),
+      SubjectNumber = col_character(),
+      audio_video = col_character(),
+      tier = col_character(),
+      disambiguate = col_character()
+    )) %>%
+    dplyr::mutate(
+      subj = factor(subj),
+      month = factor(month),
+      annotid = paste("0x", annotid, sep = ""))
 
-  # disamb_rows %>%
-  #   distinct(object, basic_level, disambiguate)
-
-  all_bl_NA2 <- dplyr::left_join(all_basiclevel_na, disamb_rows)
-
-  # all_bl_global <- left_join(all_bl_NA2, dict) %>%
-  #   select(ordinal, onset, offset, object, utterance_type, object_present, speaker, basic_level, global_bl,
-  #          annotid, id, subj, month, SubjectNumber, audio_video, tier, disambiguate)
-
-  # all_bl_global %>%
-  #   filter(is.na(global_bl)) %>%
-  #   distinct(object, basic_level, global_bl) #%>%
-  #write_csv("data/new_entries_for_all_bl_disamb_feb2021_before_completion.csv") #no longer exists in directory
-
-  #### Lookup ----
-
-  # dict %>%
-  #   filter(str_detect(global_bl, "Obi"))
+  all_bl_NA2 <- dplyr::left_join(
+    all_basiclevel_na,
+    disamb_rows,
+    by = c(
+      "onset",
+      "offset",
+      "object",
+      "utterance_type",
+      "object_present",
+      "speaker",
+      "basic_level",
+      "annotid",
+      "id",
+      "subj",
+      "month",
+      "SubjectNumber",
+      "audio_video",
+      "tier"
+    )
+  )
 
   new_global_bls <- readr::read_csv(
-    file.path(data_dir, "new_entries_for_all_bl_disamb_feb2021.csv"))
+    file.path(data_dir, "new_entries_for_all_bl_disamb_feb2021.csv"),
+    col_types = cols(
+      object = col_character(),
+      basic_level = col_character(),
+      global_bl = col_character()
+    ))
 
   dict_full <- full_join(dict, new_global_bls) %>%
     dplyr::select(-basic_level) # %>%
-    # write_csv("data/global_bl_dictionary.csv")
+  # write_csv("data/global_bl_dictionary.csv")
+
 
   all_bl_NA3 <- all_bl_NA2 %>%
     dplyr::mutate(disambiguate = dplyr::case_when(
@@ -51,25 +80,40 @@ add_global_basic_level <- function(all_basiclevel_na) {
       object == "Momo" & basic_level == "Momo" & is.na(disambiguate) ~ "dog",
       object == "glasses" & basic_level == "glasses" & is.na(disambiguate) ~ "eye",
       TRUE ~ disambiguate)) %>%
-    dplyr::left_join(dict_full)
-
-  # new_disambs <- all_bl_NA3 %>%
-  #   filter(is.na(global_bl)) %>%
-  #   left_join(dict)
-
-  # new_disambs %>%
-  #   distinct(object, disambiguate, global_bl)
+    dplyr::left_join(dict_full, by = c("object", "disambiguate"))
 
   duplicate_lines <- all_bl_NA3 %>%
     dplyr::count(annotid) %>%
     dplyr::filter(n>1)
 
-  hallie_to_fix <- all_bl_NA3 %>%
+  to_fix <- all_bl_NA3 %>%
     dplyr::filter(annotid %in% duplicate_lines$annotid) %>%
-    dplyr::left_join(all_bl_NA3) %>%
+    dplyr::left_join(
+      all_bl_NA3,
+      by = c(
+        "ordinal",
+        "onset",
+        "offset",
+        "object",
+        "utterance_type",
+        "object_present",
+        "speaker",
+        "basic_level",
+        "annotid",
+        "id",
+        "subj",
+        "month",
+        "SubjectNumber",
+        "audio_video",
+        "tier",
+        "pho",
+        "disambiguate",
+        "global_bl"
+      )
+    ) %>%
     dplyr::select(object, basic_level, global_bl) %>%
     dplyr::distinct()
 
   # write_feather(all_bl_NA3, "data/all_bl_global.feather")
-  return(list(all_bl_NA3, dict_full, hallie_to_fix))
+  return(list(all_bl_NA3, dict_full, to_fix))
 }
