@@ -3,6 +3,9 @@
 #'
 #' @param version version tag to checkout
 #' @param type "feather" or "csv". defaults to "feather"
+#' @param drop_basic_level_na whether to use the "*_NA" version that has all the
+#' nouns, including those whose "basic_level" is set to "NA"
+#' (drop_basic_level_na = FALSE) or the standard version that does not include them (dro)
 #'
 #' @return a dataframe containing the all_basicalevel data
 #' @export
@@ -11,9 +14,11 @@
 #'
 #' # get version with a specific version tag
 #' all_bl <- get_all_basiclevel(version='0.1.0')
-get_all_basiclevel <- function(version = NULL, type = "feather") {
+get_all_basiclevel <- function(version = NULL, type = "feather",
+                               drop_basic_level_na = TRUE) {
   stopifnot(type %in% c('feather', 'csv'))
-  filename <- paste0("all_basiclevel.", type)
+  na_suffix <- if (drop_basic_level_na) {''} else {'_NA'}
+  filename <- paste0("all_basiclevel", na_suffix, '.', type)
 
   col_types <- switch(type,
     "csv" = readr::cols(
@@ -39,6 +44,10 @@ get_all_basiclevel <- function(version = NULL, type = "feather") {
       # the sake of consistency with reading from the feather file.
       mutate(tier = recode_factor(all_bl$tier, "NA" = NA_character_))
   }
+
+  basic_level_na_count <- sum(is.na(all_bl$basic_level))
+  if (drop_basic_level_na) {assertthat::are_equal(basic_level_na_count, 0)
+    } else {assertthat::assert_that(basic_level_na_count > 0)}
 
   return(all_bl)
 }
