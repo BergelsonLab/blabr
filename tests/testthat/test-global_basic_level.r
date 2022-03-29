@@ -10,10 +10,12 @@ test_that("add_global_basic_level works as expected", {
   to_fix <- output[[3]]
 
   hashes <- with_global_basic_level %>%
+    mutate(across(where(is.numeric), as.numeric),
+           across(where(is.factor), as.character)) %>%
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes <- list(
-    ordinal = "efc01375049e248c6fedce608ccbb24f",
+    ordinal = "89cf783c282e1e26e413eafbe4c39ceb",
     onset = "ca924312da625b0bacac785e79defdf1",
     offset = "24b15484e400d44fbe566f1aa009f1bd",
     object = "af15e94e37b6c6706e00274e79f0d21f",
@@ -23,8 +25,8 @@ test_that("add_global_basic_level works as expected", {
     basic_level = "a2fedf5aaeb7e27fab07857fd4bcba58",
     annotid = "8b5d50f1978d84d7bd229720f6e3570f",
     id = "592100fb0b7c895daf2ddc934328c3ee",
-    subj = "3f32cbc454046214e84f227bbd7c2394",
-    month = "cb1386e6206a247af1b1bf9dd3947f92",
+    subj = "1678c5247c7795b86eaad428756601c8",
+    month = "3f72079746e59bf21d1f2738691f9438",
     SubjectNumber = "7d792830f8e4b587f26d9dd36e17e44c",
     audio_video = "f1bf2ca80964fb2c25076e577398bb2c",
     tier = "42d3b2d22848477af95e77c86b42fc71",
@@ -34,6 +36,8 @@ test_that("add_global_basic_level works as expected", {
   expect_equal(hashes, expected_hashes)
 
   hashes_dict_updated <- dict_updated %>%
+    mutate(across(where(is.numeric), as.numeric),
+           across(where(is.factor), as.character)) %>%
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_dict_updated <- list(
@@ -43,6 +47,8 @@ test_that("add_global_basic_level works as expected", {
   expect_equal(hashes_dict_updated, expected_hashes_dict_updated)
 
   hashes_to_fix <- to_fix %>%
+    mutate(across(where(is.numeric), as.numeric),
+           across(where(is.factor), as.character)) %>%
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_to_fix <- list(
