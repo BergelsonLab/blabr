@@ -12,7 +12,8 @@ calculate_lena_like_stats <- function(its_xml, period) {
     # To keep the intervals to when the recording was on, we'll need recording-
     # level starts and ends.
     # Also, all recordings are in a single wav file, so to be able to find
-    # intervals within the
+    # intervals within the wav file, we'll also add the interval start as time
+    # since the wav start.
     dplyr::inner_join(
       rlena::gather_recordings(its_xml) %>%
         dplyr::select(recId,
@@ -113,6 +114,55 @@ get_lena_speaker_stats <- function(its_xml, intervals) {
                      sum),
               .groups = 'drop')
 }
+
+
+#' Calculate per-speaker statistics based on the VTC output
+#'
+#' @inheritParams get_lena_speaker_stats
+#' @param all_rttm An `all.rttm` file from the VTC output loaded with
+#'   `read_rttm`.
+#' @return
+#' @export
+get_vtc_speaker_stats <- function(all_rttm, intervals) {
+  intervals <- intervals %>%
+    # Keep the necessary columns only
+    dplyr::select(interval_start, interval_end, interval_start_wav) %>%
+    # And we need to convert interval boundaries to time since the start of the
+    # wav file since that is all what all_rttm knows about. We'll additionally
+    # convert wav-anchored boundaries to seconds to have the same units as
+    # all_rttm.
+    dplyr::mutate(duration_s = lubridate::interval(interval_start, interval_end)
+                  / lubridate::seconds(1),
+                  interval_start_wav = interval_start_wav / 1000,
+                  interval_end_wav = interval_start_wav + duration_s) %>%
+    dplyr::select(-duration_s)
+
+  all_rttm <- all_rttm %>%
+    # Keep the necessary columns only
+    dplyr::select(onset, duration, voice_type) %>%
+    dplyr::rename(interval_start_wav_rttm = onset) %>%
+    dplyr::mutate(interval_end_wav_rttm = interval_start_wav_rttm + duration)
+
+  intervals %>%
+    # start: conditional left join: intervals overlap
+    dplyr::inner_join(all_rttm, by = character()) %>%
+    dplyr::filter(
+      interval_start_wav_rttm < interval_end_wav
+      & interval_start_wav < interval_end_wav_rttm
+    ) %>%
+    dplyr::right_join(intervals, by = colnames(intervals)) %>%
+    # end: conditional left join
+    # clip voice duration to the interval boundaries
+    dplyr::mutate(
+      duration = pmin(interval_end_wav, interval_end_wav_rttm)
+      - pmax(interval_start_wav_rttm)
+    ) %>%
+    group_by(interval_start, interval_end, voice_type) %>%
+    summarise(duration = sum(duration),
+              count = n(),
+              .groups = 'drop')
+}
+
 
 #' Prepare intervals for sampling
 #'

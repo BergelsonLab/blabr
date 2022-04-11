@@ -9,6 +9,7 @@ subject_dir <- file.path(pn_opus_path, 'VIHI/SubjectFiles/LENA/HI/HI_424/HI_424_
 its_path <- file.path(subject_dir, 'HI_424_527.its')
 assertthat::are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
                       check.names = FALSE)
+
 its_xml <- rlena::read_its_file(its_path)
 
 test_that("make_five_min_approximation works", {
@@ -48,10 +49,11 @@ test_that("make_five_min_approximation works", {
   expect_equal(hashes_list, expected_hashes_list)
 })
 
+intervals <- make_five_min_approximation(its_xml)
 
 test_that("get_lena_speaker_stats works", {
   speaker_stats <- get_lena_speaker_stats(its_xml = its_xml,
-                                     intervals = make_five_min_approximation(its_xml))
+                                          intervals = intervals)
   hashes_list <- speaker_stats %>%
     summarise(across(everything(), digest)) %>%
     as.list
@@ -68,9 +70,28 @@ test_that("get_lena_speaker_stats works", {
 })
 
 
-test_that("sampling functions work as expected", {
-  intervals <- make_five_min_approximation(its_xml)
+test_that("get_vtc_speaker_stats works", {
+  rttm_file <- withr::local_tempfile(lines = test_rttm_contents)
+  rttm_tibble <- read_rttm(rttm_file)
 
+  vtc_speaker_stats <- get_vtc_speaker_stats(all_rttm = rttm_tibble,
+                                             intervals = intervals)
+  hashes_list <- vtc_speaker_stats %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  expected_hashes_list <-
+    list(
+      interval_start = "baf6a3760dd3f469a162adbc4c488f60",
+      interval_end = "6f84f761ab19ee9a31b4bb8d7b7458de",
+      voice_type = "83dfcaf087002288a5b78fd3035e40a1",
+      duration = "91c2e44c4ab4d2a77e62f9359a7f4fa7",
+      count = "63319a19e3821e1cf814285e812f325d"
+    )
+  expect_equal(hashes_list, expected_hashes_list)
+})
+
+
+test_that("sampling functions work as expected", {
   # # Random sampling
 
   # Running with a seed should produce the same result every time
