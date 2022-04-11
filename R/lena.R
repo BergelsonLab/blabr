@@ -68,7 +68,7 @@ make_five_min_approximation <- function(its_xml) {
   calculate_lena_like_stats(its_xml, '5 mins')
 }
 
-#' Calculate per-speaker
+#' Calculate per-speaker statistics based on the .its file
 #'
 #' @inheritParams calculate_lena_like_stats
 #' @param intervals a tibble with interval_start and interval_end datetime
@@ -80,7 +80,7 @@ make_five_min_approximation <- function(its_xml) {
 #' - utterance_count: for CH* - the sum of childUttCnt, for everyone else - the
 #'   number of conversation segments
 #' @export
-get_speaker_stats <- function(its_xml, intervals) {
+get_lena_speaker_stats <- function(its_xml, intervals) {
   # Extract several segment stats (a single utterance or a CHN/CHF
   # multi-utterance)
   segment_stats <- rlena::gather_segments(its_xml) %>%
@@ -121,7 +121,7 @@ get_speaker_stats <- function(its_xml, intervals) {
 #' - check that there are at least `size` intervals, unless `allow_fewer` is
 #'   `TRUE`
 #'
-#' @inheritParams get_speaker_stats
+#' @inheritParams get_lena_speaker_stats
 #' @param size required sample size
 #' @param period What period (e.g., '5 mins') is the main interval size? Only
 #' intervals of this duration will be sampled.

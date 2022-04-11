@@ -49,8 +49,8 @@ test_that("make_five_min_approximation works", {
 })
 
 
-test_that("get_speaker_stats works", {
-  speaker_stats <- get_speaker_stats(its_xml = its_xml,
+test_that("get_lena_speaker_stats works", {
+  speaker_stats <- get_lena_speaker_stats(its_xml = its_xml,
                                      intervals = make_five_min_approximation(its_xml))
   hashes_list <- speaker_stats %>%
     summarise(across(everything(), digest)) %>%
