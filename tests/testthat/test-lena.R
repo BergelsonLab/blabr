@@ -2,6 +2,8 @@ library(tools)
 library(digest)
 library(dplyr)
 
+source(test_path('files.R'))
+
 
 # Paths
 pn_opus_path <- Sys.getenv('PN_OPUS_PATH')
@@ -86,6 +88,29 @@ test_that("get_vtc_speaker_stats works", {
       voice_type = "83dfcaf087002288a5b78fd3035e40a1",
       duration = "91c2e44c4ab4d2a77e62f9359a7f4fa7",
       count = "63319a19e3821e1cf814285e812f325d"
+    )
+  expect_equal(hashes_list, expected_hashes_list)
+})
+
+
+test_that("get_seedlings_speaker_stats works", {
+  annotations <- seedlings_test_files$audio_annotations()
+  intervals <- seedlings_test_files$its_xml() %>%
+    make_five_min_approximation()
+
+  seedlings_speaker_stats <-
+    get_seedlings_speaker_stats(annotations = annotations,
+                                intervals = intervals)
+
+  hashes_list <- seedlings_speaker_stats %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  expected_hashes_list <-
+    list(
+      interval_start = "77a9629f3b700005c5a9654374e692f8",
+      interval_end = "107131b5e20361dfac8286db00dab99a",
+      tier = "041f9320ffdb5c412b2a10309de1e1da",
+      n_annotations = "96c890d6c4d0ad3735e23dd222e53b9c"
     )
   expect_equal(hashes_list, expected_hashes_list)
 })

@@ -173,6 +173,40 @@ get_vtc_speaker_stats <- function(all_rttm, intervals) {
 }
 
 
+#' Calculates the number of Seedlings annotations in each interval
+#'
+#' @inheritParams get_lena_speaker_stats
+#' @param annotations - a tible loaded from a csv annotations file from the
+#'   Seedlings project or similar
+#'
+#' @return
+#' @export
+get_seedlings_speaker_stats <- function(intervals, annotations) {
+  intervals <- intervals %>%
+    add_wav_anchored_interval_boundaries %>%
+    select(interval_start, interval_end,
+           interval_start_wav_s, interval_end_wav_s)
+  annotations <- annotations %>%
+    select(tier, onset, offset) %>%
+    mutate(across(c(onset, offset), ~ .x / 1000))
+
+  intervals %>%
+    # start: conditional left join: intervals overlap
+    dplyr::inner_join(annotations, by = character()) %>%
+    dplyr::filter(
+      onset < interval_end_wav_s
+      & interval_start_wav_s < offset
+    ) %>%
+    dplyr::right_join(intervals, by = colnames(intervals)) %>%
+    dplyr::arrange(interval_start, interval_end, onset, offset) %>%
+    # end: conditional left join
+    group_by(interval_start, interval_end, tier) %>%
+    summarise(n_annotations = n(),
+              .groups = 'drop') %>%
+    mutate(n_annotations = if_else(is.na(tier), 0L, n_annotations))
+}
+
+
 #' Prepare intervals for sampling
 #'
 #' - remove incomplete intervals,

@@ -30,4 +30,9 @@ seedlings_test_files$its_path <- function() {
   file.path(processing_dir, 'Audio_Files/01_12.its')
 }
 
+seedlings_test_files$its_xml <- function() {
+  its_path <- seedlings_test_files$its_path()
+  rlena::read_its_file(its_path)
+}
+
 # VIHI
