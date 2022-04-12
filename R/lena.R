@@ -122,7 +122,7 @@ get_lena_speaker_stats <- function(its_xml, intervals) {
 #' @inheritParams calculate_lena_like_stats
 #'
 #' @return `intervals` with two additional columns
-#' @keywords internal
+#' @noRd
 add_wav_anchored_interval_boundaries <- function(intervals) {
   intervals %>%
     dplyr::mutate(duration_s = lubridate::interval(interval_start, interval_end)
