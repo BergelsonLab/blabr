@@ -1,3 +1,13 @@
+# blabr 0.5.0
+
+- Added `read_rttm`/`write_rttm` functions to read/write `.rttm` files that
+  Voice Type Classifier (VTC) creates.
+- Added functions `get_seedlings_speaker_stats`, `get_vtc_speaker_stats` that
+  add stats to a set of time intervals based on Seedlings annotations and VTC
+  outputs respectively.
+- Renamed `get_speaker_stats` to `get_lena_speaker_stats` to make the stats
+  source explicit.
+
 # blabr 0.4.6
 
 LENA functions:
