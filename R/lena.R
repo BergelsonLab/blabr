@@ -12,7 +12,8 @@ calculate_lena_like_stats <- function(its_xml, period) {
     # To keep the intervals to when the recording was on, we'll need recording-
     # level starts and ends.
     # Also, all recordings are in a single wav file, so to be able to find
-    # intervals within the
+    # intervals within the wav file, we'll also add the interval start as time
+    # since the wav start.
     dplyr::inner_join(
       rlena::gather_recordings(its_xml) %>%
         dplyr::select(recId,
@@ -68,7 +69,7 @@ make_five_min_approximation <- function(its_xml) {
   calculate_lena_like_stats(its_xml, '5 mins')
 }
 
-#' Calculate per-speaker
+#' Calculate per-speaker statistics based on the .its file
 #'
 #' @inheritParams calculate_lena_like_stats
 #' @param intervals a tibble with interval_start and interval_end datetime
@@ -80,7 +81,7 @@ make_five_min_approximation <- function(its_xml) {
 #' - utterance_count: for CH* - the sum of childUttCnt, for everyone else - the
 #'   number of conversation segments
 #' @export
-get_speaker_stats <- function(its_xml, intervals) {
+get_lena_speaker_stats <- function(its_xml, intervals) {
   # Extract several segment stats (a single utterance or a CHN/CHF
   # multi-utterance)
   segment_stats <- rlena::gather_segments(its_xml) %>%
@@ -114,6 +115,98 @@ get_speaker_stats <- function(its_xml, intervals) {
               .groups = 'drop')
 }
 
+
+
+#' Adds wav-anchored interval boundaries in addition to local-time ones
+#'
+#' @inheritParams calculate_lena_like_stats
+#'
+#' @return `intervals` with two additional columns
+#' @noRd
+add_wav_anchored_interval_boundaries <- function(intervals) {
+  intervals %>%
+    dplyr::mutate(duration_s = lubridate::interval(interval_start, interval_end)
+                  / lubridate::seconds(1),
+                  interval_start_wav_s = interval_start_wav / 1000,
+                  interval_end_wav_s = interval_start_wav_s + duration_s) %>%
+    dplyr::select(-duration_s)
+}
+
+
+#' Calculate per-speaker statistics based on the VTC output
+#'
+#' @inheritParams get_lena_speaker_stats
+#' @param all_rttm An `all.rttm` file from the VTC output loaded with
+#'   `read_rttm`.
+#' @return
+#' @export
+get_vtc_speaker_stats <- function(all_rttm, intervals) {
+  intervals <- intervals %>%
+    add_wav_anchored_interval_boundaries %>%
+    select(interval_start, interval_end,
+           interval_start_wav_s, interval_end_wav_s)
+
+  all_rttm <- all_rttm %>%
+    # Keep the necessary columns only
+    dplyr::select(onset, duration, voice_type) %>%
+    dplyr::rename(interval_start_wav_rttm = onset) %>%
+    dplyr::mutate(interval_end_wav_rttm = interval_start_wav_rttm + duration)
+
+  intervals %>%
+    # start: conditional left join: intervals overlap
+    dplyr::inner_join(all_rttm, by = character()) %>%
+    dplyr::filter(
+      interval_start_wav_rttm < interval_end_wav_s
+      & interval_start_wav_s < interval_end_wav_rttm
+    ) %>%
+    dplyr::right_join(intervals, by = colnames(intervals)) %>%
+    # end: conditional left join
+    # clip voice duration to the interval boundaries
+    dplyr::mutate(
+      duration = pmin(interval_end_wav_s, interval_end_wav_rttm)
+      - pmax(interval_start_wav_s, interval_start_wav_rttm)
+    ) %>%
+    group_by(interval_start, interval_end, voice_type) %>%
+    summarise(duration = sum(duration),
+              count = n(),
+              .groups = 'drop')
+}
+
+
+#' Calculates the number of Seedlings annotations in each interval
+#'
+#' @inheritParams get_lena_speaker_stats
+#' @param annotations - a tible loaded from a csv annotations file from the
+#'   Seedlings project or similar
+#'
+#' @return
+#' @export
+get_seedlings_speaker_stats <- function(intervals, annotations) {
+  intervals <- intervals %>%
+    add_wav_anchored_interval_boundaries %>%
+    select(interval_start, interval_end,
+           interval_start_wav_s, interval_end_wav_s)
+  annotations <- annotations %>%
+    select(tier, onset, offset) %>%
+    mutate(across(c(onset, offset), ~ .x / 1000))
+
+  intervals %>%
+    # start: conditional left join: intervals overlap
+    dplyr::inner_join(annotations, by = character()) %>%
+    dplyr::filter(
+      onset < interval_end_wav_s
+      & interval_start_wav_s < offset
+    ) %>%
+    dplyr::right_join(intervals, by = colnames(intervals)) %>%
+    dplyr::arrange(interval_start, interval_end, onset, offset) %>%
+    # end: conditional left join
+    group_by(interval_start, interval_end, tier) %>%
+    summarise(n_annotations = n(),
+              .groups = 'drop') %>%
+    mutate(n_annotations = if_else(is.na(tier), 0L, n_annotations))
+}
+
+
 #' Prepare intervals for sampling
 #'
 #' - remove incomplete intervals,
@@ -121,7 +214,7 @@ get_speaker_stats <- function(its_xml, intervals) {
 #' - check that there are at least `size` intervals, unless `allow_fewer` is
 #'   `TRUE`
 #'
-#' @inheritParams get_speaker_stats
+#' @inheritParams get_lena_speaker_stats
 #' @param size required sample size
 #' @param period What period (e.g., '5 mins') is the main interval size? Only
 #' intervals of this duration will be sampled.
