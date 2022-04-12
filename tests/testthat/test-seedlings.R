@@ -1,14 +1,12 @@
 library(digest)
 library(assertthat)
 
-test_that("Reading and writing Seedlings audio annotations csvs works", {
-  # Paths
-  pn_opus_path <- Sys.getenv('PN_OPUS_PATH')
-  analysis_dir <- file.path(pn_opus_path, 'Seedlings/Subject_Files/01/01_12/Home_Visit/Analysis/')
-  audio_csv_path <- file.path(analysis_dir, 'Audio_Analysis/01_12_audio_sparse_code.csv')
+source(test_path('files.R'))
 
-  # Check that the csv files haven't changed
-  # If they have, manually check the result and update the hashes
+test_that("Reading and writing Seedlings audio annotations csvs works", {
+  # Check that the csv files hasn't changed
+  audio_csv_path <- seedlings_test_files$audio_csv_path()
+  # If it has, manually check the result and update the hashes
   md5 <- "0c64a0a9db20f04d01702dbe2a948bab"
   assertthat::are_equal(md5sum(audio_csv_path), md5, check.names = FALSE)
 
