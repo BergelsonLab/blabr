@@ -1,3 +1,8 @@
+# blabr 0.5.1
+
+- bugfix: `get_seedlings_speaker_stats` called multiple functions without
+  specifying the `library::` part.
+
 # blabr 0.5.0
 
 - Added `read_rttm`/`write_rttm` functions to read/write `.rttm` files that

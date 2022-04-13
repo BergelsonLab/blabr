@@ -10,22 +10,22 @@ read_seedlings_audio_annotations <- function(file_path,
                                              parse_timestamp_audio = T) {
   annotations <- readr::read_csv(
     file_path,
-    col_types = cols(
-      tier = col_character(),
-      word = col_character(),
-      utterance_type = col_character(),
-      object_present = col_character(),
-      speaker = col_character(),
-      annotid = col_character(),
-      timestamp = col_character(),
-      basic_level = col_character(),
-      comment = col_character(),
-      pho = col_character()
+    col_types = readr::cols(
+      tier = readr::col_character(),
+      word = readr::col_character(),
+      utterance_type = readr::col_character(),
+      object_present = readr::col_character(),
+      speaker = readr::col_character(),
+      annotid = readr::col_character(),
+      timestamp = readr::col_character(),
+      basic_level = readr::col_character(),
+      comment = readr::col_character(),
+      pho = readr::col_character()
     )
   )
   if (parse_timestamp_audio) {
     annotations <- annotations %>%
-      separate(
+      tidyr::separate(
         timestamp,
         into = c('onset', 'offset'),
         sep = '_',
@@ -49,7 +49,7 @@ read_seedlings_audio_annotations <- function(file_path,
 #' @export
 write_seedlings_audio_annotations <- function(annotations, file_path) {
   annotations %>%
-    select(
+    dplyr::select(
       tier,
       word,
       utterance_type,
@@ -63,6 +63,6 @@ write_seedlings_audio_annotations <- function(annotations, file_path) {
     ) %>%
     # TODO: update annotations to use "NA" when there is no transcription
     # (blabpy #16)
-    mutate(pho = replace_na(pho, replace = '')) %>%
+    dplyr::mutate(pho = tidyr::replace_na(pho, replace = '')) %>%
     readr::write_csv(file_path)
 }
