@@ -18,46 +18,19 @@ add_global_basic_level <- function(all_basiclevel_na) {
     ))
   disamb_rows <- readr::read_csv(
     file.path(data_dir, "disambiguated_rows.csv"),
+    col_select = c(annotid, object, disambiguate),
     col_types = cols(
-      onset = col_double(),
-      offset = col_double(),
       object = col_character(),
-      utterance_type = col_character(),
-      object_present = col_character(),
-      speaker = col_character(),
-      basic_level = col_character(),
       annotid = col_character(),
-      id = col_character(),
-      subj = col_double(),
-      month = col_double(),
-      SubjectNumber = col_character(),
-      audio_video = col_character(),
-      tier = col_character(),
       disambiguate = col_character()
-    )) %>%
-    dplyr::mutate(
-      subj = factor(subj),
-      month = factor(month),
-      annotid = paste("0x", annotid, sep = ""))
+    ))
 
   all_bl_NA2 <- dplyr::left_join(
     all_basiclevel_na,
     disamb_rows,
     by = c(
-      "onset",
-      "offset",
       "object",
-      "utterance_type",
-      "object_present",
-      "speaker",
-      "basic_level",
-      "annotid",
-      "id",
-      "subj",
-      "month",
-      "SubjectNumber",
-      "audio_video",
-      "tier"
+      "annotid"
     )
   )
 

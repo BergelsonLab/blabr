@@ -15,24 +15,25 @@ test_that("add_global_basic_level works as expected", {
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes <- list(
-    ordinal = "89cf783c282e1e26e413eafbe4c39ceb",
-    onset = "ca924312da625b0bacac785e79defdf1",
-    offset = "24b15484e400d44fbe566f1aa009f1bd",
-    object = "af15e94e37b6c6706e00274e79f0d21f",
-    utterance_type = "66286f5e18d0e7821549175826ed06a0",
-    object_present = "523f454077dc54ce66b7221c4bd2be35",
-    speaker = "68487a65af1849011bfbb3649de84cbb",
-    basic_level = "a2fedf5aaeb7e27fab07857fd4bcba58",
-    annotid = "8b5d50f1978d84d7bd229720f6e3570f",
-    id = "592100fb0b7c895daf2ddc934328c3ee",
-    subj = "1678c5247c7795b86eaad428756601c8",
-    month = "3f72079746e59bf21d1f2738691f9438",
-    SubjectNumber = "7d792830f8e4b587f26d9dd36e17e44c",
-    audio_video = "f1bf2ca80964fb2c25076e577398bb2c",
-    tier = "42d3b2d22848477af95e77c86b42fc71",
-    pho = "76c8e1c42722ac5bce60c5132e9642d4",
-    disambiguate = "1f5a3f182a4a395585ed1aebe14b9529",
-    global_bl = "9aebc68fefa3721552f4efa62c15d26e")
+      ordinal = "2e582ed0c51fae1ada3c9662b141ad08",
+      onset = "0625f731aa050546ef0289b2ae56b389",
+      offset = "d092130aa7854906e84df8fd4d7a0b0f",
+      object = "c310477329cf424ac96a9a0caa66386a",
+      utterance_type = "5fbf641a06d847bb73f4768cf7771a82",
+      object_present = "128e9d7a686e8c274a40a145cb84293d",
+      speaker = "f79b930d9e2d2402a345248158020449",
+      basic_level = "c2922cb5e5b1eed99a9c5f7a48c07cb4",
+      annotid = "beae0ba0a1ab7911f2e7ec694d2afb69",
+      id = "0d5e73858b691d95eb67c8cf23d6ca9e",
+      subj = "576c8ad0be33dcd6623ed05659f182a5",
+      month = "c62cad2e5d97a87c178b1f1d6f926010",
+      SubjectNumber = "bebe952597ccc7179095b39fa833d21c",
+      audio_video = "573803020a672ab792dc19002584c5e8",
+      tier = "9fd48b913f0a73e2f7eae40223a5881f",
+      pho = "c1f1fdde36641ed0bc8b832f4027ba3f",
+      disambiguate = "7d98b93357c916fdc0967851c533e29b",
+      global_bl = "0d2731d2b07593222025ed9ecb0523d1"
+    )
   expect_equal(hashes, expected_hashes)
 
   hashes_dict_updated <- dict_updated %>%
@@ -51,10 +52,10 @@ test_that("add_global_basic_level works as expected", {
            across(where(is.factor), as.character)) %>%
     summarise(across(everything(), digest)) %>%
     as.list
-  expected_hashes_to_fix <- list(
-    object = "44233b57b452017939df34ccdf25c3ec",
-    basic_level = "1f77a1b1e6a61472d411c6319443d7ec",
-    global_bl = "59ff237a0787f5db504a9b2d50c1252b")
+  expected_hashes_to_fix <-
+    list(object = "753fef2edea1f1d91f3d9580dba19d4c",
+         basic_level = "d27782eece28fe34c8e816a29b2bc750",
+         global_bl = "b0c9c0e8cd9e2383df6734dc0d1aa029")
   expect_equal(hashes_to_fix, expected_hashes_to_fix)
 
 })
