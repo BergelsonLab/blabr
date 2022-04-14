@@ -3,7 +3,8 @@ library(digest)
 test_that("add_global_basic_level works as expected", {
   all_basiclevel_na <- get_all_basiclevel(version = '0.1.3',
                                           drop_basic_level_na = FALSE)
-  output <- add_global_basic_level(all_basiclevel_na)
+  mappings_dir <- file.path(blab_data, 'global_basic_level', 'data')
+  output <- add_global_basic_level(all_basiclevel_na, mappings_dir)
 
   with_global_basic_level <- output[[1]]
   dict_updated <- output[[2]]

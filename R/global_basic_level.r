@@ -4,20 +4,21 @@
 # corpus level.
 
 
-add_global_basic_level <- function(all_basiclevel_na) {
+add_global_basic_level <- function(all_basiclevel_na,
+                                   mappings_dir) {
   # Check that there are rows with NA in the basic_level column
   assertthat::assert_that(sum(is.na(all_basiclevel_na$basic_level)) > 0)
 
-  data_dir <- file.path(blab_data, 'global_basic_level', 'data')
+
   dict <- readr::read_csv(
-    file.path(data_dir, "global_bl_dictionary.csv"),
+    file.path(mappings_dir, "global_bl_dictionary.csv"),
     col_types = cols(
       object = col_character(),
       disambiguate = col_character(),
       global_bl = col_character()
     ))
   disamb_rows <- readr::read_csv(
-    file.path(data_dir, "disambiguated_rows.csv"),
+    file.path(mappings_dir, "disambiguated_rows.csv"),
     col_select = c(annotid, object, disambiguate),
     col_types = cols(
       object = col_character(),
@@ -35,7 +36,7 @@ add_global_basic_level <- function(all_basiclevel_na) {
   )
 
   new_global_bls <- readr::read_csv(
-    file.path(data_dir, "new_entries_for_all_bl_disamb_feb2021.csv"),
+    file.path(mapping_dir, "new_entries_for_all_bl_disamb_feb2021.csv"),
     col_types = cols(
       object = col_character(),
       basic_level = col_character(),
