@@ -35,26 +35,13 @@ add_global_basic_level <- function(all_basiclevel_na,
     )
   )
 
-  new_global_bls <- readr::read_csv(
-    file.path(mapping_dir, "new_entries_for_all_bl_disamb_feb2021.csv"),
-    col_types = cols(
-      object = col_character(),
-      basic_level = col_character(),
-      global_bl = col_character()
-    ))
-
-  dict_full <- full_join(dict, new_global_bls) %>%
-    dplyr::select(-basic_level) # %>%
-  # write_csv("data/global_bl_dictionary.csv")
-
-
   all_bl_NA3 <- all_bl_NA2 %>%
     dplyr::mutate(disambiguate = dplyr::case_when(
       object == "balls" & basic_level == "ball" & is.na(disambiguate) ~ "toy",
       object == "Momo" & basic_level == "Momo" & is.na(disambiguate) ~ "dog",
       object == "glasses" & basic_level == "glasses" & is.na(disambiguate) ~ "eye",
       TRUE ~ disambiguate)) %>%
-    dplyr::left_join(dict_full, by = c("object", "disambiguate"))
+    dplyr::left_join(dict, by = c("object", "disambiguate"))
 
   duplicate_lines <- all_bl_NA3 %>%
     dplyr::count(annotid) %>%
@@ -89,5 +76,5 @@ add_global_basic_level <- function(all_basiclevel_na,
     dplyr::distinct()
 
   # write_feather(all_bl_NA3, "data/all_bl_global.feather")
-  return(list(all_bl_NA3, dict_full, to_fix))
+  return(list(all_bl_NA3, dict, to_fix))
 }
