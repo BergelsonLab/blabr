@@ -131,6 +131,50 @@ get_reliability <- function(av, month, version = NULL) {
 }
 
 
+#' Get the global basic level spreadsheets
+#'
+#' They are used to map every token in all_basiclevel_na to its global basic
+#' level, see `map_global_basic_level` and `make_new_global_basic_level`
+#'
+#' @param version version tag to checkout
+#'
+#' @return list of object_dict and
+#' @export
+#'
+#' @examples
+#' global_bl_mapping <- get_global_bl_mappings(version = '0.1.0')
+get_global_bl_mappings <- function(version = NULL) {
+  global_bl_repo <- 'global_basic_level'
+
+  object_dict <- get_df_file(
+    repo = global_bl_repo,
+    filename = 'data/global_bl_dictionary.csv',
+    version = version,
+    col_types = readr::cols(
+      object = readr::col_character(),
+      disambiguate = readr::col_character(),
+      global_bl = readr::col_character()
+    )
+  )
+  check_object_dict(object_dict)
+
+  annotid_disambiguation <- get_df_file(
+    repo = global_bl_repo,
+    filename = 'data/disambiguated_rows.csv',
+    version = version,
+    col_types = readr::cols(
+      object = readr::col_character(),
+      annotid = readr::col_character(),
+      disambiguate = readr::col_character()
+    ))
+  check_annotid_disambiguation(annotid_disambiguation)
+
+  list(
+    object_dict = object_dict,
+    annotid_disambiguation = annotid_disambiguation
+  )
+}
+
 #' Find latest version available for downloading?
 #'
 #' @inheritParams get_latest_tag
