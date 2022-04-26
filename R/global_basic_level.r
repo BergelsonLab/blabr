@@ -99,6 +99,13 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
                      by = colnames(annotid_disambiguation)) %>%
     nrow
 
+  # Keep the ones where only the object changed - there is a good chance the
+  # global basic level didn't. The user can the consult the list of the deleted
+  # ones.
+  objects_changed <- annotid_disambiguation %>%
+    dplyr::semi_join(all_basiclevel_na, by = c('annotid')) %>%
+    dplyr::anti_join(all_basiclevel_na, by = c('annotid', 'object'))
+
   # Find tokens those that need to be disambiguated but aren't
   # List all objects that need to be disambiguated
   ambiguous_objects <- object_dict %>%
@@ -129,7 +136,8 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
   list(
     n_need_disambiguation = n_need_disambiguation,
     n_non_matched = n_non_matched,
-    annotid_disambiguation = annotid_disambiguation_for_update
+    annotid_disambiguation = annotid_disambiguation_for_update,
+    objects_changed = objects_changed
   )
 }
 
@@ -233,8 +241,15 @@ update_mappings <- function(all_basiclevel_na,
   if (!annotid_disambiguation_ok) {
     # Save file to a temporary folder
     filename <- 'disambiguated_rows.csv'
-    object_dict_update$object_dict %>%
-      write_csv(file.path(temp_dir, 'disambiguated_rows.csv'))
+    annotid_disambiguation_update$annotid_disambiguation %>%
+      write_csv(file.path(temp_dir, filename))
+
+    # Save tokens whose object changed, if there are some
+    objects_changed <- annotid_disambiguation_update$objects_changed
+    if (nrow(objects_changed) > 0) {objects_changed %>%
+        write_csv(file.path(temp_dir,
+                            glue::glue('objects_changed_{filename}')))}
+
     # Create an instruction for the update
     instructions <- glue::glue(
       instructions, '\n',
