@@ -171,11 +171,17 @@ update_object_dict <- function(all_basiclevel_na,
     dplyr::distinct(object)
   n_objects_to_delete <- nrow(objects_to_delete)
 
+  # Keep the deleted objects for reference. Spelling changes shouldn't affect
+  # global basic level.
+  deleted_objects <- object_dict %>%
+    semi_join(objects_to_delete, by = c('object'))
+
   # Combine
   object_dict_for_update <-
     if (n_new_objects > 0 | n_objects_to_delete > 0) {
       dplyr::bind_rows(
-        object_dict,
+        object_dict %>%
+          dplyr::anti_join(objects_to_delete, by = c('object')),
         new_objects %>%
           mutate(disambiguate = FIXME,
                  global_bl = FIXME))
@@ -183,7 +189,8 @@ update_object_dict <- function(all_basiclevel_na,
 
   list(n_new_objects = n_new_objects,
        n_objects_to_delete = n_objects_to_delete,
-       object_dict = object_dict_for_update)
+       object_dict = object_dict_for_update,
+       deleted_objects = deleted_objects)
 }
 
 
@@ -228,6 +235,13 @@ update_mappings <- function(all_basiclevel_na,
     filename <- 'global_bl_dictionary.csv'
     object_dict_update$object_dict %>%
       write_csv(file.path(temp_dir, filename))
+
+    # Save tokens whose object changed, if there are any
+    deleted_objects <- object_dict_update$deleted_objects
+    if (nrow(deleted_objects) > 0) {deleted_objects %>%
+        write_csv(file.path(temp_dir,
+                            glue::glue('deleted_objects_{filename}')))}
+
     # Create an instruction for the update
     instructions <- glue::glue(
       instructions, '\n',
@@ -244,7 +258,7 @@ update_mappings <- function(all_basiclevel_na,
     annotid_disambiguation_update$annotid_disambiguation %>%
       write_csv(file.path(temp_dir, filename))
 
-    # Save tokens whose object changed, if there are some
+    # Save tokens whose object changed, if there are any
     objects_changed <- annotid_disambiguation_update$objects_changed
     if (nrow(objects_changed) > 0) {objects_changed %>%
         write_csv(file.path(temp_dir,
