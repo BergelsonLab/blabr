@@ -269,9 +269,7 @@ update_mappings <- function(all_basiclevel_na,
       instructions, '\n',
       "Update {filename}. ",
       "Look for the cells with \"{FIXME}\" in them and fill in the ",
-      "\"global_bl\" column. ",
-      'If the object is ambigious, fill in the "disambiguate" column as well,',
-      'otherwise just delete "{FIXME}" from it.\n'
+      '"disambiguate" column.\n'
     )}
 
   instructions <- glue::glue(
