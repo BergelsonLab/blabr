@@ -1,3 +1,8 @@
+# blabr 0.5.2
+
+- bugfix: `get_seedlings_speaker_stats` now uses the `speaker` field from the
+  sparse code csvs, instead of the LENA-identified `tier` field.
+
 # blabr 0.5.1
 
 - bugfix: `get_seedlings_speaker_stats` called multiple functions without

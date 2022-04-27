@@ -173,7 +173,7 @@ get_vtc_speaker_stats <- function(all_rttm, intervals) {
 }
 
 
-#' Calculates the number of Seedlings annotations in each interval
+#' Calculates the number of Seedlings annotations in each interval (by speaker)
 #'
 #' @inheritParams get_lena_speaker_stats
 #' @param annotations - a tible loaded from a csv annotations file from the
@@ -187,7 +187,7 @@ get_seedlings_speaker_stats <- function(intervals, annotations) {
     select(interval_start, interval_end,
            interval_start_wav_s, interval_end_wav_s)
   annotations <- annotations %>%
-    select(tier, onset, offset) %>%
+    select(speaker, onset, offset) %>%
     mutate(across(c(onset, offset), ~ .x / 1000))
 
   intervals %>%
@@ -200,10 +200,10 @@ get_seedlings_speaker_stats <- function(intervals, annotations) {
     dplyr::right_join(intervals, by = colnames(intervals)) %>%
     dplyr::arrange(interval_start, interval_end, onset, offset) %>%
     # end: conditional left join
-    group_by(interval_start, interval_end, tier) %>%
+    group_by(interval_start, interval_end, speaker) %>%
     summarise(n_annotations = n(),
               .groups = 'drop') %>%
-    mutate(n_annotations = if_else(is.na(tier), 0L, n_annotations))
+    mutate(n_annotations = if_else(is.na(speaker), 0L, n_annotations))
 }
 
 
