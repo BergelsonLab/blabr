@@ -371,11 +371,12 @@ make_new_global_basic_level <- function(
 
   # Add "global_bl" column
   with_global_bl <- all_basiclevel_na %>%
-    dplyr::inner_join(assigned %>% select(-disambiguate),
+    dplyr::inner_join(assignment,
                       by = c("annotid", "object", "basic_level"))
 
   # Check that we didn't lose any tokens, didn't create any duplicates,
-  assertthat::are_equal(all_basiclevel_na$annotid, with_global_bl$annotid)
+  assertthat::assert_that(assertthat::are_equal(
+    all_basiclevel_na$annotid, with_global_bl$annotid))
 
   # Check if all the tokens have global basic level now.
   assertthat::assert_that(sum(is.na(with_global_bl$global_bl)) == 0)
