@@ -41,7 +41,7 @@ check_object_dict <- function(object_dict) {
     dplyr::ungroup() %>%
     dplyr::filter(count > 1 & count_NA > 0) %>%
     nrow %>%
-    assertthat::are_equal(0)
+    assertthat::assert_that(assertthat::are_equal(0))
 
   # There should be no `object`-`disambiguate` duplicates
   object_dict %>%
@@ -49,7 +49,7 @@ check_object_dict <- function(object_dict) {
     dplyr::ungroup() %>%
     dplyr::filter(count > 1) %>%
     nrow %>%
-    assertthat::are_equal(0)
+    assertthat::assert_that(assertthat::are_equal(0))
 }
 
 
