@@ -1,3 +1,9 @@
+# blabr 0.6.0
+
+- Added `make_new_global_basic_level` function that loads `all_basiclevel`,
+  and adds a `global_bl` column to it which contains global basic levels.
+  Clone `global_basic_level` to `~/BLAB_DATA` before using.
+
 # blabr 0.5.2
 
 - bugfix: `get_seedlings_speaker_stats` now uses the `speaker` field from the
