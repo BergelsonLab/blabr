@@ -53,6 +53,66 @@ calculate_lena_like_stats <- function(its_xml, period) {
 }
 
 
+#' Add LENA stats to each interval in a dataframe
+#'
+#' @add_lena_stats
+#' @param intervals Tibble that contain columns `start` and `end`
+#' @param time_type Either `wall` or `wav`. If `wall`, `start` and `end` must
+#' contain timestamps with local time. If `wav`, `start` and `end` must contain
+#' the number of milliseconds since the beginning of the wav file. `wall` is not
+#' yet implemented.
+#'
+#' @note Any its segment overlapping with multiple intervals will count fully
+#' towards all of them.
+#'
+#' @note The difference between this function and `calculate_lena_like_stats`
+#' is that the latter calculates exactly the same stats but does it for every
+#' five minute period of wall time (e.g., 13:00-13:05). It should be rewritten
+#' to first create these intervals and then use `add_lena_stats` to avoid code
+#' repition (see issue #).
+#'
+#' @return
+#' @export
+add_lena_stats <- function(its_xml, intervals, time_type) {
+  assertthat::assert_that(time_type %in% c('wav', 'wall'))
+  if (time_type == 'wall') {
+    stop('Using wall time has not been implemented.')
+  }
+
+  segments <- rlena::gather_segments(its_xml) %>%
+    select(endTime, startTime, convTurnCount, childUttCnt, maleAdultWordCnt,
+           femaleAdultWordCnt) %>%
+    mutate(across(c(startTime, endTime), ~ as.integer(endTime * 1000)))
+  interval_stats <- intervals %>%
+    dplyr::inner_join(segments, by = character()) %>%
+    filter(start < endTime & startTime < end) %>%
+    dplyr::group_by(start, end) %>%
+    dplyr::summarise(
+      # If there were no conversational turns, use NA, not -Inf
+      cumulative_ctc = ifelse(
+        !all(is.na(convTurnCount)),
+        max(convTurnCount, na.rm=T),
+        NA_integer_),
+      cvc = round(sum(childUttCnt, na.rm = T)),
+      fwc = sum(maleAdultWordCnt, na.rm = T),
+      mwc = sum(femaleAdultWordCnt, na.rm = T),
+      awc = round(fwc + mwc),
+      .groups = 'drop') %>%
+    # For segments that don't have any conversational turns, use the previous value
+    tidyr::fill(cumulative_ctc, .direction = 'down') %>%
+    dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
+    dplyr::mutate(ctc = cumulative_ctc
+                        - dplyr::lag(cumulative_ctc, default = 0)) %>%
+    dplyr::select(start, end, cvc, ctc, awc)
+
+  # Match intervals to stats, substituting NAs for zero for intervals without
+  # segments
+  intervals %>%
+    dplyr::left_join(interval_stats, by = c('start', 'end')) %>%
+    dplyr::mutate(dplyr::across(c(-start, -end), ~ tidyr::replace_na(.x, 0)))
+}
+
+
 #' Approximate LENA's 5min.csv output
 #'
 #' @inherit calculate_lena_like_stats

@@ -1,6 +1,8 @@
 library(tools)
 library(digest)
 library(dplyr)
+library(assertthat)
+library(lubridate)
 
 source(test_path('files.R'))
 
@@ -9,8 +11,8 @@ source(test_path('files.R'))
 pn_opus_path <- Sys.getenv('PN_OPUS_PATH')
 subject_dir <- file.path(pn_opus_path, 'VIHI/SubjectFiles/LENA/HI/HI_424/HI_424_527/')
 its_path <- file.path(subject_dir, 'HI_424_527.its')
-assertthat::are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
-                      check.names = FALSE)
+assert_that(are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
+                      check.names = FALSE))
 
 its_xml <- rlena::read_its_file(its_path)
 
@@ -52,6 +54,32 @@ test_that("make_five_min_approximation works", {
 })
 
 intervals <- make_five_min_approximation(its_xml)
+
+test_that("add_lena_stats works", {
+  its_xml <- rlena::read_its_file('/Users/ek221/blab/GIN/bergelson/.git/annex/objects/MM/z1/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its')
+  intervals <- intervals %>%
+    mutate(start = interval_start_wav,
+           duration_ms = interval(interval_start, interval_end)
+                                  / lubridate::milliseconds(1),
+           end = interval_start_wav + duration_ms) %>%
+    select(start, end)
+  time_type <- 'wav'
+
+  with_stats <- add_lena_stats(its_xml = its_xml, intervals = intervals,
+                               time_type = time_type)
+
+  # Check that the output hasn't changed.
+  hashes_list <- with_stats %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  expected_hashes_list <- list(
+    start = "4e0425f5fe42f2268aca95582dfde58d",
+    end = "eb80aa746a6493b7c9324d890d1708dc",
+    cvc = 'c0523e52ccbe87d1ec2ac0ad4e3876c4',
+    ctc = "f15b5ff1206d3be0ae79406128b2a73e",
+    awc = "515eb3b93a067e846df65d98a3711b5a")
+  expect_equal(hashes_list, expected_hashes_list)
+})
 
 test_that("get_lena_speaker_stats works", {
   speaker_stats <- get_lena_speaker_stats(its_xml = its_xml,

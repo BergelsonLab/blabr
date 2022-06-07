@@ -1,3 +1,8 @@
+# blabr 0.7.0
+
+- Added `add_lena_stats` function that calculates ctc, cvc, and awc for a set of
+  intervals.
+
 # blabr 0.6.0
 
 - Added `make_new_global_basic_level` function that loads `all_basiclevel`,
