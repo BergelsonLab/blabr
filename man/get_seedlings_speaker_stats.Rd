@@ -2,7 +2,7 @@
 % Please edit documentation in R/lena.R
 \name{get_seedlings_speaker_stats}
 \alias{get_seedlings_speaker_stats}
-\title{Calculates the number of Seedlings annotations in each interval}
+\title{Calculates the number of Seedlings annotations in each interval (by speaker)}
 \usage{
 get_seedlings_speaker_stats(intervals, annotations)
 }
@@ -10,9 +10,13 @@ get_seedlings_speaker_stats(intervals, annotations)
 \item{intervals}{a tibble with interval_start and interval_end datetime
 columns}
 
-\item{annotations}{- a tible loaded from a csv annotations file from the
+\item{annotations}{A tible loaded from a csv annotations file from the
 Seedlings project or similar}
 }
+\value{
+A tibble with `interval_start` and `interval_end` columns for each
+interval in `intervals` and two new columns: `speaker` and `n_annotations`.
+}
 \description{
-Calculates the number of Seedlings annotations in each interval
+Calculates the number of Seedlings annotations in each interval (by speaker)
 }

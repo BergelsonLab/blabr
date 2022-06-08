@@ -55,7 +55,7 @@ calculate_lena_like_stats <- function(its_xml, period) {
 
 #' Add LENA stats to each interval in a dataframe
 #'
-#' @add_lena_stats
+#' @inherit add_lena_stats
 #' @param intervals Tibble that contain columns `start` and `end`
 #' @param time_type Either `wall` or `wav`. If `wall`, `start` and `end` must
 #' contain timestamps with local time. If `wav`, `start` and `end` must contain
@@ -69,9 +69,10 @@ calculate_lena_like_stats <- function(its_xml, period) {
 #' is that the latter calculates exactly the same stats but does it for every
 #' five minute period of wall time (e.g., 13:00-13:05). It should be rewritten
 #' to first create these intervals and then use `add_lena_stats` to avoid code
-#' repition (see issue #).
+#' repetition (see issue #).
 #'
-#' @return
+#' @return Same as `intervals` but with three new columns: `cvc`, `ctc`, and
+#' `awc`.
 #' @export
 add_lena_stats <- function(its_xml, intervals, time_type) {
   assertthat::assert_that(time_type %in% c('wav', 'wall'))
@@ -198,7 +199,9 @@ add_wav_anchored_interval_boundaries <- function(intervals) {
 #' @inheritParams get_lena_speaker_stats
 #' @param all_rttm An `all.rttm` file from the VTC output loaded with
 #'   `read_rttm`.
-#' @return
+#' @return A tibble with `interval_start` and `interval_end` columns for each
+#' interval in `intervals` and three new columns: `voice_type` and `duration`
+#' and `count` of VTC annotations.
 #' @export
 get_vtc_speaker_stats <- function(all_rttm, intervals) {
   intervals <- intervals %>%
@@ -236,10 +239,11 @@ get_vtc_speaker_stats <- function(all_rttm, intervals) {
 #' Calculates the number of Seedlings annotations in each interval (by speaker)
 #'
 #' @inheritParams get_lena_speaker_stats
-#' @param annotations - a tible loaded from a csv annotations file from the
+#' @param annotations A tible loaded from a csv annotations file from the
 #'   Seedlings project or similar
 #'
-#' @return
+#' @return A tibble with `interval_start` and `interval_end` columns for each
+#' interval in `intervals` and two new columns: `speaker` and `n_annotations`.
 #' @export
 get_seedlings_speaker_stats <- function(intervals, annotations) {
   intervals <- intervals %>%

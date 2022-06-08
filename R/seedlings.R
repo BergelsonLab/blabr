@@ -4,7 +4,9 @@
 #' @param parse_timestamp_audio Should the timestamp column be split into the
 #'   "onset" and "offset" integer columns?
 #'
-#' @return
+#' @return A tibble with all the columns in the file at `file_path` read as
+#' character vector. If `parse_timestamp_audio` is true, there will be two
+#' additional integer columns: `onset` and `offset`.
 #' @export
 read_seedlings_audio_annotations <- function(file_path,
                                              parse_timestamp_audio = T) {

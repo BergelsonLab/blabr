@@ -13,6 +13,11 @@ get_vtc_speaker_stats(all_rttm, intervals)
 \item{intervals}{a tibble with interval_start and interval_end datetime
 columns}
 }
+\value{
+A tibble with `interval_start` and `interval_end` columns for each
+interval in `intervals` and three new columns: `voice_type` and `duration`
+and `count` of VTC annotations.
+}
 \description{
 Calculate per-speaker statistics based on the VTC output
 }
