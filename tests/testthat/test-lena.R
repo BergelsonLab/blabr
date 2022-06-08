@@ -135,10 +135,10 @@ test_that("get_seedlings_speaker_stats works", {
     as.list
   expected_hashes_list <-
     list(
-      interval_start = "77a9629f3b700005c5a9654374e692f8",
-      interval_end = "107131b5e20361dfac8286db00dab99a",
-      tier = "041f9320ffdb5c412b2a10309de1e1da",
-      n_annotations = "96c890d6c4d0ad3735e23dd222e53b9c"
+      interval_start = "3d00e967a7d5f7aefa2e907241759b77",
+      interval_end = "c89c1017d5e60fc7c10c13d8f9ccd681",
+      speaker = "04838ee4fba81baec9ef46a89bdcfc72",
+      n_annotations = "359d31cea834bc913c6bccc5afa1858c"
     )
   expect_equal(hashes_list, expected_hashes_list)
 })
