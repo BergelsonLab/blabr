@@ -4,19 +4,19 @@
 \alias{get_vtc_speaker_stats}
 \title{Calculate per-speaker statistics based on the VTC output}
 \usage{
-get_vtc_speaker_stats(all_rttm, intervals)
+get_vtc_speaker_stats(intervals, all_rttm)
 }
 \arguments{
-\item{all_rttm}{An `all.rttm` file from the VTC output loaded with
-`read_rttm`.}
-
 \item{intervals}{a tibble with interval_start and interval_end datetime
 columns}
+
+\item{all_rttm}{An `all.rttm` file from the VTC output loaded with
+`read_rttm`.}
 }
 \value{
 A tibble with `interval_start` and `interval_end` columns for each
 interval in `intervals` and three new columns: `voice_type` and `duration`
-and `count` of VTC annotations.
+and `count` of VTC annotations. The `duration` is in seconds.
 }
 \description{
 Calculate per-speaker statistics based on the VTC output

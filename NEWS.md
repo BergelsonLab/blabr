@@ -1,3 +1,7 @@
+# blabr 0.8.1
+
+- Updated docs for `get_vtc_speaker_stats`.
+
 # blabr 0.8.0
 
 - Added `add_vtc_stats` function that calculates VTC-bases ctc. Ported from
