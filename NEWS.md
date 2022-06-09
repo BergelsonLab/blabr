@@ -1,3 +1,9 @@
+# blabr 0.9.0
+
+- Only objects marked for export in the roxygen comments will be exported. If a
+  function from `blabr` no longer works, use `blabr:::<function_name>` and tell
+  the lab technician.
+
 # blabr 0.8.1
 
 - Updated docs for `get_vtc_speaker_stats`.
