@@ -100,12 +100,12 @@ test_that("get_lena_speaker_stats works", {
 })
 
 
-test_that("get_vtc_speaker_stats works", {
+test_that("vtc stats functions work", {
   rttm_file <- withr::local_tempfile(lines = test_rttm_contents)
   rttm_tibble <- read_rttm(rttm_file)
 
-  vtc_speaker_stats <- get_vtc_speaker_stats(all_rttm = rttm_tibble,
-                                             intervals = intervals)
+  vtc_speaker_stats <- get_vtc_speaker_stats(intervals = intervals,
+                                             all_rttm = rttm_tibble)
   hashes_list <- vtc_speaker_stats %>%
     summarise(across(everything(), digest)) %>%
     as.list
@@ -117,6 +117,21 @@ test_that("get_vtc_speaker_stats works", {
       duration = "91c2e44c4ab4d2a77e62f9359a7f4fa7",
       count = "63319a19e3821e1cf814285e812f325d"
     )
+  expect_equal(hashes_list, expected_hashes_list)
+
+  vtc_stats <- add_vtc_stats(intervals = intervals,
+                             all_rttm = rttm_tibble)
+  hashes_list <- vtc_stats %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  # The existing columns haven't changed
+  expect_equal(intervals, select(vtc_stats, colnames(intervals)))
+  # New columns have expected values
+  hashes_list <- vtc_stats %>%
+    select(-colnames(intervals)) %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+  expected_hashes_list <- list(vtc_ctc = "9b964042ff4f962d3237d8b57b087d70")
   expect_equal(hashes_list, expected_hashes_list)
 })
 

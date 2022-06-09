@@ -10,7 +10,7 @@ get_seedlings_speaker_stats(intervals, annotations)
 \item{intervals}{a tibble with interval_start and interval_end datetime
 columns}
 
-\item{annotations}{A tible loaded from a csv annotations file from the
+\item{annotations}{A tibble loaded from a csv annotations file from the
 Seedlings project or similar}
 }
 \value{

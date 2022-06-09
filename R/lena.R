@@ -193,44 +193,94 @@ add_wav_anchored_interval_boundaries <- function(intervals) {
     dplyr::select(-duration_s)
 }
 
+#' Match intervals to VTC annotations
+#'
+#' Does a brute-force interval join to match intervals to all annotations that
+#' overlap with them.
+#'
+#' @inheritParams get_lena_speaker_stats
+#' @inheritParams add_vtc_stats
+#'
+#' @keywords internal
+match_intervals_to_vtc_annotations <- function(intervals, all_rttm) {
+  intervals <- intervals %>%
+    add_wav_anchored_interval_boundaries
+
+  all_rttm <- all_rttm %>%
+    dplyr::mutate(offset = onset + duration)
+
+  intervals %>%
+    # cross-join
+    dplyr::inner_join(all_rttm, by = character()) %>%
+    # keep only rows
+    dplyr::filter(
+      onset < interval_end_wav_s
+      & interval_start_wav_s < offset
+    ) %>%
+    dplyr::right_join(intervals, by = colnames(intervals)) %>%
+    mutate(overlap_duration =
+             pmin(interval_end_wav_s, offset)
+             - pmax(interval_start_wav_s, onset)) %>%
+    select(-c(interval_start_wav_s, interval_end_wav_s))
+}
+
+#' Add ctc calculated based on the vtc annotations
+#'
+#' @inheritParams get_lena_speaker_stats
+#' @param all_rttm An `all.rttm` file from the VTC output loaded with
+#' `read_rttm`.
+#'
+#' @return Same as `intervals` but with additional `vtc_ctc` column.
+#'
+#' @note Ported from childrpoject's high-volubility sampler code.
+#'
+#' @export
+add_vtc_stats <- function(intervals, all_rttm) {
+  # Conversational turn count: adult and child speaking withing 1 s from each
+  # other
+  child_voice_type <- 'KCHI'
+  other_voice_types <- c('FEM', 'MAL')
+  all_voice_types <- c(child_voice_type, other_voice_types)
+  distance <- 1  # second
+
+  all_rttm_is_ct <- all_rttm %>%
+    filter(voice_type %in% all_voice_types) %>%
+    # The order of voice types is arbitrary, the point is just to have a
+    # reproducible result whatever the order was before that.
+    arrange(onset, match(voice_type, all_voice_types)) %>%
+    mutate(
+      offset = onset + duration,
+      iti = onset - lag(offset),
+      prev_voice_type = lag(voice_type),
+      chi_and_other = ((voice_type == child_voice_type
+                        & prev_voice_type %in% other_voice_types)
+                       | (voice_type %in% other_voice_types
+                          & prev_voice_type == child_voice_type)),
+      is_ct = (iti < distance) & chi_and_other) %>%
+    select(onset, duration, is_ct)
+
+  match_intervals_to_vtc_annotations(intervals = intervals,
+                                     all_rttm = all_rttm_is_ct) %>%
+    mutate(is_ct = tidyr::replace_na(is_ct, FALSE)) %>%
+    group_by(across(colnames(intervals))) %>%
+    summarize(vtc_ctc = sum(is_ct), .groups = 'drop')
+}
+
 
 #' Calculate per-speaker statistics based on the VTC output
 #'
 #' @inheritParams get_lena_speaker_stats
-#' @param all_rttm An `all.rttm` file from the VTC output loaded with
-#'   `read_rttm`.
+#' @inheritParams add_vtc_stats
+#'
 #' @return A tibble with `interval_start` and `interval_end` columns for each
 #' interval in `intervals` and three new columns: `voice_type` and `duration`
-#' and `count` of VTC annotations.
+#' and `count` of VTC annotations. The `duration` is in seconds.
 #' @export
-get_vtc_speaker_stats <- function(all_rttm, intervals) {
-  intervals <- intervals %>%
-    add_wav_anchored_interval_boundaries %>%
-    select(interval_start, interval_end,
-           interval_start_wav_s, interval_end_wav_s)
-
-  all_rttm <- all_rttm %>%
-    # Keep the necessary columns only
-    dplyr::select(onset, duration, voice_type) %>%
-    dplyr::rename(interval_start_wav_rttm = onset) %>%
-    dplyr::mutate(interval_end_wav_rttm = interval_start_wav_rttm + duration)
-
-  intervals %>%
-    # start: conditional left join: intervals overlap
-    dplyr::inner_join(all_rttm, by = character()) %>%
-    dplyr::filter(
-      interval_start_wav_rttm < interval_end_wav_s
-      & interval_start_wav_s < interval_end_wav_rttm
-    ) %>%
-    dplyr::right_join(intervals, by = colnames(intervals)) %>%
-    # end: conditional left join
-    # clip voice duration to the interval boundaries
-    dplyr::mutate(
-      duration = pmin(interval_end_wav_s, interval_end_wav_rttm)
-      - pmax(interval_start_wav_s, interval_start_wav_rttm)
-    ) %>%
+get_vtc_speaker_stats <- function(intervals, all_rttm) {
+  match_intervals_to_vtc_annotations(intervals = intervals,
+                                     all_rttm = all_rttm) %>%
     group_by(interval_start, interval_end, voice_type) %>%
-    summarise(duration = sum(duration),
+    summarise(duration = sum(overlap_duration),
               count = n(),
               .groups = 'drop')
 }
@@ -239,11 +289,12 @@ get_vtc_speaker_stats <- function(all_rttm, intervals) {
 #' Calculates the number of Seedlings annotations in each interval (by speaker)
 #'
 #' @inheritParams get_lena_speaker_stats
-#' @param annotations A tible loaded from a csv annotations file from the
+#' @param annotations A tibble loaded from a csv annotations file from the
 #'   Seedlings project or similar
 #'
 #' @return A tibble with `interval_start` and `interval_end` columns for each
 #' interval in `intervals` and two new columns: `speaker` and `n_annotations`.
+#'
 #' @export
 get_seedlings_speaker_stats <- function(intervals, annotations) {
   intervals <- intervals %>%

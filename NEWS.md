@@ -1,3 +1,8 @@
+# blabr 0.8.0
+
+- Added `add_vtc_stats` function that calculates VTC-bases ctc. Ported from
+  childproject.
+
 # blabr 0.7.0
 
 - Added `add_lena_stats` function that calculates ctc, cvc, and awc for a set of
