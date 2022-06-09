@@ -1,3 +1,7 @@
+# blabr 0.10.0
+
+- Add `get_pn_opus_path` function.
+
 # blabr 0.9.0
 
 - Only objects marked for export in the roxygen comments will be exported. If a
