@@ -44,7 +44,7 @@ check_object_dict <- function(object_dict) {
 
   # There should be no `object`-`disambiguate` duplicates
   object_dict %>%
-    count(object, disambiguate, name = 'count') %>%
+    dplyr::count(object, disambiguate, name = 'count') %>%
     dplyr::ungroup() %>%
     dplyr::filter(count > 1) %>%
     {assertthat::assert_that(nrow(.) == 0)}
@@ -171,7 +171,7 @@ update_object_dict <- function(all_basiclevel_na,
   # Keep the deleted objects for reference. Spelling changes shouldn't affect
   # global basic level.
   deleted_objects <- object_dict %>%
-    semi_join(objects_to_delete, by = c('object'))
+    dplyr::semi_join(objects_to_delete, by = c('object'))
 
   # Combine
   object_dict_for_update <-
@@ -305,7 +305,7 @@ assign_global_basic_level <- function(all_basiclevel_na,
   # Match to the global basic value
   assignment %>%
     dplyr::left_join(object_dict, by = c("object", "disambiguate")) %>%
-    select(-disambiguate)
+    dplyr::select(-disambiguate)
 }
 
 
