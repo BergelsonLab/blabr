@@ -97,7 +97,7 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
     nrow
 
   # Keep the ones where only the object changed - there is a good chance the
-  # global basic level didn't. The user can the consult the list of the deleted
+  # global basic level didn't. The user can then consult the list of the deleted
   # ones.
   objects_changed <- annotid_disambiguation %>%
     dplyr::semi_join(all_basiclevel_na, by = c('annotid')) %>%
@@ -168,8 +168,8 @@ update_object_dict <- function(all_basiclevel_na,
     dplyr::distinct(object)
   n_objects_to_delete <- nrow(objects_to_delete)
 
-  # Keep the deleted objects for reference. Spelling changes shouldn't affect
-  # global basic level.
+  # Keep the deleted objects. They can be referenced for cases when only the
+  # spelling changed. Spelling changes shouldn't affect the global basic level.
   deleted_objects <- object_dict %>%
     dplyr::semi_join(objects_to_delete, by = c('object'))
 
@@ -223,10 +223,13 @@ update_mappings <- function(all_basiclevel_na,
   temp_dir <- tempfile('global_bl_mappings_update')
   dir.create(temp_dir, showWarnings = FALSE)
   instructions <- glue::glue(
-    "See files inside {temp_dir}:\n")
+    "Files used to match tokens to their global basic level will have to be ",
+    "updated. See files inside the temporary directory \n{temp_dir}\n",
+    "Beware that the folder will be deleted when the R session ends."
+    )
 
 
-  # For each mapping, save the tibble
+  # For each mapping, save the tibbles required/useful for updates
   if (!object_dict_ok) {
     # Save file to a temporary folder
     filename <- 'global_bl_dictionary.csv'
