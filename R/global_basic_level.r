@@ -40,16 +40,14 @@ check_object_dict <- function(object_dict) {
                   count_NA = sum(is.na(disambiguate))) %>%
     dplyr::ungroup() %>%
     dplyr::filter(count > 1 & count_NA > 0) %>%
-    nrow %>%
-    assertthat::assert_that(assertthat::are_equal(0))
+    {assertthat::assert_that(nrow(.) == 0)}
 
   # There should be no `object`-`disambiguate` duplicates
   object_dict %>%
     count(object, disambiguate, name = 'count') %>%
     dplyr::ungroup() %>%
     dplyr::filter(count > 1) %>%
-    nrow %>%
-    assertthat::assert_that(assertthat::are_equal(0))
+    {assertthat::assert_that(nrow(.) == 0)}
 }
 
 
@@ -67,8 +65,7 @@ check_annotid_disambiguation <- function(annotid_disambiguation) {
     dplyr::count(annotid, name = 'count') %>%
     dplyr::ungroup() %>%
     dplyr::filter(count > 1) %>%
-    nrow %>%
-    assertthat::are_equal(0)
+    {assertthat::assert_that(nrow(.) == 0)}
 }
 
 
