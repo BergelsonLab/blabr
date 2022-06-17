@@ -301,9 +301,15 @@ update_mappings <- function(all_basiclevel_na,
 
     # Save tokens whose object changed, if there are any
     objects_changed <- annotid_disambiguation_update$objects_changed
-    if (nrow(objects_changed) > 0) {objects_changed %>%
-        write_csv(file.path(temp_dir,
-                            glue::glue('objects_changed_{filename}')))}
+    if (nrow(objects_changed) > 0) {
+      objects_changed_filename <- glue::glue('objects_changed_{filename}')
+      objects_changed %>%
+        write_csv(file.path(temp_dir, objects_changed_filename))
+      instructions <- glue::glue(
+        instructions, '\n',
+        'Some tokens might have simply changed their spelling. Consult ',
+        '{objects_changed_filename} if you think that might be the case.')
+    }
 
     # Create an instruction for the update
     instructions <- glue::glue(
