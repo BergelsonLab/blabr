@@ -103,10 +103,8 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
   # Find tokens those that need to be disambiguated but aren't
   # List all objects that need to be disambiguated
   ambiguous_objects <- object_dict %>%
-    dplyr::group_by(object) %>%
-    dplyr::summarise(disambiguate_count = sum(!is.na(disambiguate))) %>%
-    dplyr::ungroup() %>%
-    dplyr::filter(disambiguate_count > 0) %>%
+    dplyr::count(object) %>%
+    dplyr::filter(n > 1) %>%
     dplyr::select(object)
   # A token needs to be disambiguated if:
   need_disambiguation <- all_basiclevel_na %>%
