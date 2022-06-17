@@ -257,11 +257,25 @@ update_mappings <- function(all_basiclevel_na,
 
 
   # For each mapping, save the tibbles required/useful for updates
+
+  # We'll need the dictionary both when it itself needs to be updated and when
+  # there are tokens that need to be disambiguated - to look up or add
+  # disambiguations
+  dict_filename <- 'global_bl_dictionary.csv'
+  if (!object_dict_ok
+      | annotid_disambiguation_update$n_need_disambiguation > 0) {
+    # If object_dict does not have to be updated, then we'll write the original
+    # object_dict
+    object_dict_to_write <- if (is.null(object_dict_update$object_dict)) {
+      object_dict}
+    else {
+      object_dict_update$object_dict}
+
+    object_dict_to_write %>%
+      write_csv(file.path(temp_dir, dict_filename))
+  }
+
   if (!object_dict_ok) {
-    # Save file to a temporary folder
-    filename <- 'global_bl_dictionary.csv'
-    object_dict_update$object_dict %>%
-      write_csv(file.path(temp_dir, filename))
 
     # Save tokens whose object changed, if there are any
     deleted_objects <- object_dict_update$deleted_objects
