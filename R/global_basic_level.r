@@ -208,7 +208,7 @@ update_object_dict <- function(all_basiclevel_na,
   if(n_new_objects == 0 & n_objects_to_delete == 0
      & n_nonambiguous_disambiguated == 0) {
     object_dict_for_update <- NULL
-    }
+  }
 
   list(n_new_objects = n_new_objects,
        n_objects_to_delete = n_objects_to_delete,
@@ -291,14 +291,28 @@ update_mappings <- function(all_basiclevel_na,
     }
 
 
-    instructions <- glue::glue(
-      instructions, '\n',
-      "Update {filename}. ",
-      "Look for the cells with \"{FIXME}\" in them and fill in the ",
-      "\"global_bl\" column. ",
-      'If the object is ambigious, fill in the "disambiguate" column as well,',
-      'otherwise just delete "{FIXME}" from it.\n'
-    )}
+    n_new_objects <- object_dict_update$n_new_objects
+    n_objects_to_delete <- object_dict_update$n_objects_to_delete
+    n_nonambiguous_disambiguated <-
+      object_dict_update$n_nonambiguous_disambiguated
+    if (n_new_objects > 0) {
+      # Add instructions to add global basic levels to new objects
+      instructions <- glue::glue(
+        instructions, '\n',
+        "Update {dict_filename}. ",
+        "Look for the cells with \"{FIXME}\" in them and fill in the ",
+        "\"global_bl\" column. ",
+        'If the object is ambigious, fill in the "disambiguate" column as well,',
+        'otherwise just delete "{FIXME}" from it.\n')
+    } else if (n_objects_to_delete > 0 | n_nonambiguous_disambiguated > 0) {
+      # Tell the user to copy the reduced file to the repository
+      instructions <- glue::glue(
+        instructions, '\n',
+        "File {dict_filename} has been updated in the temporary directory. ",
+        "Update it in the repository as well.\n"
+      )
+    }
+  }
 
   if (!annotid_disambiguation_ok) {
     # Save file to a temporary folder
@@ -318,13 +332,29 @@ update_mappings <- function(all_basiclevel_na,
         '{objects_changed_filename} if you think that might be the case.')
     }
 
-    # Create an instruction for the update
-    instructions <- glue::glue(
-      instructions, '\n',
-      "Update {filename}. ",
-      "Look for the cells with \"{FIXME}\" in them and fill in the ",
-      '"disambiguate" column.\n'
-    )}
+    n_need_disambiguation <- annotid_disambiguation_update$n_need_disambiguation
+    n_non_matched <- annotid_disambiguation_update$n_non_matched
+    n_non_ambiguous <- annotid_disambiguation_update$n_non_ambiguous
+    if (n_need_disambiguation > 0) {
+      # Tell the user to disambiguate tokens
+      instructions <- glue::glue(
+        instructions, '\n',
+        "Update {filename}. ",
+        "Look for the cells with \"{FIXME}\" in them and fill in the ",
+        '"disambiguate" column.\n'
+      )
+    } else if (n_non_matched > 0 | n_non_ambiguous > 0) {
+      # Tell the user to copy the reduced file to the repository
+      instructions <- glue::glue(
+        instructions, '\n',
+        "File {filename} has fewer rows now, the repository needs to be ",
+        "updated.\n"
+      )
+    }
+
+    # Create an instruction for updating the file because it has fewer rows now
+
+  }
 
   instructions <- glue::glue(
     instructions, '\n',
