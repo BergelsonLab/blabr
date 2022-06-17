@@ -91,11 +91,8 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
   # Remove annotids that no longer match any tokens
   annotid_disambiguation_matched <- annotid_disambiguation %>%
     dplyr::semi_join(all_basiclevel_na, by = c('annotid', 'object'))
-  n_non_matched <- annotid_disambiguation %>%
-    dplyr::anti_join(annotid_disambiguation_matched,
-                     by = colnames(annotid_disambiguation)) %>%
-    nrow
-
+  n_non_matched <- (nrow(annotid_disambiguation)
+                    - nrow(annotid_disambiguation_matched))
   # Keep the ones where only the object changed - there is a good chance the
   # global basic level didn't. The user can then consult the list of the deleted
   # ones.
