@@ -277,13 +277,20 @@ update_mappings <- function(all_basiclevel_na,
 
   if (!object_dict_ok) {
 
-    # Save tokens whose object changed, if there are any
+    # Save deleted objects in case it was just the spelling change
     deleted_objects <- object_dict_update$deleted_objects
-    if (nrow(deleted_objects) > 0) {deleted_objects %>%
-        write_csv(file.path(temp_dir,
-                            glue::glue('deleted_objects_{filename}')))}
+    deleted_objects_filename <- glue::glue('deleted_objects_{dict_filename}')
+    if (nrow(deleted_objects) > 0) {
+      deleted_objects %>%
+        write_csv(file.path(temp_dir, deleted_objects_filename))
+      instructions <- glue::glue(
+        instructions, '\n',
+        'Some of the objects might have been deleted because the spelling ',
+        'changed. Consult {deleted_objects_filename} if you think that might be ',
+        'the case.')
+    }
 
-    # Create an instruction for the update
+
     instructions <- glue::glue(
       instructions, '\n',
       "Update {filename}. ",
