@@ -100,6 +100,15 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
     dplyr::semi_join(all_basiclevel_na, by = c('annotid')) %>%
     dplyr::anti_join(all_basiclevel_na, by = c('annotid', 'object'))
 
+  # Remove tokens for objects that don't need to be disambiguated
+  n_matched <- nrow(annotid_disambiguation_matched)
+  annotid_disambiguation_matched <- annotid_disambiguation_matched %>%
+    dplyr::anti_join(object_dict %>%
+                       dplyr::count(object) %>%
+                       dplyr::filter(n == 1),
+                     by = c('object'))
+  n_non_ambiguous <- n_matched - nrow(annotid_disambiguation_matched)
+
   # Find tokens those that need to be disambiguated but aren't
   # List all objects that need to be disambiguated
   ambiguous_objects <- object_dict %>%
@@ -117,7 +126,7 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
 
   # Combine
   annotid_disambiguation_for_update <-
-    if (n_need_disambiguation > 0 | n_non_matched > 0) {
+    if (n_need_disambiguation > 0 | n_non_matched > 0 | n_non_ambiguous > 0) {
       dplyr::bind_rows(
         annotid_disambiguation_matched,
         need_disambiguation %>%
@@ -128,6 +137,7 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
   list(
     n_need_disambiguation = n_need_disambiguation,
     n_non_matched = n_non_matched,
+    n_non_ambiguous = n_non_ambiguous,
     annotid_disambiguation = annotid_disambiguation_for_update,
     objects_changed = objects_changed
   )
@@ -177,10 +187,32 @@ update_object_dict <- function(all_basiclevel_na,
         new_objects %>%
           mutate(disambiguate = FIXME,
                  global_bl = FIXME))
+    } else {
+      object_dict
+    }
+
+  # Set `disambiguate` to NA for non-ambiguous words
+  n_nonambiguous_disambiguated <- object_dict_for_update %>%
+    dplyr::add_count(object) %>%
+    dplyr::filter(n == 1 & !is.na(disambiguate)) %>%
+    nrow
+  if (n_nonambiguous_disambiguated > 0) {
+    object_dict_for_update <- object_dict_for_update %>%
+      dplyr::add_count(object) %>%
+      dplyr::mutate(disambiguate = dplyr::case_when(
+        n == 1 ~ NA_character_,
+        TRUE ~ disambiguate)) %>%
+      dplyr::select(-n)
+  }
+
+  if(n_new_objects == 0 & n_objects_to_delete == 0
+     & n_nonambiguous_disambiguated == 0) {
+    object_dict_for_update <- NULL
     }
 
   list(n_new_objects = n_new_objects,
        n_objects_to_delete = n_objects_to_delete,
+       n_nonambiguous_disambiguated = n_nonambiguous_disambiguated,
        object_dict = object_dict_for_update,
        deleted_objects = deleted_objects)
 }
