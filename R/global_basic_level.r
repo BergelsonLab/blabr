@@ -40,16 +40,14 @@ check_object_dict <- function(object_dict) {
                   count_NA = sum(is.na(disambiguate))) %>%
     dplyr::ungroup() %>%
     dplyr::filter(count > 1 & count_NA > 0) %>%
-    nrow %>%
-    assertthat::assert_that(assertthat::are_equal(0))
+    {assertthat::assert_that(nrow(.) == 0)}
 
   # There should be no `object`-`disambiguate` duplicates
   object_dict %>%
-    count(object, disambiguate, name = 'count') %>%
+    dplyr::count(object, disambiguate, name = 'count') %>%
     dplyr::ungroup() %>%
     dplyr::filter(count > 1) %>%
-    nrow %>%
-    assertthat::assert_that(assertthat::are_equal(0))
+    {assertthat::assert_that(nrow(.) == 0)}
 }
 
 
@@ -67,8 +65,7 @@ check_annotid_disambiguation <- function(annotid_disambiguation) {
     dplyr::count(annotid, name = 'count') %>%
     dplyr::ungroup() %>%
     dplyr::filter(count > 1) %>%
-    nrow %>%
-    assertthat::are_equal(0)
+    {assertthat::assert_that(nrow(.) == 0)}
 }
 
 
@@ -94,25 +91,29 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
   # Remove annotids that no longer match any tokens
   annotid_disambiguation_matched <- annotid_disambiguation %>%
     dplyr::semi_join(all_basiclevel_na, by = c('annotid', 'object'))
-  n_non_matched <- annotid_disambiguation %>%
-    dplyr::anti_join(annotid_disambiguation_matched,
-                     by = colnames(annotid_disambiguation)) %>%
-    nrow
-
+  n_non_matched <- (nrow(annotid_disambiguation)
+                    - nrow(annotid_disambiguation_matched))
   # Keep the ones where only the object changed - there is a good chance the
-  # global basic level didn't. The user can the consult the list of the deleted
+  # global basic level didn't. The user can then consult the list of the deleted
   # ones.
   objects_changed <- annotid_disambiguation %>%
     dplyr::semi_join(all_basiclevel_na, by = c('annotid')) %>%
     dplyr::anti_join(all_basiclevel_na, by = c('annotid', 'object'))
 
+  # Remove tokens for objects that don't need to be disambiguated
+  n_matched <- nrow(annotid_disambiguation_matched)
+  annotid_disambiguation_matched <- annotid_disambiguation_matched %>%
+    dplyr::anti_join(object_dict %>%
+                       dplyr::count(object) %>%
+                       dplyr::filter(n == 1),
+                     by = c('object'))
+  n_non_ambiguous <- n_matched - nrow(annotid_disambiguation_matched)
+
   # Find tokens those that need to be disambiguated but aren't
   # List all objects that need to be disambiguated
   ambiguous_objects <- object_dict %>%
-    dplyr::group_by(object) %>%
-    dplyr::summarise(disambiguate_count = sum(!is.na(disambiguate))) %>%
-    dplyr::ungroup() %>%
-    dplyr::filter(disambiguate_count > 0) %>%
+    dplyr::count(object) %>%
+    dplyr::filter(n > 1) %>%
     dplyr::select(object)
   # A token needs to be disambiguated if:
   need_disambiguation <- all_basiclevel_na %>%
@@ -125,7 +126,7 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
 
   # Combine
   annotid_disambiguation_for_update <-
-    if (n_need_disambiguation > 0 | n_non_matched > 0) {
+    if (n_need_disambiguation > 0 | n_non_matched > 0 | n_non_ambiguous > 0) {
       dplyr::bind_rows(
         annotid_disambiguation_matched,
         need_disambiguation %>%
@@ -136,6 +137,7 @@ update_annotid_disambiguation <- function(all_basiclevel_na,
   list(
     n_need_disambiguation = n_need_disambiguation,
     n_non_matched = n_non_matched,
+    n_non_ambiguous = n_non_ambiguous,
     annotid_disambiguation = annotid_disambiguation_for_update,
     objects_changed = objects_changed
   )
@@ -171,10 +173,10 @@ update_object_dict <- function(all_basiclevel_na,
     dplyr::distinct(object)
   n_objects_to_delete <- nrow(objects_to_delete)
 
-  # Keep the deleted objects for reference. Spelling changes shouldn't affect
-  # global basic level.
+  # Keep the deleted objects. They can be referenced for cases when only the
+  # spelling changed. Spelling changes shouldn't affect the global basic level.
   deleted_objects <- object_dict %>%
-    semi_join(objects_to_delete, by = c('object'))
+    dplyr::semi_join(objects_to_delete, by = c('object'))
 
   # Combine
   object_dict_for_update <-
@@ -185,10 +187,32 @@ update_object_dict <- function(all_basiclevel_na,
         new_objects %>%
           mutate(disambiguate = FIXME,
                  global_bl = FIXME))
+    } else {
+      object_dict
     }
+
+  # Set `disambiguate` to NA for non-ambiguous words
+  n_nonambiguous_disambiguated <- object_dict_for_update %>%
+    dplyr::add_count(object) %>%
+    dplyr::filter(n == 1 & !is.na(disambiguate)) %>%
+    nrow
+  if (n_nonambiguous_disambiguated > 0) {
+    object_dict_for_update <- object_dict_for_update %>%
+      dplyr::add_count(object) %>%
+      dplyr::mutate(disambiguate = dplyr::case_when(
+        n == 1 ~ NA_character_,
+        TRUE ~ disambiguate)) %>%
+      dplyr::select(-n)
+  }
+
+  if(n_new_objects == 0 & n_objects_to_delete == 0
+     & n_nonambiguous_disambiguated == 0) {
+    object_dict_for_update <- NULL
+  }
 
   list(n_new_objects = n_new_objects,
        n_objects_to_delete = n_objects_to_delete,
+       n_nonambiguous_disambiguated = n_nonambiguous_disambiguated,
        object_dict = object_dict_for_update,
        deleted_objects = deleted_objects)
 }
@@ -226,31 +250,69 @@ update_mappings <- function(all_basiclevel_na,
   temp_dir <- tempfile('global_bl_mappings_update')
   dir.create(temp_dir, showWarnings = FALSE)
   instructions <- glue::glue(
-    "See files inside {temp_dir}:\n")
+    "Files used to match tokens to their global basic level will have to be ",
+    "updated. See files inside the temporary directory \n{temp_dir}\n",
+    "Beware that the folder will be deleted when the R session ends."
+    )
 
 
-  # For each mapping, save the tibble
+  # For each mapping, save the tibbles required/useful for updates
+
+  # We'll need the dictionary both when it itself needs to be updated and when
+  # there are tokens that need to be disambiguated - to look up or add
+  # disambiguations
+  dict_filename <- 'global_bl_dictionary.csv'
+  if (!object_dict_ok
+      | annotid_disambiguation_update$n_need_disambiguation > 0) {
+    # If object_dict does not have to be updated, then we'll write the original
+    # object_dict
+    object_dict_to_write <- if (is.null(object_dict_update$object_dict)) {
+      object_dict}
+    else {
+      object_dict_update$object_dict}
+
+    object_dict_to_write %>%
+      write_csv(file.path(temp_dir, dict_filename))
+  }
+
   if (!object_dict_ok) {
-    # Save file to a temporary folder
-    filename <- 'global_bl_dictionary.csv'
-    object_dict_update$object_dict %>%
-      write_csv(file.path(temp_dir, filename))
 
-    # Save tokens whose object changed, if there are any
+    # Save deleted objects in case it was just the spelling change
     deleted_objects <- object_dict_update$deleted_objects
-    if (nrow(deleted_objects) > 0) {deleted_objects %>%
-        write_csv(file.path(temp_dir,
-                            glue::glue('deleted_objects_{filename}')))}
+    deleted_objects_filename <- glue::glue('deleted_objects_{dict_filename}')
+    if (nrow(deleted_objects) > 0) {
+      deleted_objects %>%
+        write_csv(file.path(temp_dir, deleted_objects_filename))
+      instructions <- glue::glue(
+        instructions, '\n',
+        'Some of the objects might have been deleted because the spelling ',
+        'changed. Consult {deleted_objects_filename} if you think that might be ',
+        'the case.')
+    }
 
-    # Create an instruction for the update
-    instructions <- glue::glue(
-      instructions, '\n',
-      "Update {filename}. ",
-      "Look for the cells with \"{FIXME}\" in them and fill in the ",
-      "\"global_bl\" column. ",
-      'If the object is ambigious, fill in the "disambiguate" column as well,',
-      'otherwise just delete "{FIXME}" from it.\n'
-    )}
+
+    n_new_objects <- object_dict_update$n_new_objects
+    n_objects_to_delete <- object_dict_update$n_objects_to_delete
+    n_nonambiguous_disambiguated <-
+      object_dict_update$n_nonambiguous_disambiguated
+    if (n_new_objects > 0) {
+      # Add instructions to add global basic levels to new objects
+      instructions <- glue::glue(
+        instructions, '\n',
+        "Update {dict_filename}. ",
+        "Look for the cells with \"{FIXME}\" in them and fill in the ",
+        "\"global_bl\" column. ",
+        'If the object is ambigious, fill in the "disambiguate" column as well,',
+        'otherwise just delete "{FIXME}" from it.\n')
+    } else if (n_objects_to_delete > 0 | n_nonambiguous_disambiguated > 0) {
+      # Tell the user to copy the reduced file to the repository
+      instructions <- glue::glue(
+        instructions, '\n',
+        "File {dict_filename} has been updated in the temporary directory. ",
+        "Update it in the repository as well.\n"
+      )
+    }
+  }
 
   if (!annotid_disambiguation_ok) {
     # Save file to a temporary folder
@@ -260,17 +322,36 @@ update_mappings <- function(all_basiclevel_na,
 
     # Save tokens whose object changed, if there are any
     objects_changed <- annotid_disambiguation_update$objects_changed
-    if (nrow(objects_changed) > 0) {objects_changed %>%
-        write_csv(file.path(temp_dir,
-                            glue::glue('objects_changed_{filename}')))}
+    if (nrow(objects_changed) > 0) {
+      objects_changed_filename <- glue::glue('objects_changed_{filename}')
+      objects_changed %>%
+        write_csv(file.path(temp_dir, objects_changed_filename))
+      instructions <- glue::glue(
+        instructions, '\n',
+        'Some tokens might have simply changed their spelling. Consult ',
+        '{objects_changed_filename} if you think that might be the case.')
+    }
 
-    # Create an instruction for the update
-    instructions <- glue::glue(
-      instructions, '\n',
-      "Update {filename}. ",
-      "Look for the cells with \"{FIXME}\" in them and fill in the ",
-      '"disambiguate" column.\n'
-    )}
+    n_need_disambiguation <- annotid_disambiguation_update$n_need_disambiguation
+    n_non_matched <- annotid_disambiguation_update$n_non_matched
+    n_non_ambiguous <- annotid_disambiguation_update$n_non_ambiguous
+    if (n_need_disambiguation > 0) {
+      # Tell the user to disambiguate tokens
+      instructions <- glue::glue(
+        instructions, '\n',
+        "Update {filename}. ",
+        "Look for the cells with \"{FIXME}\" in them and fill in the ",
+        '"disambiguate" column.\n'
+      )
+    } else if (n_non_matched > 0 | n_non_ambiguous > 0) {
+      # Tell the user to copy the reduced file to the repository
+      instructions <- glue::glue(
+        instructions, '\n',
+        "File {filename} has fewer rows now, the repository needs to be ",
+        "updated.\n"
+      )
+    }
+  }
 
   instructions <- glue::glue(
     instructions, '\n',
@@ -308,7 +389,7 @@ assign_global_basic_level <- function(all_basiclevel_na,
   # Match to the global basic value
   assignment %>%
     dplyr::left_join(object_dict, by = c("object", "disambiguate")) %>%
-    select(-disambiguate)
+    dplyr::select(-disambiguate)
 }
 
 
