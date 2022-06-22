@@ -1,3 +1,12 @@
+# blabr 0.11.0
+
+- Multiple fixes to the global basic level logic:
+  - ambiguous words in `object_dict` can't have rows with `NA` in
+    `disambiguate`,
+  - more specific instructions for manual updates,
+  - copy `object_dict` when some annotations need disambiguating even if the
+    dictionary itself does not need to be updated.
+
 # blabr 0.10.0
 
 - Add `get_pn_opus_path` function.
