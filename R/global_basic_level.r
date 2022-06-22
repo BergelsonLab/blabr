@@ -351,9 +351,6 @@ update_mappings <- function(all_basiclevel_na,
         "updated.\n"
       )
     }
-
-    # Create an instruction for updating the file because it has fewer rows now
-
   }
 
   instructions <- glue::glue(
