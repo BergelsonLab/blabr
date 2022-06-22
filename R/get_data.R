@@ -195,8 +195,6 @@ get_latest_version <- function(repo, tags_already_updated = FALSE) {
 #' @inheritParams get_latest_tag
 #' @param requested_version - the version user requested
 #'
-#' @examples
-#' check_for_updates('all_basiclevel', '0.0.2')
 check_for_updates <- function(repo, requested_version,
                               tags_already_updated = FALSE) {
   latest_version <- get_latest_version(
