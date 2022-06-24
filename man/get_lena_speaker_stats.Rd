@@ -7,7 +7,7 @@
 get_lena_speaker_stats(its_xml, intervals)
 }
 \arguments{
-\item{its_xml}{xml object created by rlena::read_its_file}
+\item{its_xml}{XML object created by `rlena::read_its_file`.}
 
 \item{intervals}{a tibble with interval_start and interval_end datetime
 columns}

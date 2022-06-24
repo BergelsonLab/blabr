@@ -163,7 +163,7 @@ test_that("sampling functions work as expected", {
   # # Random sampling
 
   # Running with a seed should produce the same result every time
-  sample_with_seed <- sample_intervals_randomly(intervals, period = '5 mins',
+  sample_with_seed <- sample_intervals_randomly(intervals, duration = '5 mins',
                                                 size = 15, seed = 72)
   hashes_list <- sample_with_seed %>%
     summarise(across(everything(), digest)) %>%
@@ -176,7 +176,7 @@ test_that("sampling functions work as expected", {
   expect_equal(hashes_list, expected_hashes_list)
 
   # Running without a seed should produce the same result extremely rarely
-  sample_no_seed <- sample_intervals_randomly(intervals, period = '5 mins',
+  sample_no_seed <- sample_intervals_randomly(intervals, duration = '5 mins',
                                               size = 15)
   hashes_list_no_seed <- sample_no_seed %>%
     summarise(across(everything(), digest)) %>%
@@ -195,7 +195,8 @@ test_that("sampling functions work as expected", {
       .tmp_cvc_normalized = .tmp_cvc_rate / sum(.tmp_cvc_rate),
       ctc_cvc_average = 0.5 * (.tmp_ctc_normalized + .tmp_cvc_normalized)) %>%
     select(-starts_with('.tmp')) %>%
-    sample_intervals_with_highest(ctc_cvc_average, size = 15, period = '5 mins')
+    sample_intervals_with_highest(ctc_cvc_average, size = 15,
+                                  duration = '5 mins')
   hashes_list_highest <- sample_highest %>%
     summarise(across(everything(), digest)) %>%
     as.list
@@ -209,8 +210,7 @@ test_that("sampling functions work as expected", {
   # # Sampling intervals every sampling period, e.g. 1 hour
 
   sample_periodic <- intervals %>%
-    sample_intervals_periodically(interval_period = '5 mins',
-                                  sampling_period = '1 hour')
+    sample_intervals_periodically(duration = '5 mins', period = '1 hour')
   hashes_list_periodic <- sample_periodic %>%
     summarise(across(everything(), digest)) %>%
     as.list

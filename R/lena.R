@@ -1,13 +1,24 @@
+#' Prepare intervals to potentially be annotated later
+#'
+
+#' Various metrics can then be calculated for each intervals and the "best"
+#' can then be annotated.
+#'
+prepare_intervals <- function(its_xml, duration) {
+  NULL
+}
+
+
 #' Calculate stats similar to those in LENA's 5min.csv files
 #'
-#' @param its_xml xml object created by rlena::read_its_file
-#' @param period interval duration supported by lubridate::period, e.g.,
-#' '2 mins'
+#' @param its_xml XML object created by `rlena::read_its_file`.
+#' @param duration Interval duration supported by `lubridate::period`, e.g.,
+#' '2 mins'.
 #'
 #' @return a tibble with at least these four columns: interval_start,
 #' interval_end, AWC.Actual, CTC.Actual, CWC.Actual
 #' @export
-calculate_lena_like_stats <- function(its_xml, period) {
+calculate_lena_like_stats <- function(its_xml, duration) {
   rlena::gather_segments(its_xml) %>%
     # To keep the intervals to when the recording was on, we'll need recording-
     # level starts and ends.
@@ -22,9 +33,9 @@ calculate_lena_like_stats <- function(its_xml, period) {
                recStartTimeWav = startTime),
       by = 'recId') %>%
     dplyr::mutate(
-      interval_start = pmax(lubridate::floor_date(startClockTimeLocal, period),
+      interval_start = pmax(lubridate::floor_date(startClockTimeLocal, duration),
                             recStartClockTimeLocal),
-      interval_end = pmin(lubridate::ceiling_date(startClockTimeLocal, period),
+      interval_end = pmin(lubridate::ceiling_date(startClockTimeLocal, duration),
                           recEndClockTimeLocal),
       # When does interval start within the recording, in seconds
       interval_start_rec = lubridate::interval(recStartClockTimeLocal,
@@ -55,7 +66,7 @@ calculate_lena_like_stats <- function(its_xml, period) {
 
 #' Add LENA stats to each interval in a dataframe
 #'
-#' @inherit add_lena_stats
+#' @inheritParams calculate_lena_like_stats
 #' @param intervals Tibble that contain columns `start` and `end`
 #' @param time_type Either `wall` or `wav`. If `wall`, `start` and `end` must
 #' contain timestamps with local time. If `wav`, `start` and `end` must contain
@@ -330,20 +341,20 @@ get_seedlings_speaker_stats <- function(intervals, annotations) {
 #'   `TRUE`
 #'
 #' @inheritParams get_lena_speaker_stats
+#' @inheritParams calculate_lena_like_stats
 #' @param size required sample size
-#' @param period What period (e.g., '5 mins') is the main interval size? Only
-#' intervals of this duration will be sampled.
 #' @param allow_fewer Is it OK if there are fewer than size intervals?
 #'
 #' @return intervals with incomplete intervals removed
 #'
 #' @keywords internal
-prepare_intervals_for_sampling <- function(intervals, size, period,
+prepare_intervals_for_sampling <- function(intervals, size, duration,
                                            allow_fewer) {
   intervals %>%
     # Keep only full intervals (the first and last interval of each recording
     # are usually shorter)
-    dplyr::filter(interval_end - interval_start == lubridate::period(period)) %T>%
+    dplyr::filter(interval_end - interval_start
+                  == lubridate::period(duration)) %T>%
     # Check that there are at least some full intervals
     {assertthat::assert_that(nrow(.) > 0)} %T>%
     # Check that there are enough rows left
@@ -353,11 +364,12 @@ prepare_intervals_for_sampling <- function(intervals, size, period,
 #' Sample intervals randomly
 #'
 #' @inheritParams prepare_intervals_for_sampling
+#' @inheritParams calculate_lena_like_stats
 #' @param seed Seed for the random number generator.
 #'
 #' @return A subsample of intervals.
 #' @export
-sample_intervals_randomly <- function(intervals, size, period,
+sample_intervals_randomly <- function(intervals, size, duration,
                                       allow_fewer = FALSE, seed = NULL) {
   if (!is.null(seed))
     {withr::local_seed(seed)}
@@ -366,7 +378,7 @@ sample_intervals_randomly <- function(intervals, size, period,
 
   intervals %>%
     select(interval_start, interval_end) %>%
-    prepare_intervals_for_sampling(size = size, period = period,
+    prepare_intervals_for_sampling(size = size, duration = duration,
                                    allow_fewer = allow_fewer) %>%
     dplyr::sample_n(min(size, nrow(.))) %>%
     arrange(interval_start)
@@ -379,11 +391,11 @@ sample_intervals_randomly <- function(intervals, size, period,
 #'
 #' @inherit sample_intervals_randomly return
 #' @export
-sample_intervals_with_highest <- function(intervals, column, size, period,
+sample_intervals_with_highest <- function(intervals, column, size, duration,
                                           allow_fewer = FALSE) {
   intervals %>%
     select(interval_start, interval_end, {{column}}) %>%
-    prepare_intervals_for_sampling(size = size, period = period,
+    prepare_intervals_for_sampling(size = size, duration = duration,
                                    allow_fewer = allow_fewer) %>%
     dplyr::arrange({{ column }}) %>%
     tail(min(size, nrow(.))) %>%
@@ -393,20 +405,17 @@ sample_intervals_with_highest <- function(intervals, column, size, period,
 #' Sample intervals periodically, e.g. every hour
 #'
 #' @inheritParams prepare_intervals_for_sampling
-#' @param interval_period period used to create the intervals
-#' @param sampling_period period at the end of which we should sample intervals,
+#' @param period Period at the end of which we should sample intervals,
 #' e.g., '1 hour'
 #'
 #' @inherit sample_intervals_randomly return
 #' @export
-sample_intervals_periodically <- function(intervals, interval_period,
-                                          sampling_period){
+sample_intervals_periodically <- function(intervals, duration, period){
   intervals %>%
     select(interval_start, interval_end) %>%
-    prepare_intervals_for_sampling(size = 0, period = interval_period,
+    prepare_intervals_for_sampling(size = 0, duration = duration,
                                    allow_fewer = TRUE) %>%
-    dplyr::filter(lubridate::ceiling_date(interval_end,
-                                          unit = sampling_period)
+    dplyr::filter(lubridate::ceiling_date(interval_end, unit = period)
                   == interval_end) %>%
     dplyr::arrange(interval_start)
 }

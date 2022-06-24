@@ -4,15 +4,16 @@
 \alias{sample_intervals_periodically}
 \title{Sample intervals periodically, e.g. every hour}
 \usage{
-sample_intervals_periodically(intervals, interval_period, sampling_period)
+sample_intervals_periodically(intervals, duration, period)
 }
 \arguments{
 \item{intervals}{a tibble with interval_start and interval_end datetime
 columns}
 
-\item{interval_period}{period used to create the intervals}
+\item{duration}{Interval duration supported by `lubridate::period`, e.g.,
+'2 mins'.}
 
-\item{sampling_period}{period at the end of which we should sample intervals,
+\item{period}{Period at the end of which we should sample intervals,
 e.g., '1 hour'}
 }
 \value{

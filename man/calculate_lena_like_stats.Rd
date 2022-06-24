@@ -4,13 +4,13 @@
 \alias{calculate_lena_like_stats}
 \title{Calculate stats similar to those in LENA's 5min.csv files}
 \usage{
-calculate_lena_like_stats(its_xml, period)
+calculate_lena_like_stats(its_xml, duration)
 }
 \arguments{
-\item{its_xml}{xml object created by rlena::read_its_file}
+\item{its_xml}{XML object created by `rlena::read_its_file`.}
 
-\item{period}{interval duration supported by lubridate::period, e.g.,
-'2 mins'}
+\item{duration}{Interval duration supported by `lubridate::period`, e.g.,
+'2 mins'.}
 }
 \value{
 a tibble with at least these four columns: interval_start,

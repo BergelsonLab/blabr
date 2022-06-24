@@ -4,7 +4,7 @@
 \alias{sample_intervals_randomly}
 \title{Sample intervals randomly}
 \usage{
-sample_intervals_randomly(intervals, size, period, allow_fewer = FALSE,
+sample_intervals_randomly(intervals, size, duration, allow_fewer = FALSE,
   seed = NULL)
 }
 \arguments{
@@ -13,8 +13,8 @@ columns}
 
 \item{size}{required sample size}
 
-\item{period}{What period (e.g., '5 mins') is the main interval size? Only
-intervals of this duration will be sampled.}
+\item{duration}{Interval duration supported by `lubridate::period`, e.g.,
+'2 mins'.}
 
 \item{allow_fewer}{Is it OK if there are fewer than size intervals?}
 

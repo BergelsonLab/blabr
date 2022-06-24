@@ -4,7 +4,7 @@
 \alias{prepare_intervals_for_sampling}
 \title{Prepare intervals for sampling}
 \usage{
-prepare_intervals_for_sampling(intervals, size, period, allow_fewer)
+prepare_intervals_for_sampling(intervals, size, duration, allow_fewer)
 }
 \arguments{
 \item{intervals}{a tibble with interval_start and interval_end datetime
@@ -12,8 +12,8 @@ columns}
 
 \item{size}{required sample size}
 
-\item{period}{What period (e.g., '5 mins') is the main interval size? Only
-intervals of this duration will be sampled.}
+\item{duration}{Interval duration supported by `lubridate::period`, e.g.,
+'2 mins'.}
 
 \item{allow_fewer}{Is it OK if there are fewer than size intervals?}
 }

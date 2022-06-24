@@ -7,7 +7,7 @@
 get_pn_opus_path(check_exists = TRUE)
 }
 \arguments{
-\item{check_exists}{Should the function check that the past exists
+\item{check_exists}{Should the function check that the path exists
 (accessible)}
 }
 \value{

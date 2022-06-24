@@ -4,7 +4,7 @@
 \alias{sample_intervals_with_highest}
 \title{Sample intervals that are highest on a given metric}
 \usage{
-sample_intervals_with_highest(intervals, column, size, period,
+sample_intervals_with_highest(intervals, column, size, duration,
   allow_fewer = FALSE)
 }
 \arguments{
@@ -15,8 +15,8 @@ columns}
 
 \item{size}{required sample size}
 
-\item{period}{What period (e.g., '5 mins') is the main interval size? Only
-intervals of this duration will be sampled.}
+\item{duration}{Interval duration supported by `lubridate::period`, e.g.,
+'2 mins'.}
 
 \item{allow_fewer}{Is it OK if there are fewer than size intervals?}
 }
