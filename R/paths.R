@@ -7,7 +7,9 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' pn_opus_path <- get_pn_opus_path()
+#' }
 get_pn_opus_path <- function(check_exists = TRUE) {
   pn_opus_path <- Sys.getenv('PN_OPUS_PATH')
   if (is.null(pn_opus_path)) {

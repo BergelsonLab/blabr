@@ -13,5 +13,7 @@ update_tags(repo)
 Fetches dataset tags from GitHub
 }
 \examples{
+\dontrun{
 update_tags('all_basiclevel')
+}
 }

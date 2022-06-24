@@ -16,5 +16,8 @@ get_current_commit_date(repo)
 Get the date of the currently checked out commit
 }
 \examples{
+
+\dontrun{
 get_current_commit_date('all_basiclevel')
+}
 }

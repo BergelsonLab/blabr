@@ -16,5 +16,7 @@ absolute path as a string
 Absolute path to a dataset folder
 }
 \examples{
+\dontrun{
 get_repo_path('all_basiclevel')
+}
 }

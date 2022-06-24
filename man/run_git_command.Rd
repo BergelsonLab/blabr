@@ -22,5 +22,7 @@ string with output if return_output is TRUE, else NULL
 Run a git command in a dataset repository
 }
 \examples{
+\dontrun{
 run_git_command('all_basiclevel', 'status')
+}
 }

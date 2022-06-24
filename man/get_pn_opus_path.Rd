@@ -17,5 +17,7 @@ Path to the PN-OPUS shared drive
 Find PN-OPUS
 }
 \examples{
+\dontrun{
 pn_opus_path <- get_pn_opus_path()
+}
 }
