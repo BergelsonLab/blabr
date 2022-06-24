@@ -1,5 +1,8 @@
 #' Find PN-OPUS
 #'
+#' @param check_exists Should the function check that the path exists
+#' (accessible)
+#'
 #' @return Path to the PN-OPUS shared drive
 #' @export
 #'
