@@ -189,19 +189,35 @@ get_lena_speaker_stats <- function(its_xml, intervals) {
 
 
 
-#' Adds wav-anchored interval boundaries in addition to local-time ones
+#' Adds wav-anchored interval boundaries
 #'
 #' @inheritParams calculate_lena_like_stats
+#' @param unit The time unit of the added boundaries. Either 'ms' or 's' for
+#' milliseconds or seconds respectively. The add column(s)' names will reflect
+#' the choice of this parameter.
 #'
-#' @return `intervals` with two additional columns
+#' @return If `unit` is 'ms' then `intervals` with one additional column -
+#'  `interval_end_wav`. If unit is 's' - two additional columns:
+#'  `interval_start_wav_s` and `interval_end_wav_s`.
+#'
 #' @noRd
-add_wav_anchored_interval_boundaries <- function(intervals) {
-  intervals %>%
-    dplyr::mutate(duration_s = lubridate::interval(interval_start, interval_end)
-                  / lubridate::seconds(1),
-                  interval_start_wav_s = interval_start_wav / 1000,
-                  interval_end_wav_s = interval_start_wav_s + duration_s) %>%
-    dplyr::select(-duration_s)
+add_interval_end_wav <- function(intervals, unit = c('ms', 's')) {
+  unit <- match.arg(unit)
+  intervals <- intervals %>%
+    dplyr::mutate(duration = lubridate::interval(interval_start, interval_end)
+                  / lubridate::milliseconds(1),
+                  interval_end_wav = interval_start_wav + duration) %>%
+    dplyr::select(-duration)
+
+  if (unit == 's') {
+    intervals <- intervals %>%
+      mutate(across(c(interval_start_wav, interval_end_wav),
+                    ~ .x / 1000,
+                    .names = '{.col}_s')) %>%
+      select(-interval_end_wav)
+  }
+
+  return(intervals)
 }
 
 #' Match intervals to VTC annotations
@@ -214,8 +230,9 @@ add_wav_anchored_interval_boundaries <- function(intervals) {
 #'
 #' @keywords internal
 match_intervals_to_vtc_annotations <- function(intervals, all_rttm) {
-  intervals <- intervals %>%
-    add_wav_anchored_interval_boundaries
+  # Add wav-anchored interval boundaries in seconds (VTC uses seconds, we could
+  # have converted it to milliseconds instead).
+  intervals <- add_interval_end_wav(intervals, unit = 's')
 
   all_rttm <- all_rttm %>%
     dplyr::mutate(offset = onset + duration)
@@ -309,7 +326,7 @@ get_vtc_speaker_stats <- function(intervals, all_rttm) {
 #' @export
 get_seedlings_speaker_stats <- function(intervals, annotations) {
   intervals <- intervals %>%
-    add_wav_anchored_interval_boundaries %>%
+    add_interval_end_wav(unit = 's') %>%
     select(interval_start, interval_end,
            interval_start_wav_s, interval_end_wav_s)
   annotations <- annotations %>%
