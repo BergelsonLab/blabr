@@ -75,9 +75,9 @@ test_that("add_lena_stats works", {
   expected_hashes_list <- list(
     start = "4e0425f5fe42f2268aca95582dfde58d",
     end = "eb80aa746a6493b7c9324d890d1708dc",
-    cvc = 'c0523e52ccbe87d1ec2ac0ad4e3876c4',
-    ctc = "f15b5ff1206d3be0ae79406128b2a73e",
-    awc = "515eb3b93a067e846df65d98a3711b5a")
+    cvc = 'cd37c4c69941007faf787013fef77e8a',
+    ctc = "cffa7206c8330cab9e740d0422a540f9",
+    awc = "b6097b94d2e075a74409d98b9413ba44")
   expect_equal(hashes_list, expected_hashes_list)
 })
 

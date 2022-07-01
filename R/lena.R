@@ -94,7 +94,7 @@ add_lena_stats <- function(its_xml, intervals, time_type) {
   segments <- rlena::gather_segments(its_xml) %>%
     select(endTime, startTime, convTurnCount, childUttCnt, maleAdultWordCnt,
            femaleAdultWordCnt) %>%
-    mutate(across(c(startTime, endTime), ~ as.integer(endTime * 1000)))
+    mutate(across(c(startTime, endTime), ~ as.integer(.x * 1000)))
   interval_stats <- intervals %>%
     dplyr::inner_join(segments, by = character()) %>%
     filter(start < endTime & startTime < end) %>%
