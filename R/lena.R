@@ -67,7 +67,6 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 #' Add LENA stats to each interval in a dataframe
 #'
 #' @inheritParams calculate_lena_like_stats
-#' @param intervals Tibble that contain columns `start` and `end`
 #' @param time_type Either `wall` or `wav`. If `wall`, `start` and `end` must
 #' contain timestamps with local time. If `wav`, `start` and `end` must contain
 #' the number of milliseconds since the beginning of the wav file. `wall` is not
@@ -85,8 +84,8 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 #' @return Same as `intervals` but with three new columns: `cvc`, `ctc`, and
 #' `awc`.
 #' @export
-add_lena_stats <- function(its_xml, intervals, time_type) {
-  assertthat::assert_that(time_type %in% c('wav', 'wall'))
+add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
+  time_type <- match.arg(time_type)
   if (time_type == 'wall') {
     stop('Using wall time has not been implemented.')
   }
@@ -94,11 +93,15 @@ add_lena_stats <- function(its_xml, intervals, time_type) {
   segments <- rlena::gather_segments(its_xml) %>%
     select(endTime, startTime, convTurnCount, childUttCnt, maleAdultWordCnt,
            femaleAdultWordCnt) %>%
+    # convert time to milliseconds
     mutate(across(c(startTime, endTime), ~ as.integer(.x * 1000)))
+
+  intervals <- intervals %>% add_interval_end_wav
+
   interval_stats <- intervals %>%
     dplyr::inner_join(segments, by = character()) %>%
-    filter(start < endTime & startTime < end) %>%
-    dplyr::group_by(start, end) %>%
+    filter(interval_start_wav < endTime & startTime < interval_end_wav) %>%
+    dplyr::group_by(interval_start_wav, interval_end_wav) %>%
     dplyr::summarise(
       # If there were no conversational turns, use NA, not -Inf
       cumulative_ctc = ifelse(
@@ -115,13 +118,17 @@ add_lena_stats <- function(its_xml, intervals, time_type) {
     dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
     dplyr::mutate(ctc = cumulative_ctc
                         - dplyr::lag(cumulative_ctc, default = 0)) %>%
-    dplyr::select(start, end, cvc, ctc, awc)
+    dplyr::select(interval_start_wav, interval_end_wav, cvc, ctc, awc)
 
   # Match intervals to stats, substituting NAs for zero for intervals without
   # segments
-  intervals %>%
-    dplyr::left_join(interval_stats, by = c('start', 'end')) %>%
-    dplyr::mutate(dplyr::across(c(-start, -end), ~ tidyr::replace_na(.x, 0)))
+  new_columns <- setdiff(names(interval_stats), names(intervals))
+  intervals_with_stats <- intervals %>%
+    dplyr::left_join(interval_stats,
+                     by = c('interval_start_wav', 'interval_end_wav')) %>%
+    dplyr::mutate(dplyr::across(new_columns, ~ tidyr::replace_na(.x, 0)))
+
+  return(intervals_with_stats)
 }
 
 

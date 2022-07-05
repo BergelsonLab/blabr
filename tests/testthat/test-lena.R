@@ -58,23 +58,20 @@ intervals <- make_five_min_approximation(its_xml)
 test_that("add_lena_stats works", {
   its_xml <- rlena::read_its_file('/Users/ek221/blab/GIN/bergelson/.git/annex/objects/MM/z1/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its')
   intervals <- intervals %>%
-    mutate(start = interval_start_wav,
-           duration_ms = interval(interval_start, interval_end)
-                                  / lubridate::milliseconds(1),
-           end = interval_start_wav + duration_ms) %>%
-    select(start, end)
+    add_interval_end_wav
   time_type <- 'wav'
 
   with_stats <- add_lena_stats(its_xml = its_xml, intervals = intervals,
-                               time_type = time_type)
+                               time_type = time_type) %>%
+    select(interval_start_wav, interval_end_wav, cvc, ctc, awc)
 
   # Check that the output hasn't changed.
   hashes_list <- with_stats %>%
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_list <- list(
-    start = "4e0425f5fe42f2268aca95582dfde58d",
-    end = "eb80aa746a6493b7c9324d890d1708dc",
+    interval_start_wav = "4e0425f5fe42f2268aca95582dfde58d",
+    interval_end_wav = "eb80aa746a6493b7c9324d890d1708dc",
     cvc = 'cd37c4c69941007faf787013fef77e8a',
     ctc = "cffa7206c8330cab9e740d0422a540f9",
     awc = "b6097b94d2e075a74409d98b9413ba44")
