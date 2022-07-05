@@ -41,15 +41,16 @@ test_that("make_five_min_approximation works", {
 
   # Check that the output hasn't changed.
   hashes_list <- five_min %>%
+    filter(CVC.Actual > 0 | CTC.Actual > 0 | AWC.Actual > 0) %>%
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_list <- list(
-    interval_start = "30841229360109291c62979020ce221e",
-    interval_end = "5c43749516ccc29c9acf34c95ae217db",
-    interval_start_wav = '4e0425f5fe42f2268aca95582dfde58d',
-    CVC.Actual = "5f7b4ed578e18847a1b4efc70e97416b",
-    CTC.Actual = "2691ad0a451337ba2d49eb8a762783ee",
-    AWC.Actual = "0afd0ffb338176699ce6142f077160e7")
+    interval_start = "dd39a74a6d68c20d1705b7598b0f0c0f",
+    interval_end = "eba79d440ecce816059be4137248d61d",
+    interval_start_wav = '24f8f6523aacce3f6077ac323f6ad7c5',
+    CVC.Actual = "2e56ee6ca737e12db603b2dfca977fd0",
+    CTC.Actual = "13ae94f062576bf7077937ed2e642929",
+    AWC.Actual = "a37ae81e52ceedab965fce384c31dd01")
   expect_equal(hashes_list, expected_hashes_list)
 })
 
