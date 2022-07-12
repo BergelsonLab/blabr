@@ -63,7 +63,7 @@ test_that("add_lena_stats works", {
 
   with_stats <- add_lena_stats(its_xml = its_xml, intervals = intervals,
                                time_type = time_type) %>%
-    select(interval_start_wav, interval_end_wav, cvc, ctc, awc)
+    select(interval_start_wav, cvc, ctc, awc)
 
   # Check that the output hasn't changed.
   hashes_list <- with_stats %>%
@@ -71,7 +71,6 @@ test_that("add_lena_stats works", {
     as.list
   expected_hashes_list <- list(
     interval_start_wav = "24f8f6523aacce3f6077ac323f6ad7c5",
-    interval_end_wav = "34a6b44394a891b43746e3d767804058",
     cvc = '57e495a10aac38de9f69ce65a9debcb3',
     ctc = "c111b230d4da19d6bef299ff3cad2f4b",
     awc = "396d875cee824b68806ab98280ffadc3")

@@ -91,7 +91,7 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
   }
 
   segments <- rlena::gather_segments(its_xml) %>%
-    select(endTime, startTime, convTurnCount, childUttCnt, maleAdultWordCnt,
+    dplyr::select(endTime, startTime, convTurnCount, childUttCnt, maleAdultWordCnt,
            femaleAdultWordCnt) %>%
     # convert time to milliseconds
     mutate(across(c(startTime, endTime), ~ as.integer(.x * 1000)))
@@ -118,7 +118,8 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
     dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
     dplyr::mutate(ctc = cumulative_ctc
                         - dplyr::lag(cumulative_ctc, default = 0)) %>%
-    dplyr::select(interval_start_wav, interval_end_wav, cvc, ctc, awc)
+    # Remove auxiliary columns
+    dplyr::select(-c(cumulative_ctc, fwc, mwc))
 
   # Match intervals to stats, substituting NAs for zero for intervals without
   # segments
@@ -126,7 +127,8 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
   intervals_with_stats <- intervals %>%
     dplyr::left_join(interval_stats,
                      by = c('interval_start_wav', 'interval_end_wav')) %>%
-    dplyr::mutate(dplyr::across(new_columns, ~ tidyr::replace_na(.x, 0)))
+    dplyr::mutate(dplyr::across(new_columns, ~ tidyr::replace_na(.x, 0))) %>%
+    dplyr::select(-interval_end_wav)
 
   return(intervals_with_stats)
 }
