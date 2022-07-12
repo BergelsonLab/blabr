@@ -15,10 +15,12 @@ assert_that(are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
                       check.names = FALSE))
 
 its_xml <- rlena::read_its_file(its_path)
+intervals <- make_five_min_approximation(its_xml) %>%
+  filter(CVC.Actual > 0 | CTC.Actual > 0 | AWC.Actual > 0)
 
 test_that("make_five_min_approximation works", {
 
-  five_min <- make_five_min_approximation(its_xml)
+  five_min <- intervals
 
   # Load LENA's 5min.csv file
   five_min_path <- file.path(subject_dir, 'HI_424_527_lena5min.csv')
@@ -41,7 +43,6 @@ test_that("make_five_min_approximation works", {
 
   # Check that the output hasn't changed.
   hashes_list <- five_min %>%
-    filter(CVC.Actual > 0 | CTC.Actual > 0 | AWC.Actual > 0) %>%
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_list <- list(
@@ -53,8 +54,6 @@ test_that("make_five_min_approximation works", {
     AWC.Actual = "a37ae81e52ceedab965fce384c31dd01")
   expect_equal(hashes_list, expected_hashes_list)
 })
-
-intervals <- make_five_min_approximation(its_xml)
 
 test_that("add_lena_stats works", {
   its_xml <- rlena::read_its_file('/Users/ek221/blab/GIN/bergelson/.git/annex/objects/MM/z1/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its')
@@ -71,11 +70,11 @@ test_that("add_lena_stats works", {
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_list <- list(
-    interval_start_wav = "4e0425f5fe42f2268aca95582dfde58d",
-    interval_end_wav = "eb80aa746a6493b7c9324d890d1708dc",
-    cvc = 'cd37c4c69941007faf787013fef77e8a',
-    ctc = "cffa7206c8330cab9e740d0422a540f9",
-    awc = "b6097b94d2e075a74409d98b9413ba44")
+    interval_start_wav = "24f8f6523aacce3f6077ac323f6ad7c5",
+    interval_end_wav = "34a6b44394a891b43746e3d767804058",
+    cvc = '57e495a10aac38de9f69ce65a9debcb3',
+    ctc = "c111b230d4da19d6bef299ff3cad2f4b",
+    awc = "396d875cee824b68806ab98280ffadc3")
   expect_equal(hashes_list, expected_hashes_list)
 })
 
@@ -87,12 +86,12 @@ test_that("get_lena_speaker_stats works", {
     as.list
   expected_hashes_list <-
     list(
-      interval_start = "75ff43e40a186ae138dc9b709b691a45",
-      interval_end = "5e39906727aa950a55bff1f80d4226bb",
-      spkr = "8b19ab3ad09943f2c807002c40ebe943",
-      adult_word_count = "a3dd76d9042133d4ee0a6ccbc654ba48",
-      utterance_count = "d36f09f3bbada305d0925623a9ffb990",
-      segment_duration = "178fa344206b188de05bea4f07fe2b50"
+      interval_start = "af3b7189261a7e0e42a29fbd0d9f68b8",
+      interval_end = "4dc12c6a1263e83a4304b911d609abab",
+      spkr = "8ac0f06c6af287fafa4f5be525331a64",
+      adult_word_count = "85be0a99e3b8483b49db53339f0ebe8f",
+      utterance_count = "d440a246d3e73527227d37d30f2fd43d",
+      segment_duration = "a1d8e60f1b05f54f31a98891e83c6b6a"
     )
   expect_equal(hashes_list, expected_hashes_list)
 })
@@ -109,11 +108,11 @@ test_that("vtc stats functions work", {
     as.list
   expected_hashes_list <-
     list(
-      interval_start = "baf6a3760dd3f469a162adbc4c488f60",
-      interval_end = "6f84f761ab19ee9a31b4bb8d7b7458de",
-      voice_type = "83dfcaf087002288a5b78fd3035e40a1",
-      duration = "91c2e44c4ab4d2a77e62f9359a7f4fa7",
-      count = "63319a19e3821e1cf814285e812f325d"
+      interval_start = "4636ec2d47ac698fe0f0e12573f9289f",
+      interval_end = "9b520e4b56c2aff5f55fbc62cd68635a",
+      voice_type = "20157b8c0da3aba27ed4eab5c2c17862",
+      duration = "287b2789f7cf18919efee6399739c5e0",
+      count = "2e7b87fed71c160b0b3f15d454f06e2b"
     )
   expect_equal(hashes_list, expected_hashes_list)
 
@@ -129,7 +128,7 @@ test_that("vtc stats functions work", {
     select(-colnames(intervals)) %>%
     summarise(across(everything(), digest)) %>%
     as.list
-  expected_hashes_list <- list(vtc_ctc = "9b964042ff4f962d3237d8b57b087d70")
+  expected_hashes_list <- list(vtc_ctc = "733f40b946cb233ad69cf7c795d0397a")
   expect_equal(hashes_list, expected_hashes_list)
 })
 
@@ -168,8 +167,8 @@ test_that("sampling functions work as expected", {
     as.list
   expected_hashes_list <-
     list(
-      interval_start = "d1d26e6cb8477e7f9945ee60a8e6b33a",
-      interval_end = "5d999b9dec4d9b7262f9a76c8f31b88c"
+      interval_start = "9ecae2dda5b2e8af8ad905a0faa85a96",
+      interval_end = "f8bc10d4d8fefe549c1df7e192ec0e99"
     )
   expect_equal(hashes_list, expected_hashes_list)
 
@@ -213,8 +212,8 @@ test_that("sampling functions work as expected", {
     summarise(across(everything(), digest)) %>%
     as.list
   expected_hashes_list_periodic <- list(
-      interval_start = "f49d3fc446b5a49ac50df6635e6d1cf8",
-      interval_end = "ac85830a7ac8b274e711adbfbf2fce8e"
+      interval_start = "40615f8ef6cfa2347da279481b69b1f0",
+      interval_end = "aca6f8b9e601c64e685a7ab54bdd620a"
     )
   expect_equal(hashes_list_periodic, expected_hashes_list_periodic)
 })
