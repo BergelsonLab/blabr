@@ -9,6 +9,10 @@ add_lena_stats(its_xml, intervals, time_type = c("wav", "wall"))
 \arguments{
 \item{its_xml}{XML object created by `rlena::read_its_file`.}
 
+\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
+`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+Can contain other columns.}
+
 \item{time_type}{Either `wall` or `wav`. If `wall`, `start` and `end` must
 contain timestamps with local time. If `wav`, `start` and `end` must contain
 the number of milliseconds since the beginning of the wav file. `wall` is not

@@ -90,11 +90,14 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 
 #' Add LENA stats to each interval in a dataframe
 #'
-#' @inheritParams calculate_lena_like_stats
+#' @inheritParams prepare_intervals
 #' @param time_type Either `wall` or `wav`. If `wall`, `start` and `end` must
 #' contain timestamps with local time. If `wav`, `start` and `end` must contain
 #' the number of milliseconds since the beginning of the wav file. `wall` is not
 #' yet implemented.
+#' @param intervals A tibble with columns `interval_start`, `interval_end`,
+#' `interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+#' Can contain other columns.
 #'
 #' @note Any its segment overlapping with multiple intervals will count fully
 #' towards all of them.
@@ -177,9 +180,7 @@ make_five_min_approximation <- function(its_xml) {
 
 #' Calculate per-speaker statistics based on the .its file
 #'
-#' @inheritParams calculate_lena_like_stats
-#' @param intervals a tibble with interval_start and interval_end datetime
-#' columns
+#' @inheritParams add_lena_stats
 #'
 #' @return a tibble with the following columns:
 #' - interval_start, interval_end: same as in the intervals input tibble,
@@ -225,7 +226,7 @@ get_lena_speaker_stats <- function(its_xml, intervals) {
 
 #' Adds wav-anchored interval boundaries
 #'
-#' @inheritParams calculate_lena_like_stats
+#' @inheritParams add_lena_stats
 #' @param unit The time unit of the added boundaries. Either 'ms' or 's' for
 #' milliseconds or seconds respectively. The add column(s)' names will reflect
 #' the choice of this parameter.
@@ -259,7 +260,7 @@ add_interval_end_wav <- function(intervals, unit = c('ms', 's')) {
 #' Does a brute-force interval join to match intervals to all annotations that
 #' overlap with them.
 #'
-#' @inheritParams get_lena_speaker_stats
+#' @inheritParams add_lena_stats
 #' @inheritParams add_vtc_stats
 #'
 #' @keywords internal
@@ -288,7 +289,7 @@ match_intervals_to_vtc_annotations <- function(intervals, all_rttm) {
 
 #' Add ctc calculated based on the vtc annotations
 #'
-#' @inheritParams get_lena_speaker_stats
+#' @inheritParams add_lena_stats
 #' @param all_rttm An `all.rttm` file from the VTC output loaded with
 #' `read_rttm`.
 #'
@@ -331,7 +332,7 @@ add_vtc_stats <- function(intervals, all_rttm) {
 
 #' Calculate per-speaker statistics based on the VTC output
 #'
-#' @inheritParams get_lena_speaker_stats
+#' @inheritParams add_lena_stats
 #' @inheritParams add_vtc_stats
 #'
 #' @return A tibble with `interval_start` and `interval_end` columns for each
@@ -350,7 +351,7 @@ get_vtc_speaker_stats <- function(intervals, all_rttm) {
 
 #' Calculates the number of Seedlings annotations in each interval (by speaker)
 #'
-#' @inheritParams get_lena_speaker_stats
+#' @inheritParams add_lena_stats
 #' @param annotations A tibble loaded from a csv annotations file from the
 #'   Seedlings project or similar
 #'
@@ -391,7 +392,7 @@ get_seedlings_speaker_stats <- function(intervals, annotations) {
 #' - check that there are at least `size` intervals, unless `allow_fewer` is
 #'   `TRUE`
 #'
-#' @inheritParams get_lena_speaker_stats
+#' @inheritParams add_lena_stats
 #' @inheritParams calculate_lena_like_stats
 #' @param size required sample size
 #' @param allow_fewer Is it OK if there are fewer than size intervals?
@@ -415,7 +416,7 @@ prepare_intervals_for_sampling <- function(intervals, size, duration,
 #' Sample intervals randomly
 #'
 #' @inheritParams prepare_intervals_for_sampling
-#' @inheritParams calculate_lena_like_stats
+#' @inheritParams add_lena_stats
 #' @param seed Seed for the random number generator.
 #'
 #' @return A subsample of intervals.

@@ -8,8 +8,9 @@ sample_intervals_with_highest(intervals, column, size, duration,
   allow_fewer = FALSE)
 }
 \arguments{
-\item{intervals}{a tibble with interval_start and interval_end datetime
-columns}
+\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
+`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+Can contain other columns.}
 
 \item{column}{Name of the column whose value is to be maximized.}
 

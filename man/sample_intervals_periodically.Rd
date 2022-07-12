@@ -7,8 +7,9 @@
 sample_intervals_periodically(intervals, duration, period)
 }
 \arguments{
-\item{intervals}{a tibble with interval_start and interval_end datetime
-columns}
+\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
+`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+Can contain other columns.}
 
 \item{duration}{Interval duration supported by `lubridate::period`, e.g.,
 '2 mins'.}
