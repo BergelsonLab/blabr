@@ -1,66 +1,90 @@
 #' Prepare intervals to potentially be annotated later
 #'
-
 #' Various metrics can then be calculated for each intervals and the "best"
 #' can then be annotated.
-#'
-prepare_intervals <- function(its_xml, duration) {
-  NULL
-}
-
-
-#' Calculate stats similar to those in LENA's 5min.csv files
 #'
 #' @param its_xml XML object created by `rlena::read_its_file`.
 #' @param duration Interval duration supported by `lubridate::period`, e.g.,
 #' '2 mins'.
 #'
+#' @return A tibble with
+prepare_intervals <- function(its_xml, duration) {
+  # For each recording, we'll find when the first duration-long interval would
+  # have started and the last interval would have ended if they were full.
+  # For example, if duration is '5 mins' and one of the recordings was on
+  # from 9:22 to 9:37, these "pseudo" starts and ends would be 9:20 and 9:40.
+  # We'll then create a sequence of individual interval starts and ends, i.e.,
+  # 9:20, 9:25, 9:30, 9:35 (starts) and 9:25, 9:30, 9:35, 9:40 (ends).
+  # Finally we'll trim the first and last interval to when the recording was on,
+  # i.e., making the following sequence of intervals: 9:22-9:25, 9:25-9:30,
+  # 9:30-9:35, 9:35-9:37.
+  recordings <- rlena::gather_recordings(its_xml)
+  intervals <- recordings %>%
+    # Create interval starts and ends. Except for the first and the last ones
+    # in each recording, the starts and ends should already be correct.
+    dplyr::mutate(
+      first_interval_pseudo_start
+      = lubridate::floor_date(startClockTimeLocal, duration),
+      last_interval_pseudo_end
+      = lubridate::ceiling_date(endClockTimeLocal, duration),
+      n_intervals = (last_interval_pseudo_end - first_interval_pseudo_start)
+                    / lubridate::duration(duration),
+      interval_offsets
+      = purrr::map(n_intervals, ~ lubridate::period(duration) * seq(0, .x - 1)),
+      interval_pseudo_start
+      = purrr::map2(first_interval_pseudo_start, interval_offsets, ~ .x + .y),
+      interval_pseudo_end
+      = purrr::map2(last_interval_pseudo_end, interval_offsets,
+                    ~ .x - rev(.y))) %>%
+    # We don't need most of the columns
+    dplyr::select(recId, startClockTimeLocal, endClockTimeLocal,
+                  interval_pseudo_start, interval_pseudo_end, startTime) %>%
+    dplyr::rename(recording_id = recId,
+                  recording_start = startClockTimeLocal,
+                  recording_end = endClockTimeLocal,
+                  recording_start_wav = startTime) %>%
+    # interval_start and interval_end are lists at this point, let's unnest them
+    # into rows
+    tidyr::unnest_longer(col = c(interval_pseudo_start,
+                                 interval_pseudo_end)) %>%
+    # Finally, let's
+    # (1) trim them to when the recording was on
+    dplyr::mutate(
+      interval_start = pmax(interval_pseudo_start, recording_start),
+      interval_end = pmin(interval_pseudo_end, recording_end)) %>%
+    # (2) add within-wav start time
+    dplyr::mutate(
+      # When does interval start within the recording, in milliseconds
+      interval_start_rec = lubridate::interval(recording_start,
+                                               interval_start)
+                           / lubridate::milliseconds(1),
+      # And within the wav file
+      interval_start_wav = recording_start_wav * 1000 + interval_start_rec) %>%
+    # ... and remove unnecessary columns. We will still need
+    # `interval_pseudo_start` and `interval_pseudo_end` to identify intervals
+    # from different recordings that are part of the same pseudo-interval. E.g.,
+    # if there are two recordings: 9:00-9:31 and 9:33-9:46, then we'll have
+    # the 9:30-9:31 from recording 1 and the 9:33-9:35 interval from recording
+    # 2 which both belong to the 9:30-9:35 interval. For now, however, we will
+    # keep them separately to know that it is not actually a full interval and
+    # account for that.
+    dplyr::select(interval_start, interval_end, interval_start_wav,
+                  recording_id)
+
+  return(intervals)
+}
+
+
+#' Calculate stats similar to those in LENA's 5min.csv files
+#'
+#' @inheritParams prepare_intervals
+#'
 #' @return a tibble with at least these four columns: interval_start,
 #' interval_end, AWC.Actual, CTC.Actual, CWC.Actual
 #' @export
 calculate_lena_like_stats <- function(its_xml, duration) {
-  rlena::gather_segments(its_xml) %>%
-    # To keep the intervals to when the recording was on, we'll need recording-
-    # level starts and ends.
-    # Also, all recordings are in a single wav file, so to be able to find
-    # intervals within the wav file, we'll also add the interval start as time
-    # since the wav start.
-    dplyr::inner_join(
-      rlena::gather_recordings(its_xml) %>%
-        dplyr::select(recId,
-               recStartClockTimeLocal = startClockTimeLocal,
-               recEndClockTimeLocal = endClockTimeLocal,
-               recStartTimeWav = startTime),
-      by = 'recId') %>%
-    dplyr::mutate(
-      interval_start = pmax(lubridate::floor_date(startClockTimeLocal, duration),
-                            recStartClockTimeLocal),
-      interval_end = pmin(lubridate::ceiling_date(startClockTimeLocal, duration),
-                          recEndClockTimeLocal),
-      # When does interval start within the recording, in seconds
-      interval_start_rec = lubridate::interval(recStartClockTimeLocal,
-                                               interval_start)
-                           / lubridate::milliseconds(1),
-      # And within the wav file
-      interval_start_wav = recStartTimeWav * 1000 + interval_start_rec) %>%
-    dplyr::select(-interval_start_rec) %>%
-    dplyr::group_by(interval_start, interval_end, interval_start_wav) %>%
-    dplyr::summarise(
-      # If there were not conversational turns, use NA, not -Inf
-      cumulative_ctc = ifelse(
-        !all(is.na(convTurnCount)),
-        max(convTurnCount, na.rm=T),
-        NA_integer_),
-      CVC.Actual = round(sum(childUttCnt, na.rm = T)),
-      FWC = sum(maleAdultWordCnt, na.rm = T),
-      MWC = sum(femaleAdultWordCnt, na.rm = T),
-      AWC.Actual = round(FWC + MWC)) %>%
-    dplyr::ungroup() %>%
-    # For segments that don't have any conversational turns, use the previous value
-    tidyr::fill(cumulative_ctc, .direction = 'down') %>%
-    dplyr::mutate(cumulative_ctc = tidyr::replace_na(cumulative_ctc, 0)) %>%
-    dplyr::mutate(CTC.Actual = cumulative_ctc - dplyr::lag(cumulative_ctc, default = 0)) %>%
-    dplyr::select(interval_start, interval_end, interval_start_wav, CVC.Actual, CTC.Actual, AWC.Actual)
+  intervals <- prepare_intervals(its_xml, duration)
+  add_lena_stats(its_xml, intervals)
 }
 
 

@@ -16,7 +16,7 @@ assert_that(are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
 
 its_xml <- rlena::read_its_file(its_path)
 intervals <- make_five_min_approximation(its_xml) %>%
-  filter(CVC.Actual > 0 | CTC.Actual > 0 | AWC.Actual > 0)
+  filter(cvc > 0 | ctc > 0 | awc > 0)
 
 test_that("make_five_min_approximation works", {
 
@@ -35,9 +35,9 @@ test_that("make_five_min_approximation works", {
     mutate(interval_start = lubridate::mdy_hm(Timestamp) - lubridate::hours(1)) %>%
     select(interval_start, CTC.Actual, CVC.Actual, AWC.Actual) %>%
     left_join(five_min, by = 'interval_start') %>%
-    filter((CTC.Actual.x != CTC.Actual.y)
-           | (larger_ratio(CVC.Actual.x, CVC.Actual.y) > 1.33)
-           | (larger_ratio(AWC.Actual.x, AWC.Actual.y) > 1.33))
+    filter((CTC.Actual != ctc)
+           | (larger_ratio(CVC.Actual, cvc) > 1.33)
+           | (larger_ratio(AWC.Actual, awc) > 1.33))
 
   expect_equal(nrow(bad_rows), 0)
 
@@ -49,15 +49,17 @@ test_that("make_five_min_approximation works", {
     interval_start = "dd39a74a6d68c20d1705b7598b0f0c0f",
     interval_end = "eba79d440ecce816059be4137248d61d",
     interval_start_wav = '24f8f6523aacce3f6077ac323f6ad7c5',
-    CVC.Actual = "2e56ee6ca737e12db603b2dfca977fd0",
-    CTC.Actual = "13ae94f062576bf7077937ed2e642929",
-    AWC.Actual = "a37ae81e52ceedab965fce384c31dd01")
+    recording_id = 'cbd0c0238e4c6d0a35fd1c2566ead1c3',
+    cvc = "3f6d5d2765ad033e9fa20b4edde1ee6d",
+    awc = "2c77953f0a3522a98db4fd46e7381798",
+    ctc = "13ae94f062576bf7077937ed2e642929")
   expect_equal(hashes_list, expected_hashes_list)
 })
 
 test_that("add_lena_stats works", {
   its_xml <- rlena::read_its_file('/Users/ek221/blab/GIN/bergelson/.git/annex/objects/MM/z1/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its')
   intervals <- intervals %>%
+    select(-c(cvc, ctc, awc)) %>%
     add_interval_end_wav
   time_type <- 'wav'
 
@@ -146,10 +148,10 @@ test_that("get_seedlings_speaker_stats works", {
     as.list
   expected_hashes_list <-
     list(
-      interval_start = "3d00e967a7d5f7aefa2e907241759b77",
-      interval_end = "c89c1017d5e60fc7c10c13d8f9ccd681",
-      speaker = "04838ee4fba81baec9ef46a89bdcfc72",
-      n_annotations = "359d31cea834bc913c6bccc5afa1858c"
+      interval_start = "8403aa21f781470365822d06c8bf2401",
+      interval_end = "102781e54b6094a598707eabef522b48",
+      speaker = "bd29662bb6aede758795f5400f1a17c0",
+      n_annotations = "2d6f8af09b60105fe51e51443f7e0e96"
     )
   expect_equal(hashes_list, expected_hashes_list)
 })
@@ -185,9 +187,9 @@ test_that("sampling functions work as expected", {
   sample_highest <- intervals %>%
     dplyr::mutate(
       .tmp_interval_duration = as.numeric(interval_end - interval_start),
-      .tmp_ctc_rate = CTC.Actual * .tmp_interval_duration,
+      .tmp_ctc_rate = ctc * .tmp_interval_duration,
       .tmp_ctc_normalized = .tmp_ctc_rate / sum(.tmp_ctc_rate),
-      .tmp_cvc_rate = CVC.Actual * .tmp_interval_duration,
+      .tmp_cvc_rate = cvc * .tmp_interval_duration,
       .tmp_cvc_normalized = .tmp_cvc_rate / sum(.tmp_cvc_rate),
       ctc_cvc_average = 0.5 * (.tmp_ctc_normalized + .tmp_cvc_normalized)) %>%
     select(-starts_with('.tmp')) %>%
@@ -199,7 +201,7 @@ test_that("sampling functions work as expected", {
   expected_hashes_list_highest <- list(
     interval_start = "0731efa8e777713e5a713cddc91838d1",
     interval_end = "fc4387dfb138d38e6fe772dee36fe147",
-    ctc_cvc_average = "a277199f5646bfb4d6ff27c7fb121075"
+    ctc_cvc_average = "e3299da6f3a9c7cf80e968bfa84ee9fc"
   )
   expect_equal(hashes_list_highest, expected_hashes_list_highest)
 
