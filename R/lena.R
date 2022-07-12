@@ -118,13 +118,14 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
     dplyr::select(endTime, startTime, convTurnCount, childUttCnt, maleAdultWordCnt,
            femaleAdultWordCnt) %>%
     # convert time to milliseconds
-    mutate(across(c(startTime, endTime), ~ as.integer(.x * 1000)))
+    dplyr::mutate(dplyr::across(c(startTime, endTime), ~ as.integer(.x * 1000)))
 
   intervals <- intervals %>% add_interval_end_wav
 
   interval_stats <- intervals %>%
     dplyr::inner_join(segments, by = character()) %>%
-    filter(interval_start_wav < endTime & startTime < interval_end_wav) %>%
+    dplyr::filter(interval_start_wav < endTime
+                  & startTime < interval_end_wav) %>%
     dplyr::group_by(interval_start_wav, interval_end_wav) %>%
     dplyr::summarise(
       # If there were no conversational turns, use NA, not -Inf
@@ -202,11 +203,11 @@ get_lena_speaker_stats <- function(its_xml, intervals) {
         TRUE ~ 1
       ),
       segment_duration = endTime - startTime) %>%
-    select(startClockTimeLocal, spkr, adult_word_count, utterance_count,
+    dplyr::select(startClockTimeLocal, spkr, adult_word_count, utterance_count,
            segment_duration)
 
   # Match intervals to segments and summarize the stats from above
-  intervals <- intervals %>% select(interval_start, interval_end)
+  intervals <- intervals %>% dplyr::select(interval_start, interval_end)
   intervals %>%
     # start: conditional left join: startClockTimeLocal within interval
     dplyr::inner_join(segment_stats, by = character()) %>%
@@ -360,11 +361,11 @@ get_vtc_speaker_stats <- function(intervals, all_rttm) {
 get_seedlings_speaker_stats <- function(intervals, annotations) {
   intervals <- intervals %>%
     add_interval_end_wav(unit = 's') %>%
-    select(interval_start, interval_end,
+    dplyr::select(interval_start, interval_end,
            interval_start_wav_s, interval_end_wav_s)
   annotations <- annotations %>%
-    select(speaker, onset, offset) %>%
-    mutate(across(c(onset, offset), ~ .x / 1000))
+    dplyr::select(speaker, onset, offset) %>%
+    dplyr::mutate(dplyr::across(c(onset, offset), ~ .x / 1000))
 
   intervals %>%
     # start: conditional left join: intervals overlap
