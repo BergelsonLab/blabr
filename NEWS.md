@@ -1,3 +1,16 @@
+# blabr 0.12.0
+
+- New functions: `prepare_intervals` and `add_lena_stats` that previously used
+  to be a single function `make_five_min_approximation`. The latter still exists
+  but calls the former two now.
+  
+  There are some changes to the behavior of `make_five_min_approximation`:
+  - No more zero-duration intervals.
+  - Segments overlapping with two intervals now count fully towards both
+    (previously they would count only towards the first one).
+  - Intervals returned for any time point the recording was on (previously, 
+    only intervals with segments starting in them were returned).
+
 # blabr 0.11.0
 
 - Multiple fixes to the global basic level logic:
