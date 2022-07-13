@@ -1,3 +1,13 @@
+# blabr 0.13.0
+
+- Improved handling of segments spanning two intervals in `add_lena_stats` and
+  `make_five_min_approximation`: each such segment contributes utterance counts
+  to these intervals in proportion to the overlap.
+  
+  With this change, `make_five_min_approximation` produces `awc` and `cvc` on
+  the test file that differ from the corresponding lena5min csv file by at most
+  1.
+
 # blabr 0.12.0
 
 - New functions: `prepare_intervals` and `add_lena_stats` that previously used

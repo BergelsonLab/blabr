@@ -29,15 +29,20 @@ test_that("make_five_min_approximation works", {
                         check.names = FALSE)
   five_min_lena <- readr::read_csv(five_min_path, show_col_types = FALSE)
 
-  # Find rows where the difference is more than we can tolerate
-  larger_ratio <- function(x, y) {exp(abs(log(x) - log(y)))}
+  # Find rows where the difference is more than 1
   bad_rows <- five_min_lena %>%
-    mutate(interval_start = lubridate::mdy_hm(Timestamp) - lubridate::hours(1)) %>%
-    select(interval_start, CTC.Actual, CVC.Actual, AWC.Actual) %>%
-    left_join(five_min, by = 'interval_start') %>%
-    filter((CTC.Actual != ctc)
-           | (larger_ratio(CVC.Actual, cvc) > 1.33)
-           | (larger_ratio(AWC.Actual, awc) > 1.33))
+    # There is a 1 hour difference for some reason. Daylight savings?
+    # Lena pretends all intervals started at even 5 minutes.
+    mutate(interval_start_rounded
+           = lubridate::mdy_hm(Timestamp) - lubridate::hours(1)) %>%
+    select(interval_start_rounded, CTC.Actual, CVC.Actual, AWC.Actual) %>%
+    left_join(five_min %>%
+                mutate(interval_start_rounded
+                       = floor_date(interval_start, '5 mins')),
+              by = 'interval_start_rounded') %>%
+    filter(pmax(abs(CTC.Actual - ctc),
+                abs(CVC.Actual - cvc),
+                abs(AWC.Actual - awc)) > 1)
 
   expect_equal(nrow(bad_rows), 0)
 
@@ -48,11 +53,12 @@ test_that("make_five_min_approximation works", {
   expected_hashes_list <- list(
     interval_start = "dd39a74a6d68c20d1705b7598b0f0c0f",
     interval_end = "eba79d440ecce816059be4137248d61d",
-    interval_start_wav = '24f8f6523aacce3f6077ac323f6ad7c5',
-    recording_id = 'cbd0c0238e4c6d0a35fd1c2566ead1c3',
-    cvc = "3f6d5d2765ad033e9fa20b4edde1ee6d",
-    awc = "2c77953f0a3522a98db4fd46e7381798",
-    ctc = "13ae94f062576bf7077937ed2e642929")
+    interval_start_wav = "24f8f6523aacce3f6077ac323f6ad7c5",
+    recording_id = "cbd0c0238e4c6d0a35fd1c2566ead1c3",
+    cvc = "fcf3a984eff49c341ff2197de4a8c99a",
+    awc = "aef9acaa68e05e5d95dfca819fb7aa24",
+    ctc = "13ae94f062576bf7077937ed2e642929"
+  )
   expect_equal(hashes_list, expected_hashes_list)
 })
 
@@ -73,9 +79,9 @@ test_that("add_lena_stats works", {
     as.list
   expected_hashes_list <- list(
     interval_start_wav = "24f8f6523aacce3f6077ac323f6ad7c5",
-    cvc = '57e495a10aac38de9f69ce65a9debcb3',
+    cvc = '26fba13f5c72186c98b26d0aef9ce328',
     ctc = "c111b230d4da19d6bef299ff3cad2f4b",
-    awc = "396d875cee824b68806ab98280ffadc3")
+    awc = "a30d7fdfa81c5ee6e8114d4db4c770e3")
   expect_equal(hashes_list, expected_hashes_list)
 })
 
@@ -201,7 +207,7 @@ test_that("sampling functions work as expected", {
   expected_hashes_list_highest <- list(
     interval_start = "0731efa8e777713e5a713cddc91838d1",
     interval_end = "fc4387dfb138d38e6fe772dee36fe147",
-    ctc_cvc_average = "e3299da6f3a9c7cf80e968bfa84ee9fc"
+    ctc_cvc_average = "911bf1b0947c702a8d1ff132b21475eb"
   )
   expect_equal(hashes_list_highest, expected_hashes_list_highest)
 

@@ -129,6 +129,17 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
     dplyr::inner_join(segments, by = character()) %>%
     dplyr::filter(interval_start_wav < endTime
                   & startTime < interval_end_wav) %>%
+    # Adjust stats for segments with only partial overlaps
+    dplyr::mutate(
+      tmp.overlap_duration = pmin(endTime, interval_end_wav)
+                         - pmax(startTime, interval_start_wav),
+      tmp.segment_duration = endTime - startTime,
+      dplyr::across(
+        c(childUttCnt, maleAdultWordCnt, femaleAdultWordCnt),
+        ~ .x * (tmp.overlap_duration / tmp.segment_duration))
+    ) %>%
+    dplyr::select(-starts_with('tmp.')) %>%
+    # Aggregate over intervals
     dplyr::group_by(interval_start_wav, interval_end_wav) %>%
     dplyr::summarise(
       # If there were no conversational turns, use NA, not -Inf
