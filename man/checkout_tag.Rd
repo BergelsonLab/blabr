@@ -15,5 +15,8 @@ checkout_tag(repo, tag)
 Download the dataset version specified by a tag
 }
 \examples{
+\dontrun{
 checkout_tag('all_basiclevel', '0.1.0')
 }
+}
+\keyword{internal}

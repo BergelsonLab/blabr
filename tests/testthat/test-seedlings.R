@@ -1,3 +1,4 @@
+library(tools)
 library(digest)
 library(assertthat)
 

@@ -24,5 +24,8 @@ Downloads and then loads a csv/feather file from a specified version of a
 dataset
 }
 \examples{
+
+\dontrun{
 get_df_file('all_basiclevel', 'all_basiclevel.csv', version = '0.1.0')
+}
 }

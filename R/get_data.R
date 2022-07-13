@@ -142,7 +142,7 @@ get_reliability <- function(av, month, version = NULL) {
 #' @export
 #'
 #' @examples
-#' global_bl_mapping <- get_global_bl_mappings(version = '0.1.0')
+#' global_bl_mapping <- get_global_bl_mappings(version = '0.1.4')
 get_global_bl_mappings <- function(version = NULL) {
   global_bl_repo <- 'global_basic_level'
 
@@ -219,7 +219,10 @@ check_for_updates <- function(repo, requested_version,
 #' @return tibble for feather files, data.frame for csv files
 #'
 #' @examples
+#'
+#' \dontrun{
 #' get_df_file('all_basiclevel', 'all_basiclevel.csv', version = '0.1.0')
+#' }
 get_df_file <- function(repo, filename, version = NULL, col_types = NULL) {
   # Get the up-to-date set of tags
   update_tags(repo)

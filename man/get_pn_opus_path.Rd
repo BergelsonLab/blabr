@@ -6,6 +6,10 @@
 \usage{
 get_pn_opus_path(check_exists = TRUE)
 }
+\arguments{
+\item{check_exists}{Should the function check that the path exists
+(accessible)}
+}
 \value{
 Path to the PN-OPUS shared drive
 }
@@ -13,5 +17,7 @@ Path to the PN-OPUS shared drive
 Find PN-OPUS
 }
 \examples{
+\dontrun{
 pn_opus_path <- get_pn_opus_path()
+}
 }

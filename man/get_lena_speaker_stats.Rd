@@ -7,10 +7,11 @@
 get_lena_speaker_stats(its_xml, intervals)
 }
 \arguments{
-\item{its_xml}{xml object created by rlena::read_its_file}
+\item{its_xml}{XML object created by `rlena::read_its_file`.}
 
-\item{intervals}{a tibble with interval_start and interval_end datetime
-columns}
+\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
+`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+Can contain other columns.}
 }
 \value{
 a tibble with the following columns:

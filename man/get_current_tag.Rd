@@ -20,7 +20,9 @@ The latest version tag as a string
 Find tag label of the currently checked out commit.
 }
 \examples{
+\dontrun{
 all_bl <- get_all_basiclevel(version = '0.0.7')
 current_tag <- get_current_tag('all_basiclevel')
 stopifnot(current_tag == '0.0.7')
+}
 }

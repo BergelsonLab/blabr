@@ -20,5 +20,7 @@ The latest version tag as a string
 Finds the latest version tag
 }
 \examples{
+\dontrun{
 get_latest_tag('all_basiclevel')
+}
 }

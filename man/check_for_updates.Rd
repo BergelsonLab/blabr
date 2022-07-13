@@ -18,6 +18,3 @@ that use tags are called in succession.}
 \description{
 Check whether there is a newer version than one requested
 }
-\examples{
-check_for_updates('all_basiclevel', '0.0.2')
-}

@@ -12,7 +12,9 @@ blab_data <- file.path(home_dir, "BLAB_DATA")
 #' @return absolute path as a string
 #'
 #' @examples
+#' \dontrun{
 #' get_repo_path('all_basiclevel')
+#' }
 get_repo_path <- function(repo) {
   file.path(blab_data, repo)
 }
@@ -29,7 +31,9 @@ get_repo_path <- function(repo) {
 #' @return string with output if return_output is TRUE, else NULL
 #'
 #' @examples
+#' \dontrun{
 #' run_git_command('all_basiclevel', 'status')
+#' }
 run_git_command <- function(repo, command, return_output = FALSE) {
   arguments <- c('-C', get_repo_path(repo), strsplit(command, '\\s+')[[1]])
   result <- system2(git_bin, arguments, wait = TRUE, stdout = TRUE)
@@ -44,7 +48,9 @@ run_git_command <- function(repo, command, return_output = FALSE) {
 #' @return NULL
 #'
 #' @examples
+#' \dontrun{
 #' update_tags('all_basiclevel')
+#' }
 update_tags <- function(repo) {
   run_git_command(repo, 'fetch --tags --prune')
 }
@@ -57,8 +63,12 @@ update_tags <- function(repo) {
 #'
 #' @return NULL
 #'
+#' @keywords internal
+#'
 #' @examples
+#' \dontrun{
 #' checkout_tag('all_basiclevel', '0.1.0')
+#' }
 checkout_tag <- function(repo, tag) {
   # --quiet suppresses message about where HEAD was/is
   run_git_command(repo, glue::glue('checkout tags/{tag} --quiet'))
@@ -76,7 +86,9 @@ checkout_tag <- function(repo, tag) {
 #' @return The latest version tag as a string
 #'
 #' @examples
+#' \dontrun{
 #' get_latest_tag('all_basiclevel')
+#' }
 get_latest_tag <- function(repo, tags_already_updated = FALSE) {
   if (!tags_already_updated) {update_tags(repo)}
   run_git_command(repo, 'tag --sort version:refname | tail -1',
@@ -89,9 +101,11 @@ get_latest_tag <- function(repo, tags_already_updated = FALSE) {
 #' @inherit get_latest_tag params return
 #'
 #' @examples
+#' \dontrun{
 #' all_bl <- get_all_basiclevel(version = '0.0.7')
 #' current_tag <- get_current_tag('all_basiclevel')
 #' stopifnot(current_tag == '0.0.7')
+#' }
 get_current_tag <- function(repo, tags_already_updated = FALSE) {
   if (!tags_already_updated) {update_tags(repo)}
   run_git_command(repo, 'describe --tags', return_output = TRUE)
@@ -105,7 +119,10 @@ get_current_tag <- function(repo, tags_already_updated = FALSE) {
 #' @return
 #'
 #' @examples
+#'
+#' \dontrun{
 #' get_current_commit_date('all_basiclevel')
+#' }
 get_current_commit_date <- function(repo) {
   current_commit <- run_git_command(repo = repo, command = 'rev-parse HEAD',
                                     return_output = TRUE)

@@ -17,5 +17,5 @@ They are used to map every token in all_basiclevel_na to its global basic
 level, see `map_global_basic_level` and `make_new_global_basic_level`
 }
 \examples{
-global_bl_mapping <- get_global_bl_mappings(version = '0.1.0')
+global_bl_mapping <- get_global_bl_mappings(version = '0.1.4')
 }

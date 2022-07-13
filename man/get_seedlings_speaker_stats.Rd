@@ -7,8 +7,9 @@
 get_seedlings_speaker_stats(intervals, annotations)
 }
 \arguments{
-\item{intervals}{a tibble with interval_start and interval_end datetime
-columns}
+\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
+`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+Can contain other columns.}
 
 \item{annotations}{A tibble loaded from a csv annotations file from the
 Seedlings project or similar}
