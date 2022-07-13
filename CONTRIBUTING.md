@@ -2,6 +2,8 @@
 
 -   Run `devtools::check()`.
 
+-   Run `devtools::test()`.
+
 -   Run `devtools::document()`.
 
 -   Run `use_version()` then select the new version.
