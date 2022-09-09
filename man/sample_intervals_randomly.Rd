@@ -4,8 +4,13 @@
 \alias{sample_intervals_randomly}
 \title{Sample intervals randomly}
 \usage{
-sample_intervals_randomly(intervals, size, duration, allow_fewer = FALSE,
-  seed = NULL)
+sample_intervals_randomly(
+  intervals,
+  size,
+  duration,
+  allow_fewer = FALSE,
+  seed = NULL
+)
 }
 \arguments{
 \item{intervals}{A tibble with columns `interval_start`, `interval_end`,

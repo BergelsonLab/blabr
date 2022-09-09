@@ -4,8 +4,13 @@
 \alias{join_full_audio_video}
 \title{Join the audio and video dataframes into one big dataframe}
 \usage{
-join_full_audio_video(audiostats, videostats, output_name = NULL,
-  keep_na = FALSE, keep_comments = FALSE)
+join_full_audio_video(
+  audiostats,
+  videostats,
+  output_name = NULL,
+  keep_na = FALSE,
+  keep_comments = FALSE
+)
 }
 \arguments{
 \item{audiostats}{the full audio basic level dataframe}

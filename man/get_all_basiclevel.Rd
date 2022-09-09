@@ -4,8 +4,11 @@
 \alias{get_all_basiclevel}
 \title{Get the all_basiclevel data}
 \usage{
-get_all_basiclevel(version = NULL, type = "feather",
-  drop_basic_level_na = TRUE)
+get_all_basiclevel(
+  version = NULL,
+  type = "feather",
+  drop_basic_level_na = TRUE
+)
 }
 \arguments{
 \item{version}{version tag to checkout}

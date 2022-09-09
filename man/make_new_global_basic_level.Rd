@@ -4,8 +4,10 @@
 \alias{make_new_global_basic_level}
 \title{Create all_basiclevel_na with added global_bl column}
 \usage{
-make_new_global_basic_level(all_basiclevel_version = NULL,
-  global_bl_mappings_version = NULL)
+make_new_global_basic_level(
+  all_basiclevel_version = NULL,
+  global_bl_mappings_version = NULL
+)
 }
 \arguments{
 \item{all_basiclevel_version}{Version tag of the `all_basiclevel` repository.

@@ -4,8 +4,13 @@
 \alias{sample_intervals_with_highest}
 \title{Sample intervals that are highest on a given metric}
 \usage{
-sample_intervals_with_highest(intervals, column, size, duration,
-  allow_fewer = FALSE)
+sample_intervals_with_highest(
+  intervals,
+  column,
+  size,
+  duration,
+  allow_fewer = FALSE
+)
 }
 \arguments{
 \item{intervals}{A tibble with columns `interval_start`, `interval_end`,

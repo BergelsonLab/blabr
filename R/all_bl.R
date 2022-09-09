@@ -42,7 +42,7 @@ count_object_present <- function(x) {
 
 count_device_and_toy <- function(x) {
   x %>%
-    dplyr::filter(speaker %in% c("TOY","TVN","TVM","TVS","TVB"))%>%
+    dplyr::filter(speaker %in% c("TOY","TVS","TVM","TVS","TVB"))%>%
     dplyr::group_by(subj, month, audio_video, speaker)%>%
     dplyr::tally()%>%
     tidyr::spread(speaker, n)
@@ -127,7 +127,7 @@ big_aggregate <- function(x, exclude = NULL, output = NULL, exclude_chi = FALSE)
               dplyr::mutate(prop_mom = MOT/numtokens,
                      prop_dad = FAT/numtokens,
                      prop_parent = prop_mom+prop_dad,
-                     tech_tokens = (TVN+TOY),
+                     tech_tokens = (TVS+TOY),
                      prop_tech = tech_tokens/numtokens,
                      propd = d/numtokens,
                      propi = i/numtokens,
@@ -148,7 +148,7 @@ big_aggregate <- function(x, exclude = NULL, output = NULL, exclude_chi = FALSE)
                                                r/numtokens,
                                                n/numtokens,
                                                i/numtokens)),2))%>%
-              # dplyr::select(-TVN)%>%
+              # dplyr::select(-TVS)%>%
               dplyr::left_join(six_to_seventeen_home_noun_chi_onset)%>%
               dplyr::mutate(posttalk =  ifelse(as.numeric(as.character(month))<noun_chi_onset|
                                           is.na(noun_chi_onset),F,T))

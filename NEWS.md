@@ -1,3 +1,7 @@
+# blabr 0.13.1
+
+Bugfix: update `big_aggregate` to reflect the switch from "TVS" to "TVN" as "speaker" value.
+
 # blabr 0.13.0
 
 - Improved handling of segments spanning two intervals in `add_lena_stats` and
