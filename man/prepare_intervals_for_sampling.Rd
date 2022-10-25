@@ -7,13 +7,13 @@
 prepare_intervals_for_sampling(intervals, size, duration, allow_fewer)
 }
 \arguments{
-\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
-`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
+\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
 Can contain other columns.}
 
 \item{size}{required sample size}
 
-\item{duration}{Interval duration supported by `lubridate::period`, e.g.,
+\item{duration}{Interval duration supported by \code{lubridate::period}, e.g.,
 '2 mins'.}
 
 \item{allow_fewer}{Is it OK if there are fewer than size intervals?}
@@ -22,9 +22,11 @@ Can contain other columns.}
 intervals with incomplete intervals removed
 }
 \description{
-- remove incomplete intervals,
-- check that there are still some left after that,
-- check that there are at least `size` intervals, unless `allow_fewer` is
-  `TRUE`
+\itemize{
+\item remove incomplete intervals,
+\item check that there are still some left after that,
+\item check that there are at least \code{size} intervals, unless \code{allow_fewer} is
+\code{TRUE}
+}
 }
 \keyword{internal}

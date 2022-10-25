@@ -7,12 +7,12 @@
 write_rttm(rttm_df, rttm_path)
 }
 \arguments{
-\item{rttm_df}{A dataframe with rttm data as produced by `read_rttm`.}
+\item{rttm_df}{A dataframe with rttm data as produced by \code{read_rttm}.}
 
 \item{rttm_path}{A path to write to.}
 }
 \value{
-Returns input `rttm_df`
+Returns input \code{rttm_df}
 }
 \description{
 Write a tibble to an .rttm file

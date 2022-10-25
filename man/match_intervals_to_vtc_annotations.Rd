@@ -7,12 +7,12 @@
 match_intervals_to_vtc_annotations(intervals, all_rttm)
 }
 \arguments{
-\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
-`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
+\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
 Can contain other columns.}
 
-\item{all_rttm}{An `all.rttm` file from the VTC output loaded with
-`read_rttm`.}
+\item{all_rttm}{An \code{all.rttm} file from the VTC output loaded with
+\code{read_rttm}.}
 }
 \description{
 Does a brute-force interval join to match intervals to all annotations that

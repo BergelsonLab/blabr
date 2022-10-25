@@ -7,15 +7,15 @@
 add_vtc_stats(intervals, all_rttm)
 }
 \arguments{
-\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
-`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
+\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
 Can contain other columns.}
 
-\item{all_rttm}{An `all.rttm` file from the VTC output loaded with
-`read_rttm`.}
+\item{all_rttm}{An \code{all.rttm} file from the VTC output loaded with
+\code{read_rttm}.}
 }
 \value{
-Same as `intervals` but with additional `vtc_ctc` column.
+Same as \code{intervals} but with additional \code{vtc_ctc} column.
 }
 \description{
 Add ctc calculated based on the vtc annotations

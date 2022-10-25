@@ -24,7 +24,7 @@ get_repo_path <- function(repo) {
 #'
 #' @inheritParams get_repo_path
 #' @param command what you would have after `git` on the command line except
-#' for the -C <folder> part - the function will do that part for you.
+#' for the -C \<folder\> part - the function will do that part for you.
 #' @param return_output boolean, whether to return the printed output of the
 #' command as string
 #'

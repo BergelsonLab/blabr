@@ -1,7 +1,7 @@
 Package: blabr
 Type: Package
 Title: a toolbox for working in the BLAB
-Version: 0.13.1
+Version: 0.13.2
 Author: Bergelson Lab
 Maintainer: Andrei Amatuni <andrei.amatuni@gmail.com>
 Description: More about what it does (maybe more than one line)
@@ -31,6 +31,7 @@ Imports:
 Remotes:
   HomeBankCode/rlena
 RoxygenNote: 7.2.1
+Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

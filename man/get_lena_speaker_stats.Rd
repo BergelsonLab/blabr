@@ -7,18 +7,20 @@
 get_lena_speaker_stats(its_xml, intervals)
 }
 \arguments{
-\item{its_xml}{XML object created by `rlena::read_its_file`.}
+\item{its_xml}{XML object created by \code{rlena::read_its_file}.}
 
-\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
-`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
+\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
 Can contain other columns.}
 }
 \value{
 a tibble with the following columns:
-- interval_start, interval_end: same as in the intervals input tibble,
-- adult_word_count: non-zero for MAN and FAN only
-- utterance_count: for CH* - the sum of childUttCnt, for everyone else - the
-  number of conversation segments
+\itemize{
+\item interval_start, interval_end: same as in the intervals input tibble,
+\item adult_word_count: non-zero for MAN and FAN only
+\item utterance_count: for CH* - the sum of childUttCnt, for everyone else - the
+number of conversation segments
+}
 }
 \description{
 Calculate per-speaker statistics based on the .its file

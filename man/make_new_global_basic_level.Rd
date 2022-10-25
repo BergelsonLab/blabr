@@ -10,17 +10,19 @@ make_new_global_basic_level(
 )
 }
 \arguments{
-\item{all_basiclevel_version}{Version tag of the `all_basiclevel` repository.
+\item{all_basiclevel_version}{Version tag of the \code{all_basiclevel} repository.
 Use for testing only.}
 
 \item{global_bl_mappings_version}{Version tag of the repository with the
-  mappings used to match tokens with their global basic levels. Use for
-  testing only.
+mappings used to match tokens with their global basic levels. Use for
+testing only.
 
 Loads the latest versions of:
-- all_basiclevel_na from the "all_basiclevel" repository,
-- object_dict and annotid_disambiguation from the "global_basic_level"
-  repository
+\itemize{
+\item all_basiclevel_na from the "all_basiclevel" repository,
+\item object_dict and annotid_disambiguation from the "global_basic_level"
+repository
+}
 
 And then tries to add a global_bl column to all_basiclevel_na if it can.
 If it can, it will return all_basiclevel_na with an added a column.

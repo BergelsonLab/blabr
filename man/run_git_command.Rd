@@ -9,8 +9,8 @@ run_git_command(repo, command, return_output = FALSE)
 \arguments{
 \item{repo}{dataset name: 'all_basiclevel', 'reliability', etc.}
 
-\item{command}{what you would have after `git` on the command line except
-for the -C <folder> part - the function will do that part for you.}
+\item{command}{what you would have after \code{git} on the command line except
+for the -C \<folder\> part - the function will do that part for you.}
 
 \item{return_output}{boolean, whether to return the printed output of the
 command as string}

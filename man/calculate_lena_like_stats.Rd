@@ -7,9 +7,9 @@
 calculate_lena_like_stats(its_xml, duration)
 }
 \arguments{
-\item{its_xml}{XML object created by `rlena::read_its_file`.}
+\item{its_xml}{XML object created by \code{rlena::read_its_file}.}
 
-\item{duration}{Interval duration supported by `lubridate::period`, e.g.,
+\item{duration}{Interval duration supported by \code{lubridate::period}, e.g.,
 '2 mins'.}
 }
 \value{

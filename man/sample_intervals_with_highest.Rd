@@ -13,15 +13,15 @@ sample_intervals_with_highest(
 )
 }
 \arguments{
-\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
-`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
+\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
 Can contain other columns.}
 
 \item{column}{Name of the column whose value is to be maximized.}
 
 \item{size}{required sample size}
 
-\item{duration}{Interval duration supported by `lubridate::period`, e.g.,
+\item{duration}{Interval duration supported by \code{lubridate::period}, e.g.,
 '2 mins'.}
 
 \item{allow_fewer}{Is it OK if there are fewer than size intervals?}

@@ -7,17 +7,17 @@
 get_vtc_speaker_stats(intervals, all_rttm)
 }
 \arguments{
-\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
-`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
+\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
 Can contain other columns.}
 
-\item{all_rttm}{An `all.rttm` file from the VTC output loaded with
-`read_rttm`.}
+\item{all_rttm}{An \code{all.rttm} file from the VTC output loaded with
+\code{read_rttm}.}
 }
 \value{
-A tibble with `interval_start` and `interval_end` columns for each
-interval in `intervals` and three new columns: `voice_type` and `duration`
-and `count` of VTC annotations. The `duration` is in seconds.
+A tibble with \code{interval_start} and \code{interval_end} columns for each
+interval in \code{intervals} and three new columns: \code{voice_type} and \code{duration}
+and \code{count} of VTC annotations. The \code{duration} is in seconds.
 }
 \description{
 Calculate per-speaker statistics based on the VTC output

@@ -9,7 +9,9 @@ check_for_updates(repo, requested_version, tags_already_updated = FALSE)
 \arguments{
 \item{repo}{dataset name: 'all_basiclevel', 'reliability', etc.}
 
-\item{requested_version}{- the version user requested}
+\item{requested_version}{\itemize{
+\item the version user requested
+}}
 
 \item{tags_already_updated}{boolean, have the repository tags been updated
 recently? Avoids unnecessary fetching of the tags when multiple functions

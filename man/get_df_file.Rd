@@ -14,7 +14,7 @@ get_df_file(repo, filename, version = NULL, col_types = NULL)
 
 \item{version}{version tag to checkout}
 
-\item{col_types}{Passed to `readr::read_csv` when filename ends with ".csv".}
+\item{col_types}{Passed to \code{readr::read_csv} when filename ends with ".csv".}
 }
 \value{
 tibble for feather files, data.frame for csv files

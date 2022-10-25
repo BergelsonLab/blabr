@@ -7,16 +7,16 @@
 get_seedlings_speaker_stats(intervals, annotations)
 }
 \arguments{
-\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
-`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
+\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
 Can contain other columns.}
 
 \item{annotations}{A tibble loaded from a csv annotations file from the
 Seedlings project or similar}
 }
 \value{
-A tibble with `interval_start` and `interval_end` columns for each
-interval in `intervals` and two new columns: `speaker` and `n_annotations`.
+A tibble with \code{interval_start} and \code{interval_end} columns for each
+interval in \code{intervals} and two new columns: \code{speaker} and \code{n_annotations}.
 }
 \description{
 Calculates the number of Seedlings annotations in each interval (by speaker)

@@ -7,20 +7,20 @@
 add_lena_stats(its_xml, intervals, time_type = c("wav", "wall"))
 }
 \arguments{
-\item{its_xml}{XML object created by `rlena::read_its_file`.}
+\item{its_xml}{XML object created by \code{rlena::read_its_file}.}
 
-\item{intervals}{A tibble with columns `interval_start`, `interval_end`,
-`interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
+\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
 Can contain other columns.}
 
-\item{time_type}{Either `wall` or `wav`. If `wall`, `start` and `end` must
-contain timestamps with local time. If `wav`, `start` and `end` must contain
-the number of milliseconds since the beginning of the wav file. `wall` is not
+\item{time_type}{Either \code{wall} or \code{wav}. If \code{wall}, \code{start} and \code{end} must
+contain timestamps with local time. If \code{wav}, \code{start} and \code{end} must contain
+the number of milliseconds since the beginning of the wav file. \code{wall} is not
 yet implemented.}
 }
 \value{
-Same as `intervals` but with three new columns: `cvc`, `ctc`, and
-`awc`.
+Same as \code{intervals} but with three new columns: \code{cvc}, \code{ctc}, and
+\code{awc}.
 }
 \description{
 Add LENA stats to each interval in a dataframe
@@ -29,9 +29,9 @@ Add LENA stats to each interval in a dataframe
 Any its segment overlapping with multiple intervals will count fully
 towards all of them.
 
-The difference between this function and `calculate_lena_like_stats`
+The difference between this function and \code{calculate_lena_like_stats}
 is that the latter calculates exactly the same stats but does it for every
 five minute period of wall time (e.g., 13:00-13:05). It should be rewritten
-to first create these intervals and then use `add_lena_stats` to avoid code
+to first create these intervals and then use \code{add_lena_stats} to avoid code
 repetition (see issue #).
 }

@@ -17,7 +17,7 @@ For a given dataset, returns the version tag of the version that was last
 downloaded - the one that is on your computer right now.
 }
 \details{
-The main assumed usage is switching from using `get_all_basiclevel()` without
+The main assumed usage is switching from using \code{get_all_basiclevel()} without
 the version argument.
 
 Use interactively only and put the actual version string literal in your

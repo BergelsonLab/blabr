@@ -7,7 +7,7 @@
 make_five_min_approximation(its_xml)
 }
 \arguments{
-\item{its_xml}{XML object created by `rlena::read_its_file`.}
+\item{its_xml}{XML object created by \code{rlena::read_its_file}.}
 }
 \value{
 a tibble with at least these four columns: interval_start,
