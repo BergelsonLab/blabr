@@ -1,3 +1,7 @@
+# blabr 0.14.0
+
+Add function  `get_seedlings_nouns` that loads the `seedlings-nouns` dataset from the lab-private repo.
+
 # blabr 0.13.2
 
 Switch to Makrdown for docs.

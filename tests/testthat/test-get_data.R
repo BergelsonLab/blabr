@@ -3,6 +3,7 @@ library(blabr)
 # get_functions issue a warning when called without version specified
 suppressWarnings({datasets <- list(
   all_basiclevel = get_all_basiclevel(),
+  seedslings_nouns = get_seedlings_nouns(),
   cdi = get_cdi_spreadsheet(),
   motor = get_motor_spreadsheet(),
   reliability = get_reliability("audio", "06")
@@ -22,7 +23,8 @@ suppressWarnings({datasets_csv <- list(
   all_basiclevel = get_all_basiclevel(type = 'csv'),
   cdi = get_cdi_spreadsheet(type = 'csv'),
   motor = get_motor_spreadsheet(type = 'csv')
-  # reliability does not have a feather version
+  # reliability and seedlings_nouns does only have a csv version so there is no
+  # need to test them again.
 )})
 
 

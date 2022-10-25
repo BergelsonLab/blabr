@@ -53,6 +53,75 @@ get_all_basiclevel <- function(version = NULL, type = "feather",
 }
 
 
+#' Load seedlings_noun from the lab-private repository
+#'
+#' For the function to work, clone [seedlings-nouns_private](https://github.com/BergelsonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/` if you haven't already.
+#'
+#' To make your analysis reproducible, set the `version` argument.
+#' To get the latest version, omit `version`, look for the version number in the output, and then set the `version` argument to that version.
+#'
+#'
+#'
+#' @inheritParams get_all_basiclevel
+#'
+#' @return A dataframe with one row per annotated object.
+#' @export
+#'
+#' @examples
+#' seedlings_nouns <- get_seedlings_nouns()
+get_seedlings_nouns <- function(version = NULL) {
+  repository = 'seedlings-nouns_private'
+  filename <- 'seedlings-nouns.csv'
+  children <- sprintf('%02d', c(1:23, 25:46))
+  months <- sprintf('%02d', 6:17)
+  speakers <- c('AF3', 'AFA', 'AFB', 'AFC', 'AFL', 'AMC', 'AU2', 'AUN', 'BR1',
+                'BR2', 'BRO', 'BSS', 'CFS', 'CHI', 'CME', 'EFA', 'EFB', 'EFE',
+                'EFS', 'EMM', 'FAT', 'FCO', 'FTV', 'FTY', 'GP2', 'GRA', 'GRM',
+                'GRP', 'GTY', 'MBR', 'MFT', 'MIS', 'MOT', 'MT2', 'MTV', 'MTY',
+                'SI1', 'SI2', 'SIS', 'STY', 'TOY', 'TVS', 'UN2', 'UNC', 'AFN',
+                'AFR', 'AFS', 'AM1', 'ATV', 'BSK', 'BTY', 'CFA', 'CFE', 'FTS',
+                'GTV', 'MC2', 'MCO', 'MCU', 'MGM', 'NOT', 'STV', 'AF8', 'AFD',
+                'AMR', 'BSE', 'BTV', 'CFR', 'CMD', 'MFU', 'MFV', 'MGP', 'MOY',
+                'SCU', 'AF1', 'AF2', 'AFH', 'AFM', 'AFP', 'AM2', 'AM3', 'AMA',
+                'AMI', 'BSJ', 'CF1', 'CFC', 'CFD', 'CFK', 'CFZ', 'CMH', 'CML',
+                'CMO', 'FBR', 'FC2', 'MTT', 'AF4', 'AF5', 'AFE', 'AM4', 'AM5',
+                'AMM', 'AU3', 'AU4', 'CFL', 'CM1', 'GRO', 'MMT', 'UN4', 'AF6',
+                'AF7', 'AF9', 'AFT', 'AMB', 'AME', 'AMJ', 'CCU', 'CFP', 'CH1',
+                'GGM', 'GUN', 'SST', 'AFG', 'AFK', 'AMS', 'AMT', 'BSD', 'CFH',
+                'CM2', 'CMJ', 'GGP', 'GMS', 'MC3', 'UAT', 'UAU', 'UTV', 'X10',
+                'X11', 'AFJ', 'BSC', 'BSL', 'CFB', 'CFM', 'CMM', 'UN3', 'X12',
+                'AMG', 'AMK', 'BSB', 'COU', 'GR2', 'GRF', 'MGG', 'SIU', 'UMT',
+                'ADM', 'AFY', 'AM6', 'BIS', 'CMT', 'FC3', 'FCU', 'GRY', 'MST',
+                'MTO', 'SGP', 'BBT', 'CTY', 'FGA', 'MBT', 'X13')
+  utterance_types <- c('d', 'i', 'n', 'q', 'r', 's', 'u')
+  object_present_values <- c('n', 'u', 'y')
+
+  col_types = readr::cols(
+    audio_video = readr::col_factor(levels = c('video', 'audio')),
+    recording_id = readr::col_character(),
+    child = readr::col_factor(levels = children),
+    month = readr::col_factor(levels = months),
+    onset = readr::col_integer(),
+    offset = readr::col_integer(),
+    annotid = readr::col_character(),
+    ordinal = readr::col_integer(),
+    speaker = readr::col_factor(levels = speakers),
+    object = readr::col_character(),
+    basic_level = readr::col_character(),
+    global_basic_level = readr::col_character(),
+    utterance_type = readr::col_factor(levels = utterance_types),
+    object_present = readr::col_factor(levels = object_present_values),
+    is_top_3_hours = readr::col_logical(),
+    is_top_4_hours = readr::col_logical(),
+    is_surplus = readr::col_logical()
+  )
+  seedlings_nouns <- get_df_file(repo = repository, filename = filename,
+                                 version = version, col_types = col_types)
+
+  return(seedlings_nouns)
+}
+
+
 #' Get the CDI spreadsheet for SEEDLingS babies
 #'
 #' @param version version tag to checkout
