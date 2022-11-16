@@ -1,3 +1,7 @@
+# blabr 0.14.1
+
+Fix: make `get_*` functions work on Windows.
+
 # blabr 0.14.0
 
 Add function  `get_seedlings_nouns` that loads the `seedlings-nouns` dataset from the lab-private repo.
