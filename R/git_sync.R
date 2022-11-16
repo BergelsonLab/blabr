@@ -91,8 +91,10 @@ checkout_tag <- function(repo, tag) {
 #' }
 get_latest_tag <- function(repo, tags_already_updated = FALSE) {
   if (!tags_already_updated) {update_tags(repo)}
-  run_git_command(repo, 'tag --sort version:refname | tail -1',
-                  return_output = TRUE)
+  versions <- run_git_command(repo, 'tag --sort version:refname',
+                              return_output = TRUE)
+  last_version <- tail(versions, 1)
+  return(last_version)
 }
 
 
