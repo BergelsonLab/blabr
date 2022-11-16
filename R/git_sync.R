@@ -1,7 +1,7 @@
 #this is the script that syncs data, or something.
 git_bin <- Sys.which("git")
 
-home_dir <- path.expand('~')
+home_dir <- fs::path_home()
 blab_data <- file.path(home_dir, "BLAB_DATA")
 
 
