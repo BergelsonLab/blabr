@@ -213,35 +213,34 @@ get_reliability <- function(av, month, version = NULL) {
 #' @examples
 #' global_bl_mapping <- get_global_bl_mappings(version = '0.1.4')
 get_global_bl_mappings <- function(version = NULL) {
-  global_bl_repo <- 'all_basiclevel'
 
-  object_dict <- get_df_file(
-    repo = global_bl_repo,
-    filename = 'global_basic_level_dicts/global_bl_dictionary.csv',
-    version = version,
+  get_mapping <- function(filename, col_types) {
+    return(
+      get_df_file(
+        repo = 'all_basiclevel',
+        filename = glue::glue('global_basic_level_dicts/{filename}'),
+        version = version,
+        col_types = col_types))
+  }
+
+  object_dict <- get_mapping(
+    filename = 'global_bl_dictionary.csv',
     col_types = readr::cols(
       object = readr::col_character(),
       disambiguate = readr::col_character(),
-      global_bl = readr::col_character()
-    )
-  )
+      global_bl = readr::col_character()))
   check_object_dict(object_dict)
 
-  annotid_disambiguation <- get_df_file(
-    repo = global_bl_repo,
-    filename = 'global_basic_level_dicts/disambiguated_rows.csv',
-    version = version,
+  annotid_disambiguation <- get_mapping(
+    filename = 'disambiguated_rows.csv',
     col_types = readr::cols(
       object = readr::col_character(),
       annotid = readr::col_character(),
-      disambiguate = readr::col_character()
-    ))
+      disambiguate = readr::col_character()))
   check_annotid_disambiguation(annotid_disambiguation)
 
-  list(
-    object_dict = object_dict,
-    annotid_disambiguation = annotid_disambiguation
-  )
+  return(list(object_dict = object_dict,
+              annotid_disambiguation = annotid_disambiguation))
 }
 
 #' Find latest version available for downloading?
