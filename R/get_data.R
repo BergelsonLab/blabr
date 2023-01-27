@@ -213,11 +213,11 @@ get_reliability <- function(av, month, version = NULL) {
 #' @examples
 #' global_bl_mapping <- get_global_bl_mappings(version = '0.1.4')
 get_global_bl_mappings <- function(version = NULL) {
-  global_bl_repo <- 'global_basic_level'
+  global_bl_repo <- 'all_basiclevel'
 
   object_dict <- get_df_file(
     repo = global_bl_repo,
-    filename = 'data/global_bl_dictionary.csv',
+    filename = 'global_basic_level_dicts/global_bl_dictionary.csv',
     version = version,
     col_types = readr::cols(
       object = readr::col_character(),
@@ -229,7 +229,7 @@ get_global_bl_mappings <- function(version = NULL) {
 
   annotid_disambiguation <- get_df_file(
     repo = global_bl_repo,
-    filename = 'data/disambiguated_rows.csv',
+    filename = 'global_basic_level_dicts/disambiguated_rows.csv',
     version = version,
     col_types = readr::cols(
       object = readr::col_character(),
