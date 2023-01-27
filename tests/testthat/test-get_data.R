@@ -1,12 +1,16 @@
 library(blabr)
 
 # get_functions issue a warning when called without version specified
-suppressWarnings({datasets <- list(
-  all_basiclevel = get_all_basiclevel(),
-  seedslings_nouns = get_seedlings_nouns(),
-  cdi = get_cdi_spreadsheet(),
-  motor = get_motor_spreadsheet(),
-  reliability = get_reliability("audio", "06")
+suppressWarnings({
+  gbl <- get_global_bl_mappings()
+  datasets <- list(
+    all_basiclevel = get_all_basiclevel(),
+    seedslings_nouns = get_seedlings_nouns(),
+    cdi = get_cdi_spreadsheet(),
+    motor = get_motor_spreadsheet(),
+    reliability = get_reliability("audio", "06"),
+    object_dict = gbl$object_dict,
+    annotid_disambiguation = gbl$annotid_disambiguation
 )})
 
 

@@ -412,16 +412,15 @@ assign_global_basic_level <- function(all_basiclevel_na,
 #' If it can't, it will throw an error and provide instructions how to update
 #' the global basic level mappings.
 make_new_global_basic_level <- function(
-  all_basiclevel_version = NULL,
-  global_bl_mappings_version = NULL
+  version = NULL
 ) {
   # Load the data and the mappings
   suppressWarnings({
     all_basiclevel_na <- get_all_basiclevel(drop_basic_level_na = FALSE,
-                                            version = all_basiclevel_version)
+                                            version = version)
     assertthat::assert_that(sum(is.na(all_basiclevel_na$basic_level)) > 0)
     global_bl_mappings <- get_global_bl_mappings(
-      version = global_bl_mappings_version)
+      version = version)
     object_dict <- global_bl_mappings$object_dict
     annotid_disambiguation <- global_bl_mappings$annotid_disambiguation
   })
