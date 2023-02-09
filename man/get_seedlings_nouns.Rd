@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_data.R
 \name{get_seedlings_nouns}
 \alias{get_seedlings_nouns}
-\title{Load seedlings_noun from the lab-private repository}
+\title{Load seedlings_nouns from the lab-private repository}
 \usage{
 get_seedlings_nouns(version = NULL)
 }

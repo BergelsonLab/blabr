@@ -54,7 +54,7 @@ get_all_basiclevel <- function(version = NULL,
 }
 
 
-#' Load seedlings_noun from the lab-private repository
+#' Load seedlings_nouns from the lab-private repository
 #'
 #' For the function to work, clone [seedlings-nouns_private](https://github.com/BergelsonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/` if you haven't already.
 #'
@@ -72,7 +72,21 @@ get_all_basiclevel <- function(version = NULL,
 #' seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
 get_seedlings_nouns <- function(version = NULL) {
   repository = 'seedlings-nouns_private'
+
+  # We need to know the version here because in the version 0.0.0.9000, the
+  # files were in the root folder and then they were moved to "public/".
+  version <- handle_dataset_version(repo = repository,
+                                    version = version,
+                                    tags_already_updated = FALSE,
+                                    check_for_updates = FALSE)
+
   filename <- 'seedlings-nouns.csv'
+  if (version == '0.0.0.9000') {
+    # Files are in the root, nothing to do.
+  } else {
+    filename <- file.path('public', filename)
+  }
+
   children <- sprintf('%02d', c(1:23, 25:46))
   months <- sprintf('%02d', 6:17)
   speakers <- c('AF3', 'AFA', 'AFB', 'AFC', 'AFL', 'AMC', 'AU2', 'AUN', 'BR1',
@@ -258,21 +272,39 @@ get_latest_version <- function(repo, tags_already_updated = FALSE) {
 }
 
 
-#' Check whether there is a newer version than one requested
+#' Handles the version.
 #'
-#' @inheritParams get_latest_tag
-#' @param requested_version - the version user requested
+#' If the version isn't specified, finds the newest version and warns that not
+#' specifying the version might not be a good idea.
+#' If it is specified, notifies if there is a newer version available.
 #'
-check_for_updates <- function(repo, requested_version,
-                              tags_already_updated = FALSE) {
-  latest_version <- get_latest_version(
-    repo, tags_already_updated = tags_already_updated)
-  if (latest_version != requested_version) {
-    message(glue::glue(
-      "You've requested version {requested_version} of {repo}.\n",
-      "The latest available version is {latest_version}.\n",
-      "Consider updating."))
+#' @inheritParams get_all_basiclevel
+#' @return version string
+handle_dataset_version <- function(repo, version = NULL,
+                                   tags_already_updated = FALSE,
+                                   check_for_updates = TRUE) {
+  # We will only need to get the latest version in these two cases.
+  if (is.null(version) | isTRUE(check_for_updates)) {
+    latest_version <- get_latest_version(
+      repo = repo,
+      tags_already_updated = tags_already_updated)
+
+    if (is.null(version)) {
+      version <- latest_version
+      warning(glue::glue(
+        'Getting a dataset without specifying a version is highly discouraged.\n',
+        'Add ", version = \'{version}\'" to the `get_*` function call.'))
+    }
+
+    if (isTRUE(check_for_updates) && (latest_version != version)) {
+      message(glue::glue(
+        "You've requested version {version} of {repo}.\n",
+        "The latest available version is {latest_version}.\n",
+        "Consider updating."))
+    }
   }
+
+  return(version)
 }
 
 
@@ -292,24 +324,12 @@ check_for_updates <- function(repo, requested_version,
 #' get_df_file('all_basiclevel', 'all_basiclevel.csv', version = '0.1.0')
 #' }
 get_df_file <- function(repo, filename, version = NULL, col_types = NULL) {
-  # Get the up-to-date set of tags
-  update_tags(repo)
-
-  # Find out the latest version if none was specified
-  if (is.null(version)) {
-    requested_version <- get_latest_version(repo, tags_already_updated = TRUE)
-    warning(glue::glue(
-      'Getting a dataset without specifying a version is highly discouraged.\n',
-      'Add ", version = {requested_version}" to the `get_*` function call.'))
-  } else {
-    requested_version <- version
-    # Check if there is a newer version
-    check_for_updates(repo = repo, requested_version = requested_version,
-                      tags_already_updated = TRUE)
-  }
+  version <- handle_dataset_version(repo = repo, version = version,
+                                    tags_already_updated = FALSE,
+                                    check_for_updates = TRUE)
 
   # Download the file
-  checkout_tag(repo, tag = requested_version)
+  checkout_tag(repo, tag = version)
 
   # Load the file
   file_path <- file.path(blab_data, repo, filename)

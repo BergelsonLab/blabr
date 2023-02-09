@@ -1,3 +1,7 @@
+# blabr 0.16.0
+
+Account for csvs in the `seedlings-nouns_private` having moved to the "public/" subfolder.
+
 # blabr 0.15.0
 
 `get_all_basiclevel` uses "all_basiclevel_na.csv" only as it will be the only file in the `all_basiclevel` repo from now on.
