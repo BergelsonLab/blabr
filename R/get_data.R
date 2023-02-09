@@ -2,26 +2,23 @@
 #' Get the all_basiclevel data
 #'
 #' @param version version tag to checkout
-#' @param type "feather" or "csv". defaults to "feather"
 #' @param drop_basic_level_na whether to use the "*_NA" version that has all the
 #' nouns, including those whose "basic_level" is set to "NA"
-#' (drop_basic_level_na = FALSE) or the standard version that does not include them (dro)
+#' (drop_basic_level_na = FALSE) or the standard version that does not include
+#' them.
 #'
-#' @return a dataframe containing the all_basicalevel data
+#' @return a dataframe containing the all_basiclevel data
 #' @export
 #'
 #' @examples
 #'
 #' # get version with a specific version tag
 #' all_bl <- get_all_basiclevel(version='0.3.2')
-get_all_basiclevel <- function(version = NULL, type = "feather",
+get_all_basiclevel <- function(version = NULL,
                                drop_basic_level_na = TRUE) {
-  stopifnot(type %in% c('feather', 'csv'))
-  na_suffix <- if (drop_basic_level_na) {''} else {'_NA'}
-  filename <- paste0("all_basiclevel", na_suffix, '.', type)
+  filename <- "all_basiclevel_na.csv"
 
-  col_types <- switch(type,
-    "csv" = readr::cols(
+  col_types <- readr::cols(
       .default = readr::col_factor(),
       # With include_na = FALSE, NA values get coded as belonging to a NA level,
       # and with include_na = TRUE - to a "NA" level. The latter was easier to
@@ -32,22 +29,26 @@ get_all_basiclevel <- function(version = NULL, type = "feather",
       onset = readr::col_integer(),
       offset = readr::col_integer(),
       annotid = readr::col_character(),
-      pho = readr::col_character()),
-    "feather" = NULL)
+      pho = readr::col_character())
 
   all_bl <- get_df_file(repo = 'all_basiclevel', filename = filename,
                         version = version, col_types = col_types)
 
-  if (type == "csv") {
-    all_bl <- all_bl %>%
-      # Drop the "NA" level, converting the corresponding values to NA. Done for
-      # the sake of consistency with reading from the feather file.
-      mutate(tier = recode_factor(all_bl$tier, "NA" = NA_character_))
-  }
+  # Drop the "NA" level, converting the corresponding values to NA. Done for
+  # the sake of consistency with the older versions of all_basiclevel when
+  # we had feather files too there.
+  all_bl <- all_bl %>%
+    dplyr::mutate(tier = dplyr::recode_factor(all_bl$tier, "NA" = NA_character_))
 
-  basic_level_na_count <- sum(is.na(all_bl$basic_level))
-  if (drop_basic_level_na) {assertthat::are_equal(basic_level_na_count, 0)
-    } else {assertthat::assert_that(basic_level_na_count > 0)}
+  # There should only be one csv file now - the one that has rows where
+  # basic_level is NA - that is the full file. Let's check that that we are
+  # loading that file in case someone uses an older version.
+  assertthat::assert_that(sum(is.na(all_bl$basic_level)) > 0)
+
+  if (isTRUE(drop_basic_level_na)) {
+    all_bl <- all_bl %>%
+      tidyr::drop_na(basic_level)
+  }
 
   return(all_bl)
 }

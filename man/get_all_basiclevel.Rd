@@ -4,23 +4,18 @@
 \alias{get_all_basiclevel}
 \title{Get the all_basiclevel data}
 \usage{
-get_all_basiclevel(
-  version = NULL,
-  type = "feather",
-  drop_basic_level_na = TRUE
-)
+get_all_basiclevel(version = NULL, drop_basic_level_na = TRUE)
 }
 \arguments{
 \item{version}{version tag to checkout}
 
-\item{type}{"feather" or "csv". defaults to "feather"}
-
 \item{drop_basic_level_na}{whether to use the "*_NA" version that has all the
 nouns, including those whose "basic_level" is set to "NA"
-(drop_basic_level_na = FALSE) or the standard version that does not include them (dro)}
+(drop_basic_level_na = FALSE) or the standard version that does not include
+them.}
 }
 \value{
-a dataframe containing the all_basicalevel data
+a dataframe containing the all_basiclevel data
 }
 \description{
 Get the all_basiclevel data

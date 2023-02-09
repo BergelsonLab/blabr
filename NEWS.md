@@ -1,3 +1,8 @@
+# blabr 0.15.0
+
+`get_all_basiclevel` uses "all_basiclevel_na.csv" only as it will be the only file in the `all_basiclevel` repo from now on.
+If you need to stick to an older version of blabr and `get_all_basiclevel` stopped working for you, add `type = 'csv'` to the call.
+
 # blabr 0.14.2
 
 Account for global basic level dictionaries having moved to the all_basiclevel repo.
