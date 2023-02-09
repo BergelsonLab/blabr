@@ -1,3 +1,7 @@
+# blabr 0.14.2
+
+Account for global basic level dictionaries having moved to the all_basiclevel repo.
+
 # blabr 0.14.1
 
 Fix: make `get_*` functions work on Windows.

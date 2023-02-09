@@ -118,7 +118,7 @@ get_current_tag <- function(repo, tags_already_updated = FALSE) {
 #'
 #' @inheritParams get_latest_tag
 #'
-#' @return
+#' @return A string with the date.
 #'
 #' @examples
 #'

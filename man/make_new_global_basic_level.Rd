@@ -4,30 +4,23 @@
 \alias{make_new_global_basic_level}
 \title{Create all_basiclevel_na with added global_bl column}
 \usage{
-make_new_global_basic_level(
-  all_basiclevel_version = NULL,
-  global_bl_mappings_version = NULL
-)
+make_new_global_basic_level(version = NULL)
 }
 \arguments{
-\item{all_basiclevel_version}{Version tag of the \code{all_basiclevel} repository.
-Use for testing only.}
+\item{version}{Version tag of the \code{all_basiclevel} repository.
 
-\item{global_bl_mappings_version}{Version tag of the repository with the
-mappings used to match tokens with their global basic levels. Use for
-testing only.
-
-Loads the latest versions of:
+Loads from the "all_basiclevel" repository:
 \itemize{
-\item all_basiclevel_na from the "all_basiclevel" repository,
-\item object_dict and annotid_disambiguation from the "global_basic_level"
-repository
+\item all_basiclevel_na.csv,
+\item object_dict and annotid_disambiguation used for mapping objects/tokens to
+their global basic level.
 }
 
-And then tries to add a global_bl column to all_basiclevel_na if it can.
-If it can, it will return all_basiclevel_na with an added a column.
+Then adds a global_bl column to all_basiclevel_na if it can.
 
-If it can't, it will throw an error and provide instructions how to update
+If it can, it will return all_basiclevel_na with the new global_na column.
+
+If it can't, it will throw an error and provide instructions on how to update
 the global basic level mappings.}
 }
 \description{

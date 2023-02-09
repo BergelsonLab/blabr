@@ -13,7 +13,7 @@
 #' @examples
 #'
 #' # get version with a specific version tag
-#' all_bl <- get_all_basiclevel(version='0.1.0')
+#' all_bl <- get_all_basiclevel(version='0.3.2')
 get_all_basiclevel <- function(version = NULL, type = "feather",
                                drop_basic_level_na = TRUE) {
   stopifnot(type %in% c('feather', 'csv'))
@@ -68,7 +68,7 @@ get_all_basiclevel <- function(version = NULL, type = "feather",
 #' @export
 #'
 #' @examples
-#' seedlings_nouns <- get_seedlings_nouns()
+#' seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
 get_seedlings_nouns <- function(version = NULL) {
   repository = 'seedlings-nouns_private'
   filename <- 'seedlings-nouns.csv'
@@ -211,7 +211,7 @@ get_reliability <- function(av, month, version = NULL) {
 #' @export
 #'
 #' @examples
-#' global_bl_mapping <- get_global_bl_mappings(version = '0.1.4')
+#' global_bl_mapping <- get_global_bl_mappings(version = '0.3.2')
 get_global_bl_mappings <- function(version = NULL) {
 
   get_mapping <- function(filename, col_types) {
@@ -246,7 +246,6 @@ get_global_bl_mappings <- function(version = NULL) {
 #' Find latest version available for downloading?
 #'
 #' @inheritParams get_latest_tag
-#' @inheritParams
 #'
 #' @return the version string
 #' @export

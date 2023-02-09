@@ -20,5 +20,5 @@ To make your analysis reproducible, set the \code{version} argument.
 To get the latest version, omit \code{version}, look for the version number in the output, and then set the \code{version} argument to that version.
 }
 \examples{
-seedlings_nouns <- get_seedlings_nouns()
+seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
 }

@@ -9,6 +9,9 @@ get_current_commit_date(repo)
 \arguments{
 \item{repo}{dataset name: 'all_basiclevel', 'reliability', etc.}
 }
+\value{
+A string with the date.
+}
 \description{
 Get the date of the currently checked out commit
 }
