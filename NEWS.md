@@ -1,3 +1,7 @@
+# blabr 0.16.1
+
+Account for adding `global_bl` column directly to `all_basiclevel`.
+
 # blabr 0.16.0
 
 Account for csvs in the `seedlings-nouns_private` having moved to the "public/" subfolder.
