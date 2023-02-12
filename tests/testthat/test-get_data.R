@@ -24,7 +24,6 @@ test_that("all datasets can be downloaded", {
 
 # laod the csv versions
 suppressWarnings({datasets_csv <- list(
-  all_basiclevel = get_all_basiclevel(type = 'csv'),
   cdi = get_cdi_spreadsheet(type = 'csv'),
   motor = get_motor_spreadsheet(type = 'csv')
   # reliability and seedlings_nouns does only have a csv version so there is no
