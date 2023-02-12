@@ -18,18 +18,31 @@ get_all_basiclevel <- function(version = NULL,
                                drop_basic_level_na = TRUE) {
   filename <- "all_basiclevel_na.csv"
 
+  # The reason there are so many factors is for backwards compatibility with the
+  # .feather versions of all_basiclevel which we used to keep. They were loaded
+  # by default so some scripts might expect factors and they should get them.
   col_types <- readr::cols(
-      .default = readr::col_factor(),
-      # With include_na = FALSE, NA values get coded as belonging to a NA level,
-      # and with include_na = TRUE - to a "NA" level. The latter was easier to
-      # remove in the mutate below, so that we have NA values, not a NA/"NA"
-      # level.
-      tier = readr::col_factor(include_na = TRUE),
-      ordinal = readr::col_integer(),
-      onset = readr::col_integer(),
-      offset = readr::col_integer(),
-      annotid = readr::col_character(),
-      pho = readr::col_character())
+    ordinal = readr::col_integer(),
+    onset = readr::col_integer(),
+    offset = readr::col_integer(),
+    object = col_factor(),
+    utterance_type = col_factor(),
+    object_present = col_factor(),
+    speaker = col_factor(),
+    basic_level = col_factor(),
+    annotid = readr::col_character(),
+    id = col_factor(),
+    subj = col_factor(),
+    month = col_factor(),
+    SubjectNumber = col_factor(),
+    audio_video = col_factor(),
+    # With include_na = FALSE, NA values get coded as belonging to a NA level,
+    # and with include_na = TRUE - to a "NA" level. The latter was easier to
+    # remove in the mutate below, so that we have NA values, not a NA/"NA"
+    # level.
+    tier = readr::col_factor(include_na = TRUE),
+    pho = readr::col_character()
+  )
 
   all_bl <- get_df_file(repo = 'all_basiclevel', filename = filename,
                         version = version, col_types = col_types)
