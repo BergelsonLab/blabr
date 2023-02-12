@@ -1,5 +1,26 @@
 library(blabr)
 
+
+expect_non_empty_dataframe <- function(object) {
+  expect_s3_class(object, 'data.frame')
+  expect_gt(nrow(object), 0)
+}
+
+# Check specific version of dataset that are loaded differently
+test_that(
+  "dataset versions before and after formatting changes can be loaded",
+  {
+    suppressWarnings({
+      for (version in c('0.3.3',
+                        '0.4.0',  # only single csv left
+                        '0.5.0')  # global_bl column added
+      ){
+        expect_non_empty_dataframe(get_all_basiclevel(version))
+      }
+    })
+})
+
+
 # get_functions issue a warning when called without version specified
 suppressWarnings({
   gbl <- get_global_bl_mappings()
@@ -16,8 +37,7 @@ suppressWarnings({
 
 test_that("all datasets can be downloaded", {
   for (dataset in datasets) {
-    expect_s3_class(dataset, 'data.frame')
-    expect_gt(nrow(dataset), 0)
+    expect_non_empty_dataframe(dataset)
   }
 })
 
