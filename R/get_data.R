@@ -236,7 +236,7 @@ get_reliability <- function(av, month, version = NULL) {
 #' Get the global basic level spreadsheets
 #'
 #' They are used to map every token in all_basiclevel_na to its global basic
-#' level, see `map_global_basic_level` and `make_new_global_basic_level`
+#' level, see `map_global_basic_level` and `update_global_basic_levels`
 #'
 #' @param version version tag to checkout
 #'

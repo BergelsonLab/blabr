@@ -393,7 +393,7 @@ assign_global_basic_level <- function(all_basiclevel_na,
 }
 
 
-#' Create all_basiclevel_na with added global_bl column
+#' Updates global basic levels in all_basiclevel_na
 #'
 #' @param version Version tag of the `all_basiclevel` repository.
 #'
@@ -404,11 +404,13 @@ assign_global_basic_level <- function(all_basiclevel_na,
 #'
 #' Then adds a global_bl column to all_basiclevel_na if it can.
 #'
-#' If it can, it will return all_basiclevel_na with the new global_na column.
+#' If it can, it will return all_basiclevel_na with the new global_bl column.
 #'
 #' If it can't, it will throw an error and provide instructions on how to update
 #' the global basic level mappings.
-make_new_global_basic_level <- function(
+#'
+#' @export
+update_global_basic_levels <- function(
   version = NULL
 ) {
   # Load the data and the mappings
@@ -448,6 +450,8 @@ make_new_global_basic_level <- function(
 
   # Add "global_bl" column
   with_global_bl <- all_basiclevel_na %>%
+    # Older versions didn't have this column, hence `any_of`
+    dplyr::select(-any_of('global_bl')) %>%
     dplyr::inner_join(assignment,
                       by = c("annotid", "object", "basic_level"))
 

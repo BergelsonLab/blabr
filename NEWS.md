@@ -1,6 +1,10 @@
+# blabr 0.16.3
+
+Fix: take into account that `global_bl` already exists when adding an updated global_bl column to "all_basiclevel_NA.csv".
+
 # blabr 0.16.2
 
-Fix: correctly add `globab_bl` column specification when reading "all_basiclevel_NA.csv".
+Fix: correctly add `global_bl` column specification when reading "all_basiclevel_NA.csv".
 
 # blabr 0.16.1
 
