@@ -46,7 +46,7 @@ get_all_basiclevel <- function(version = NULL,
 
   # global_bl column wasn't there until version 0.5.0
   if (is.null(version) || (compareVersion(version, '0.5.0') >= 0)) {
-    col_types[['global_bl']] = readr::col_factor()
+    col_types$cols[['global_bl']] = readr::col_factor()
   }
 
   all_bl <- get_df_file(repo = 'all_basiclevel', filename = filename,
@@ -96,7 +96,7 @@ get_seedlings_nouns <- function(version = NULL) {
   version <- handle_dataset_version(repo = repository,
                                     version = version,
                                     tags_already_updated = FALSE,
-                                    check_for_updates = FALSE)
+                                    check_for_updates = TRUE)
 
   filename <- 'seedlings-nouns.csv'
   if (version == '0.0.0.9000') {
