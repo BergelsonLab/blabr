@@ -2,23 +2,38 @@
 % Please edit documentation in R/get_data.R
 \name{get_seedlings_nouns}
 \alias{get_seedlings_nouns}
-\title{Load seedlings_nouns from the lab-private repository}
+\title{Load data from the SEEDLingS - Nouns dataset}
 \usage{
-get_seedlings_nouns(version = NULL)
+get_seedlings_nouns(
+  version = NULL,
+  table = c("seedlings-nouns", "regions", "recordings", "sub-recordings"),
+  get_codebook = FALSE
+)
 }
 \arguments{
 \item{version}{version tag to checkout}
+
+\item{table}{Apart from the main "seedlings-nouns" table, the dataset contains three more: regions, recordings, and sub-recordings.
+See "public/README.md" of the \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns_private} for details.}
+
+\item{get_codebook}{Set to \code{TRUE} to get the requested table's codebook instead of the table itself.}
 }
 \value{
-A dataframe with one row per annotated object.
+By default, returns a dataframe with one row per annotated object.
+
+If \code{table} and or \code{get_codebook} are changed from their default values, returns the requested table/codebook.
 }
 \description{
-For the function to work, clone \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns_private} to \verb{~/BLAB_DATA/seedlings-nouns_private/} if you haven't already.
+Loads a requested table from the SEEDLingS - Nouns dataset.
+By default, loads the main "seedlings-nouns" table with all the annotated nouns in the SEEDLingS corpus.
 }
 \details{
-To make your analysis reproducible, set the \code{version} argument.
+For the function to work, clone \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns_private} to \verb{~/BLAB_DATA/seedlings-nouns_private/} first.
+
+To make the function call reproducible, set the \code{version} argument.
 To get the latest version, omit \code{version}, look for the version number in the output, and then set the \code{version} argument to that version.
 }
 \examples{
 seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
+
 }

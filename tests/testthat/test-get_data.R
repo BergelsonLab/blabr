@@ -35,6 +35,25 @@ suppressWarnings({
 )})
 
 
+test_that("get_seedlings_nouns works with different arguments", {
+  tested_version = 'v1.0.0'
+  for (get_codebook in c(TRUE, FALSE)) {
+    for (table in c('seedlings-nouns', 'regions', 'recordings',
+                    'sub-recordings')) {
+      get_sn <- function(version) {
+        get_seedlings_nouns(version = tested_version,
+                            get_codebook = get_codebook, table = table)}
+
+      # Test a specific version
+      testthat::expect_no_warning(get_sn(version = tested_version))
+
+      # Test the current version
+      testthat::expect_no_error(suppressWarnings({get_sn(version = NULL)}))
+    }
+  }
+})
+
+
 test_that("all datasets can be downloaded", {
   for (dataset in datasets) {
     expect_non_empty_dataframe(dataset)
