@@ -34,10 +34,33 @@ suppressWarnings({
     annotid_disambiguation = gbl$annotid_disambiguation
 )})
 
-
+# TODO: merge with the loading code.
 test_that("all datasets can be downloaded", {
   for (dataset in datasets) {
     expect_non_empty_dataframe(dataset)
+  }
+})
+
+
+test_that("get_seedlings_nouns works with different arguments", {
+  public_version = 'v1.0.0'
+  dev_version = '0.0.0.9016'
+  for (get_codebook in c(TRUE, FALSE)) {
+    for (table in c('seedlings-nouns', 'regions', 'recordings',
+                    'sub-recordings')) {
+      get_sn <- function(version) {
+        get_seedlings_nouns(version = version,
+                            get_codebook = get_codebook, table = table)}
+
+      # Test specific version
+      expect_non_empty_dataframe(get_sn(version = public_version))
+      expect_non_empty_dataframe(get_sn(version = dev_version))
+
+      # Test the current (public) version
+      # TODO: check that a warning about not setting a version is issued
+      # testthat::expect_warning()
+      expect_non_empty_dataframe(get_sn(version = NULL))
+    }
   }
 })
 

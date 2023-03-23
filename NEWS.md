@@ -1,3 +1,15 @@
+# blabr 0.17.0
+
+Features:
+- Switched to the public version in `get_seedlings_nouns`.
+  The development versions can still be requested.
+- Now, `get_seedlings_nouns` can get other tables and codebooks from the SEEDLingS - Nouns dataset with the `table` and `get_codeobook` parameters.
+
+Fixes:
+- `CONTRIBUTING.md` - `devtools::test()` should be run before `devtools::check()`.
+- Multiple tests don't fail anymore.
+  Except for `test-seedlings.R`, this one is skipped for now.
+
 # blabr 0.16.3
 
 Fixes: 

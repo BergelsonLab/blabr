@@ -72,83 +72,176 @@ get_all_basiclevel <- function(version = NULL,
 }
 
 
-#' Load seedlings_nouns from the lab-private repository
-#'
-#' For the function to work, clone [seedlings-nouns_private](https://github.com/BergelsonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/` if you haven't already.
-#'
-#' To make your analysis reproducible, set the `version` argument.
-#' To get the latest version, omit `version`, look for the version number in the output, and then set the `version` argument to that version.
-#'
-#'
-#'
-#' @inheritParams get_all_basiclevel
-#'
-#' @return A dataframe with one row per annotated object.
-#' @export
-#'
-#' @examples
-#' seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
-get_seedlings_nouns <- function(version = NULL) {
-  repository = 'seedlings-nouns_private'
+sn_factor_levels <- list(
+  audio_video = c('video', 'audio'),
+  children = sprintf('%02d', c(1:23, 25:46)),
+  months = sprintf('%02d', 6:17),
+  speakers = c('AF3', 'AFA', 'AFB', 'AFC', 'AFL', 'AMC', 'AU2', 'AUN', 'BR1',
+               'BR2', 'BRO', 'BSS', 'CFS', 'CHI', 'CME', 'EFA', 'EFB', 'EFE',
+               'EFS', 'EMM', 'FAT', 'FCO', 'FTV', 'FTY', 'GP2', 'GRA', 'GRM',
+               'GRP', 'GTY', 'MBR', 'MFT', 'MIS', 'MOT', 'MT2', 'MTV', 'MTY',
+               'SI1', 'SI2', 'SIS', 'STY', 'TOY', 'TVS', 'UN2', 'UNC', 'AFN',
+               'AFR', 'AFS', 'AM1', 'ATV', 'BSK', 'BTY', 'CFA', 'CFE', 'FTS',
+               'GTV', 'MC2', 'MCO', 'MCU', 'MGM', 'NOT', 'STV', 'AF8', 'AFD',
+               'AMR', 'BSE', 'BTV', 'CFR', 'CMD', 'MFU', 'MFV', 'MGP', 'MOY',
+               'SCU', 'AF1', 'AF2', 'AFH', 'AFM', 'AFP', 'AM2', 'AM3', 'AMA',
+               'AMI', 'BSJ', 'CF1', 'CFC', 'CFD', 'CFK', 'CFZ', 'CMH', 'CML',
+               'CMO', 'FBR', 'FC2', 'MTT', 'AF4', 'AF5', 'AFE', 'AM4', 'AM5',
+               'AMM', 'AU3', 'AU4', 'CFL', 'CM1', 'GRO', 'MMT', 'UN4', 'AF6',
+               'AF7', 'AF9', 'AFT', 'AMB', 'AME', 'AMJ', 'CCU', 'CFP', 'CH1',
+               'GGM', 'GUN', 'SST', 'AFG', 'AFK', 'AMS', 'AMT', 'BSD', 'CFH',
+               'CM2', 'CMJ', 'GGP', 'GMS', 'MC3', 'UAT', 'UAU', 'UTV', 'X10',
+               'X11', 'AFJ', 'BSC', 'BSL', 'CFB', 'CFM', 'CMM', 'UN3', 'X12',
+               'AMG', 'AMK', 'BSB', 'COU', 'GR2', 'GRF', 'MGG', 'SIU', 'UMT',
+               'ADM', 'AFY', 'AM6', 'BIS', 'CMT', 'FC3', 'FCU', 'GRY', 'MST',
+              'MTO', 'SGP', 'BBT', 'CTY', 'FGA', 'MBT', 'X13'),
+  utterance_types = c('d', 'i', 'n', 'q', 'r', 's', 'u'),
+  object_present_values = c('n', 'u', 'y'),
+  region_types = c('subregion', 'top_3', 'top_4', 'surplus'),
+  # Column data_type in the codebooks.
+  data_types = c('integer', 'boolean', 'categorical', 'string', 'datetime')
+)
 
-  # We need to know the version here because in the version 0.0.0.9000, the
-  # files were in the root folder and then they were moved to "public/".
-  version <- handle_dataset_version(repo = repository,
-                                    version = version,
-                                    tags_already_updated = FALSE,
-                                    check_for_updates = TRUE)
-
-  filename <- 'seedlings-nouns.csv'
-  if (version == '0.0.0.9000') {
-    # Files are in the root, nothing to do.
-  } else {
-    filename <- file.path('public', filename)
-  }
-
-  children <- sprintf('%02d', c(1:23, 25:46))
-  months <- sprintf('%02d', 6:17)
-  speakers <- c('AF3', 'AFA', 'AFB', 'AFC', 'AFL', 'AMC', 'AU2', 'AUN', 'BR1',
-                'BR2', 'BRO', 'BSS', 'CFS', 'CHI', 'CME', 'EFA', 'EFB', 'EFE',
-                'EFS', 'EMM', 'FAT', 'FCO', 'FTV', 'FTY', 'GP2', 'GRA', 'GRM',
-                'GRP', 'GTY', 'MBR', 'MFT', 'MIS', 'MOT', 'MT2', 'MTV', 'MTY',
-                'SI1', 'SI2', 'SIS', 'STY', 'TOY', 'TVS', 'UN2', 'UNC', 'AFN',
-                'AFR', 'AFS', 'AM1', 'ATV', 'BSK', 'BTY', 'CFA', 'CFE', 'FTS',
-                'GTV', 'MC2', 'MCO', 'MCU', 'MGM', 'NOT', 'STV', 'AF8', 'AFD',
-                'AMR', 'BSE', 'BTV', 'CFR', 'CMD', 'MFU', 'MFV', 'MGP', 'MOY',
-                'SCU', 'AF1', 'AF2', 'AFH', 'AFM', 'AFP', 'AM2', 'AM3', 'AMA',
-                'AMI', 'BSJ', 'CF1', 'CFC', 'CFD', 'CFK', 'CFZ', 'CMH', 'CML',
-                'CMO', 'FBR', 'FC2', 'MTT', 'AF4', 'AF5', 'AFE', 'AM4', 'AM5',
-                'AMM', 'AU3', 'AU4', 'CFL', 'CM1', 'GRO', 'MMT', 'UN4', 'AF6',
-                'AF7', 'AF9', 'AFT', 'AMB', 'AME', 'AMJ', 'CCU', 'CFP', 'CH1',
-                'GGM', 'GUN', 'SST', 'AFG', 'AFK', 'AMS', 'AMT', 'BSD', 'CFH',
-                'CM2', 'CMJ', 'GGP', 'GMS', 'MC3', 'UAT', 'UAU', 'UTV', 'X10',
-                'X11', 'AFJ', 'BSC', 'BSL', 'CFB', 'CFM', 'CMM', 'UN3', 'X12',
-                'AMG', 'AMK', 'BSB', 'COU', 'GR2', 'GRF', 'MGG', 'SIU', 'UMT',
-                'ADM', 'AFY', 'AM6', 'BIS', 'CMT', 'FC3', 'FCU', 'GRY', 'MST',
-                'MTO', 'SGP', 'BBT', 'CTY', 'FGA', 'MBT', 'X13')
-  utterance_types <- c('d', 'i', 'n', 'q', 'r', 's', 'u')
-  object_present_values <- c('n', 'u', 'y')
-
-  col_types = readr::cols(
-    audio_video = readr::col_factor(levels = c('video', 'audio')),
+seedlings_nouns_col_types <- list(
+  `seedlings-nouns` = readr::cols(
+    audio_video =
+      readr::col_factor(levels = sn_factor_levels$audio_video),
     recording_id = readr::col_character(),
-    child = readr::col_factor(levels = children),
-    month = readr::col_factor(levels = months),
+    child = readr::col_factor(levels = sn_factor_levels$children),
+    month = readr::col_factor(levels = sn_factor_levels$months),
     onset = readr::col_integer(),
     offset = readr::col_integer(),
     annotid = readr::col_character(),
     ordinal = readr::col_integer(),
-    speaker = readr::col_factor(levels = speakers),
+    speaker = readr::col_factor(levels = sn_factor_levels$speakers),
     object = readr::col_character(),
     basic_level = readr::col_character(),
     global_basic_level = readr::col_character(),
-    utterance_type = readr::col_factor(levels = utterance_types),
-    object_present = readr::col_factor(levels = object_present_values),
+    utterance_type =
+      readr::col_factor(levels = sn_factor_levels$utterance_types),
+    object_present =
+      readr::col_factor(levels = sn_factor_levels$object_present_values),
     is_top_3_hours = readr::col_logical(),
     is_top_4_hours = readr::col_logical(),
     is_surplus = readr::col_logical()
+  ),
+  regions = readr::cols(
+    recording_id = readr::col_character(),
+    start = readr::col_integer(),
+    end = readr::col_integer(),
+    is_subregion = readr::col_logical(),
+    is_top_3_hours = readr::col_logical(),
+    is_top_4_hours = readr::col_logical(),
+    is_surplus = readr::col_logical(),
+    position = readr::col_integer(),
+    subregion_rank = readr::col_integer()
+  ),
+  recordings = readr::cols(
+    recording_id = readr::col_character(),
+    total_recorded_time_ms = readr::col_integer(),
+    total_listened_time_ms = readr::col_integer()
+  ),
+  `sub-recordings` = readr::cols(
+    recording_id = readr::col_character(),
+    start = readr::col_datetime(format = ""),
+    end = readr::col_datetime(format = ""),
+    start_position_ms = readr::col_integer()
+  ),
+  codebook = readr::cols(
+    column = readr::col_character(),
+    data_type = readr::col_factor(levels =
+                                    sn_factor_levels$data_types),
+    values = readr::col_character(),
+    description = readr::col_character(),
+  ),
+  `seedlings-nouns-codebok-extra` = readr::cols(
+    additional_info = readr::col_character(),
+    additional_info_2 = readr::col_character()
   )
-  seedlings_nouns <- get_df_file(repo = repository, filename = filename,
+)
+
+
+is_public_version <- function(version) {
+  if (startsWith(version, '0') | endsWith(version, '-dev')) {
+    return(FALSE)
+  } else if (grepl('v?\\d+\\.\\d+\\.\\d+', 'v1.0.0')) {
+    return(TRUE)
+  } else {
+    stop(glue::glue('Unrecognized version {version}'))
+  }
+}
+
+
+#' Load data from the SEEDLingS - Nouns dataset
+#'
+#' Loads a requested table from the SEEDLingS - Nouns dataset.
+#' By default, loads the main "seedlings-nouns" table with all the annotated nouns in the SEEDLingS corpus.
+#' For the function to work, clone [seedlings-nouns](https://github.com/BergelsonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns/` first.
+#'
+#' To get the same data every time you run the script, always supply the version argument.
+#' To get the latest version number, run `get_latest_version('seedlings-nouns')` and then set the version parameter to the output number, e.g., `get_seedlings_nouns(version = 'v1.0.2')`.
+#'
+#' Alternatively, don't set the version parameter, run the function, look for the version number in the issued warning, and then set `version` to that number.
+#' You don't need to run the function again after that.
+#'
+#' If you are a Bergelson Lab member and you need to use a version that hasn't been made public yet, clone [seedlings-nouns_private](https://github.com/Bergel sonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/`.
+#' If you don't know the version number and want to get the most current one, get it with `get_latest_version('seedlings-nouns_private')`.
+#'
+#' @inheritParams get_all_basiclevel
+#' @param table Apart from the main "seedlings-nouns" table, the dataset contains three more: regions, recordings, and sub-recordings.
+#' See "public/README.md" of the [seedlings-nouns_private](https://github.com/BergelsonLab/seedlings-nouns_private) for details.
+#' @param get_codebook Set to `TRUE` to get the requested table's codebook instead of the table itself.
+#'
+#' @return By default, returns a dataframe with one row per annotated object.
+#'
+#' If `table` and or `get_codebook` are changed from their default values, returns the requested table/codebook.
+#'
+#' @export
+#'
+#' @examples
+#' seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
+#'
+get_seedlings_nouns <- function(
+    version = NULL,
+    table = c('seedlings-nouns', 'regions', 'recordings', 'sub-recordings'),
+    get_codebook = FALSE) {
+
+  # We need to know the version here because
+  if (is.null(version) || is_public_version(version)) {
+    repository <- 'seedlings-nouns'
+  } else {
+      repository <- 'seedlings-nouns_private'
+  }
+
+  version <- handle_dataset_version(repo = repository,
+                                    version = version,
+                                    tags_already_updated = FALSE,
+                                    check_for_updates = TRUE)
+  # In the version 0.0.0.9000, the files were in the root folder and then they
+  # were moved to "public/".
+  if (version == '0.0.0.9000' || is_public_version(version)) {
+    folder <- '.'
+  } else {
+    folder <- 'public'
+  }
+
+  # Determine the name of the requested file
+  table <- match.arg(table)
+  if (isTRUE(get_codebook)) {table <- glue::glue('{table}.codebook')}
+  filename <- glue::glue('{table}.csv')
+
+  if (isTRUE(get_codebook)) {
+    col_types <- seedlings_nouns_col_types$codebook
+  } else {
+    col_types <- seedlings_nouns_col_types[[table]]
+    if (table == 'seedlings-nouns') {
+      extra_cols <- seedlings_nouns_col_types['seedlings-nouns-codebok-extra']
+      col_types$cols <- c(col_types$cols, extra_cols$cols)
+    }
+  }
+
+  file_path = file.path(folder, filename)
+  seedlings_nouns <- get_df_file(repo = repository, filename = file_path,
                                  version = version, col_types = col_types)
 
   return(seedlings_nouns)
@@ -284,7 +377,7 @@ get_global_bl_mappings <- function(version = NULL) {
 #' @export
 #'
 #' @examples
-#' get_latest_version('all_basiclvel')
+#' get_latest_version('all_basiclevel')
 get_latest_version <- function(repo, tags_already_updated = FALSE) {
   get_latest_tag(repo, tags_already_updated = tags_already_updated)
 }

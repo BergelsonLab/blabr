@@ -185,8 +185,8 @@ update_object_dict <- function(all_basiclevel_na,
         object_dict %>%
           dplyr::anti_join(objects_to_delete, by = c('object')),
         new_objects %>%
-          mutate(disambiguate = FIXME,
-                 global_bl = FIXME))
+          dplyr::mutate(disambiguate = FIXME,
+                        global_bl = FIXME))
     } else {
       object_dict
     }
@@ -272,7 +272,7 @@ update_mappings <- function(all_basiclevel_na,
       object_dict_update$object_dict}
 
     object_dict_to_write %>%
-      write_csv(file.path(temp_dir, dict_filename))
+      readr::write_csv(file.path(temp_dir, dict_filename))
   }
 
   if (!object_dict_ok) {
@@ -282,7 +282,7 @@ update_mappings <- function(all_basiclevel_na,
     deleted_objects_filename <- glue::glue('deleted_objects_{dict_filename}')
     if (nrow(deleted_objects) > 0) {
       deleted_objects %>%
-        write_csv(file.path(temp_dir, deleted_objects_filename))
+        readr::write_csv(file.path(temp_dir, deleted_objects_filename))
       instructions <- glue::glue(
         instructions, '\n',
         'Some of the objects might have been deleted because the spelling ',
@@ -355,8 +355,8 @@ update_mappings <- function(all_basiclevel_na,
 
   instructions <- glue::glue(
     instructions, '\n',
-    'Once done, update the correspoding files in the global_basic_level ',
-    'repostitory.\n')
+    'Once done, update the correspoding files in the all_basiclevel ',
+    'repostitory in the "global_basic_level_dicts" folder.\n')
 
   instructions
 }

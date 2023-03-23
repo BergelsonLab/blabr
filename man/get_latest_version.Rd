@@ -20,5 +20,5 @@ the version string
 Find latest version available for downloading?
 }
 \examples{
-get_latest_version('all_basiclvel')
+get_latest_version('all_basiclevel')
 }

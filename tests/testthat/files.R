@@ -19,7 +19,7 @@ seedlings_test_files$audio_csv_path <- function() {
 
 
 seedlings_test_files$audio_annotations <- function() {
-  audio_csv_path <- seedlings_test_files$audio_csv_path
+  audio_csv_path <- seedlings_test_files$audio_csv_path()
   read_seedlings_audio_annotations(audio_csv_path)
 }
 

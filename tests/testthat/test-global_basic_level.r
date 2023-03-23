@@ -4,17 +4,17 @@ library(dplyr)
 test_that("assign_global_basic_level works as expected", {
   # Load the data
   suppressWarnings({
-    all_basiclevel_na <- get_all_basiclevel(version = '0.1.5',
+    all_basiclevel_na <- get_all_basiclevel(version = '0.6.4',
                                             drop_basic_level_na = FALSE)
-    mappings <- get_global_bl_mappings(version = '0.1.4')
+    mappings <- get_global_bl_mappings(version = '0.6.4')
     object_dict <- mappings$object_dict
     annotid_disambiguation <- mappings$annotid_disambiguation
   })
 
   # Check that the input data haven't changed (since the versions are set above,
   # only changes to the data-reading function can spoil things).
-  expect_equal(digest(all_basiclevel_na), "ac45f6aae8d35853ab7510f9a7536fc9")
-  expect_equal(digest(object_dict), "bddf031a7603164db6c46b57f68cc2bc")
+  expect_equal(digest(all_basiclevel_na), "9170807a8cfdc4cead7b450d0c16006c")
+  expect_equal(digest(object_dict), "dc1f5f6101d3fad69cfee7c947d34c78")
   expect_equal(digest(annotid_disambiguation),
                "a0484bae138d392a4cdee4f6a73a51f4")
 
@@ -30,10 +30,10 @@ test_that("assign_global_basic_level works as expected", {
     as.list
   expected_hashes <-
     list(
-      annotid = "b9ecf89588e02f5a33e5e6e3500c8e77",
-      object = "d727bde5077f61eab93565ca53cd4943",
-      basic_level = "492a9154886f40ac8dc2c7ed4b58eb37",
-      global_bl = "df728c5e4d28b57ccfdda8502cfafcd3"
+      annotid = "4107e4afec033433a8d120a3a5943e76",
+      object = "5c4dc9cc50e782c2e312283babf3a582",
+      basic_level = "0488cad5e1ba357ef15c6ea0fb5a7295",
+      global_bl = "0272d3536b812767e7ed5ba6185f4b32"
     )
   expect_equal(hashes, expected_hashes)
 })

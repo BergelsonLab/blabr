@@ -1,8 +1,8 @@
 # Updating the package
 
--   Run `devtools::check()`.
-
 -   Run `devtools::test()`.
+
+-   Run `devtools::check()`.
 
 -   Run `devtools::document()`.
 
