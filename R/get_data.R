@@ -377,7 +377,7 @@ get_global_bl_mappings <- function(version = NULL) {
 #' @export
 #'
 #' @examples
-#' get_latest_version('all_basiclvel')
+#' get_latest_version('all_basiclevel')
 get_latest_version <- function(repo, tags_already_updated = FALSE) {
   get_latest_tag(repo, tags_already_updated = tags_already_updated)
 }
