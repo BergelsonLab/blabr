@@ -161,15 +161,31 @@ seedlings_nouns_col_types <- list(
 )
 
 
+is_public_version <- function(version) {
+  if (startsWith(version, '0') | endsWith(version, '-dev')) {
+    return(FALSE)
+  } else if (grepl('v?\\d+\\.\\d+\\.\\d+', 'v1.0.0')) {
+    return(TRUE)
+  } else {
+    stop(glue::glue('Unrecognized version {version}'))
+  }
+}
+
+
 #' Load data from the SEEDLingS - Nouns dataset
 #'
 #' Loads a requested table from the SEEDLingS - Nouns dataset.
 #' By default, loads the main "seedlings-nouns" table with all the annotated nouns in the SEEDLingS corpus.
+#' For the function to work, clone [seedlings-nouns](https://github.com/BergelsonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns/` first.
 #'
-#' For the function to work, clone [seedlings-nouns_private](https://github.com/BergelsonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/` first.
+#' To get the same data every time you run the script, always supply the version argument.
+#' To get the latest version number, run `get_latest_version('seedlings-nouns')` and then set the version parameter to the output number, e.g., `get_seedlings_nouns(version = 'v1.0.2')`.
 #'
-#' To make the function call reproducible, set the `version` argument.
-#' To get the latest version, omit `version`, look for the version number in the output, and then set the `version` argument to that version.
+#' Alternatively, don't set the version parameter, run the function, look for the version number in the issued warning, and then set `version` to that number.
+#' You don't need to run the function again after that.
+#'
+#' If you are a Bergelson Lab member and you need to use a version that hasn't been made public yet, clone [seedlings-nouns_private](https://github.com/Bergel sonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/`.
+#' If you don't know the version number and want to get the most current one, get it with `get_latest_version('seedlings-nouns_private')`.
 #'
 #' @inheritParams get_all_basiclevel
 #' @param table Apart from the main "seedlings-nouns" table, the dataset contains three more: regions, recordings, and sub-recordings.
@@ -190,23 +206,29 @@ get_seedlings_nouns <- function(
     table = c('seedlings-nouns', 'regions', 'recordings', 'sub-recordings'),
     get_codebook = FALSE) {
 
-  repository = 'seedlings-nouns_private'
-  table <- match.arg(table)
-  if (isTRUE(get_codebook)) {table <- glue::glue('{table}.codebook')}
-  filename <- glue::glue('{table}.csv')
+  # We need to know the version here because
+  if (is.null(version) || is_public_version(version)) {
+    repository <- 'seedlings-nouns'
+  } else {
+      repository <- 'seedlings-nouns_private'
+  }
 
-  # We need to know the version here because in the version 0.0.0.9000, the
-  # files were in the root folder and then they were moved to "public/".
   version <- handle_dataset_version(repo = repository,
                                     version = version,
                                     tags_already_updated = FALSE,
                                     check_for_updates = TRUE)
-
-  if (version == '0.0.0.9000') {
-    # Files are in the root, nothing to do.
+  # In the version 0.0.0.9000, the files were in the root folder and then they
+  # were moved to "public/".
+  if (version == '0.0.0.9000' || is_public_version(version)) {
+    folder <- '.'
   } else {
-    filename <- file.path('public', filename)
+    folder <- 'public'
   }
+
+  # Determine the name of the requested file
+  table <- match.arg(table)
+  if (isTRUE(get_codebook)) {table <- glue::glue('{table}.codebook')}
+  filename <- glue::glue('{table}.csv')
 
   if (isTRUE(get_codebook)) {
     col_types <- seedlings_nouns_col_types$codebook
@@ -218,7 +240,8 @@ get_seedlings_nouns <- function(
     }
   }
 
-  seedlings_nouns <- get_df_file(repo = repository, filename = filename,
+  file_path = file.path(folder, filename)
+  seedlings_nouns <- get_df_file(repo = repository, filename = file_path,
                                  version = version, col_types = col_types)
 
   return(seedlings_nouns)

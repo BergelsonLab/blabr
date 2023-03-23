@@ -26,12 +26,17 @@ If \code{table} and or \code{get_codebook} are changed from their default values
 \description{
 Loads a requested table from the SEEDLingS - Nouns dataset.
 By default, loads the main "seedlings-nouns" table with all the annotated nouns in the SEEDLingS corpus.
+For the function to work, clone \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns} to \verb{~/BLAB_DATA/seedlings-nouns/} first.
 }
 \details{
-For the function to work, clone \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns_private} to \verb{~/BLAB_DATA/seedlings-nouns_private/} first.
+To get the same data every time you run the script, always supply the version argument.
+To get the latest version number, run \code{get_latest_version('seedlings-nouns')} and then set the version parameter to the output number, e.g., \code{get_seedlings_nouns(version = 'v1.0.2')}.
 
-To make the function call reproducible, set the \code{version} argument.
-To get the latest version, omit \code{version}, look for the version number in the output, and then set the \code{version} argument to that version.
+Alternatively, don't set the version parameter, run the function, look for the version number in the issued warning, and then set \code{version} to that number.
+You don't need to run the function again after that.
+
+If you are a Bergelson Lab member and you need to use a version that hasn't been made public yet, clone \link{seedlings-nouns_private}(https://github.com/Bergel sonLab/seedlings-nouns_private) to \verb{~/BLAB_DATA/seedlings-nouns_private/}.
+If you don't know the version number and want to get the most current one, get it with \code{get_latest_version('seedlings-nouns_private')}.
 }
 \examples{
 seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
