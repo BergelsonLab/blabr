@@ -35,6 +35,14 @@ get_repo_path <- function(repo) {
 #' run_git_command('all_basiclevel', 'status')
 #' }
 run_git_command <- function(repo, command, return_output = FALSE) {
+  repo_root <- get_repo_path(repo)
+  if (!dir.exists(repo_root)) {
+    stop(glue::glue(
+      'Expected to find the "{repo}" repository at the following \\
+       location:
+       {repo_root}.
+       Please, clone it.'))
+  }
   arguments <- c('-C', get_repo_path(repo), strsplit(command, '\\s+')[[1]])
   result <- system2(git_bin, arguments, wait = TRUE, stdout = TRUE)
   if (return_output) {return(result)}
