@@ -1,4 +1,4 @@
-library(tidyverse)
+# library(tidyverse)
 
 cdi_words =
   c("airplane",	"alligator",	"animal",	"ankle",	"ant",	"apple",	"apple+sauce",	"applesauce",	"arm",	"aunt",

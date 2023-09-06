@@ -1,0 +1,15 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+```{r}
+library(sessioninfo)
+info <- session_info(pkgs = 'installed',
+                            info = c('platform', 'python', 'external'),
+                            to_file = FALSE)
+print(info)
+```
+
+
+
