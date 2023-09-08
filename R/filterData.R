@@ -1,6 +1,4 @@
-library(tidyverse)
-
-#this function accepts a vector of column names and the output file 
+#this function accepts a vector of column names and the output file
 #type ("csv" or "feather"); returns a new tibble with unique 3 digit
 #ID code for each subject number, output a file with selected columns
 anonymous <- function(df, colNameList, fileType) {
@@ -28,12 +26,12 @@ anonymous <- function(df, colNameList, fileType) {
   for (i in subjectNumcol) {
     IDcol <- c(IDcol, randomID[[i]])
   }
-  tibble <- add_column(tibble, "ID_code" = IDcol)
+  tibble <- tibble::add_column(tibble, "ID_code" = IDcol)
   #generate filteredData file
   newtibble <- tibble
   newtibble <- newtibble[,c(colNameList, "ID_code")]
   if (fileType == "csv") {
-    write_csv(newtibble, "filteredData.csv")
+    readr::write_csv(newtibble, "filteredData.csv")
   }
   else {
     arrow::write_feather(newtibble, "filteredData.feather")

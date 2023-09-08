@@ -1,10 +1,8 @@
-library(entropy)
-
 add_chi_noun_onset <- function(x) {
   x %>%
     dplyr::filter(speaker == "CHI")%>%
     dplyr::group_by(subj)%>%
-    summarise(noun_chi_onset = min(as.numeric(as.character(month))))%>%
+    dplyr::summarise(noun_chi_onset = min(as.numeric(as.character(month)))) %>%
     dplyr::right_join(x)
 }
 
@@ -101,7 +99,7 @@ big_aggregate <- function(x, exclude = NULL, output = NULL, exclude_chi = FALSE)
   six_to_seventeen_home_noun_chi_onset <- add_chi_noun_onset(x) %>% chi_noun_onset()
 
   if (exclude_chi == TRUE) {
-    x <- x %>% filter(speaker != "CHI")
+    x <- x %>% dplyr::filter(speaker != "CHI")
   }
 
   six_to_seventeen_home_utt_count <- count_utterance(x)

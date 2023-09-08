@@ -1,5 +1,3 @@
-library(tidyverse)
-
 cdi_get_words <- function(data, cdi_type = "wg") {
 
   data <- if (cdi_type == "wg" | cdi_type == "WG") {
@@ -39,29 +37,33 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
 
   if (cdi_type == "wg" | cdi_type == "WG") {
     data <- data %>%
-      mutate(value = fct_recode(value,
-                                "understands"="understands",
-                                "produces" = "produces",
-                                "neither" = "NA"))
+      dplyr::mutate(
+        value = forcats::fct_recode(
+          value,
+          "understands" = "understands",
+          "produces" = "produces",
+          "neither" = "NA"
+        )
+      )
   } else {
     data <- data %>%
-      mutate(value = fct_recode(value,
-                                "understands"="understands",
-                                "neither" = "NA"))
+      dplyr::mutate(value = forcats::fct_recode(value,
+                                                "understands" = "understands",
+                                                "neither" = "NA"))
   }
 
   data <- data %>%
-    spread(value, n, fill=0)
+    tidyr::spread(value, n, fill=0)
 
   if (cdi_type == "wg" | cdi_type == "WG") {
     data <- data %>%
-      mutate(CDIcomp = understands+produces,
+      dplyr::mutate(CDIcomp = understands+produces,
              CDIprod = produces) %>%
-      select(SubjectNumber, CDIcomp, CDIprod)
+      dplyr::select(SubjectNumber, CDIcomp, CDIprod)
   } else {
     data <- data %>%
-      select(SubjectNumber, produces) %>%
-      rename(CDIprod = produces)
+      dplyr::select(SubjectNumber, produces) %>%
+      dplyr::rename(CDIprod = produces)
   }
   return(data)
 
