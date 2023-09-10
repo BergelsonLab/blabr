@@ -5,12 +5,16 @@
 # loadfonts(device = "postscript")
 # fonts()
 
+# I couldn't figure out how to qualify infixes (%..% operators) so I restorted
+# to this.
+`%+blabr_replace%` <- ggplot2::`%+replace%`
+
 #' Theme "blab" for ggplot2
 #'
 #' @return a ggplot2::theme object
 #' @export
 theme_blab <- function () {
-  ggplot2::theme_bw(base_size = 18, base_family = "") %+replace%
+  ggplot2::theme_bw(base_size = 18, base_family = "") %+blabr_replace%
     ggplot2::theme(
       panel.background  = ggplot2::element_rect(fill = "white"),
       panel.border = ggplot2::element_rect(fill = NA, colour = "black"),
@@ -42,7 +46,7 @@ theme_blab <- function () {
 #' @return a ggplot2::theme object
 #' @export
 theme_spooky <- function() {
-  ggplot2::theme_bw(base_size = 32, base_family = "serif") %+replace%
+  ggplot2::theme_bw(base_size = 32, base_family = "serif") %+blabr_replace%
     ggplot2::theme(
       panel.background = ggplot2::element_rect(fill = "#FFFFFF"),
       panel.border = ggplot2::element_rect(fill = "transparent",
@@ -71,7 +75,7 @@ theme_spooky <- function() {
 #' @return a ggplot2::theme object
 #' @export
 theme_AMERICA <- function() {
-  ggplot2::theme_bw(base_size = 18, base_family = "sans") %+replace%
+  ggplot2::theme_bw(base_size = 18, base_family = "sans") %+blabr_replace%
     ggplot2::theme(
       panel.background = ggplot2::element_rect(fill = "#FFFFFF"),
       panel.border = ggplot2::element_rect(fill = "transparent",
