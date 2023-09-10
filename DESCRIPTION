@@ -28,11 +28,14 @@ Imports:
     assertthat,
     stringr,
     withr,
-    fs
+    fs,
+    forcats,
+    ggplot2
 Remotes:
   HomeBankCode/rlena
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    vdiffr
 Config/testthat/edition: 3

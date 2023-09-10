@@ -1,5 +1,3 @@
-library(tidyverse)
-
 cdi_words =
   c("airplane",	"alligator",	"animal",	"ankle",	"ant",	"apple",	"apple+sauce",	"applesauce",	"arm",	"aunt",
     "baby",	"babysitter",	"backyard",	"ball",	"balloon",	"banana",	"bananas",	"basement",	"basket",	"bat",	"bath",	"bathroom",	"bathtub",	"beach",	"beads",	"bean",	"beans",	"bear",	"bed",	"bedroom",	"bee",	"belly+button",	"belt",	"bench",	"bib",	"bicycle",	"bird",	"blanket",	"block",	"boat",	"book",	"boots",	"bottle",	"bottom",	"bowl",	"box",	"boy",	"bread",	"breakfast",	"broom",	"brother",	"brush",	"bubble",	"bubbles",	"bucket",	"bug",	"bunny",	"bus",	"butter",	"butterfly",	"button",
@@ -27,5 +25,5 @@ cdi_words =
     "zebra",	"zipper",	"zoo")
 
 on_cdi <- function(input) {
-  mutate(input, in_cdi = basic_level %in% cdi_words)
+  dplyr::mutate(input, in_cdi = basic_level %in% cdi_words)
 }
