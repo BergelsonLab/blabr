@@ -1,3 +1,10 @@
+# blabr 0.18.0
+
+Fix:
+- No more installation errors due to missing the `tidyverse` meta-package.
+- Now, neither the packages from `tidyverse`, nor any other packages are attached after running `library(blabr)`.
+  This forces the user to insert explicit `library(<pkg>)` calls to their own code leading to fewer unintended consequences, e.g., `filter` referring to `dplyr::filter` instead of the standard `stats::filter` even when user didn't run `library(dplyr)`.
+
 # blabr 0.17.0
 
 Features:
