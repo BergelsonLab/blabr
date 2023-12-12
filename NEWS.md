@@ -1,3 +1,9 @@
+# blabr 0.18.1
+
+## Fixed:
+
+- Correctly identify public versions of datasets.
+
 # blabr 0.18.0
 
 Fix:
