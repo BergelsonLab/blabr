@@ -164,7 +164,7 @@ seedlings_nouns_col_types <- list(
 is_public_version <- function(version) {
   if (startsWith(version, '0') | endsWith(version, '-dev')) {
     return(FALSE)
-  } else if (grepl('v?\\d+\\.\\d+\\.\\d+', 'v1.0.0')) {
+  } else if (grepl('v?\\d+\\.\\d+\\.\\d+', version)) {
     return(TRUE)
   } else {
     stop(glue::glue('Unrecognized version {version}'))
