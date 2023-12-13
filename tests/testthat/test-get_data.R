@@ -6,7 +6,7 @@ expect_non_empty_dataframe <- function(object) {
   expect_gt(nrow(object), 0)
 }
 
-# Check specific version of dataset that are loaded differently
+# Check specific versions of datasets that are loaded differently
 test_that(
   "dataset versions before and after formatting changes can be loaded",
   {
