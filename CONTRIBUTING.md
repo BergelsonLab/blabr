@@ -4,9 +4,7 @@
 
 -   Run `devtools::check()`.
 
--   Run `devtools::document()`.
-
--   Run `use_version()` then select the new version.
+-   Run `use_version()` then select the new version, do not commit.
 
 -   Update `NEWS.md`.
 
