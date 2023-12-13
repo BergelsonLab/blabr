@@ -25,4 +25,5 @@
         devtools::load_all()
         version <- packageVersion('blabr')
         cmd <- glue::glue('tag {version} && git push --tags')
-        system2('git', cmd)
+        system2('git', glue::glue('tag {version}'))
+        system2('git', 'push --tags')
