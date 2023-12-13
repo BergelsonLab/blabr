@@ -486,6 +486,21 @@ get_dataset_version <- function(dataset) {
 #' Clone BLAB-private [vihi_annotations](https://github.com/bergelsonlab/vihi_annotations.git)
 #' repo to `~/BLAB_DATA` once before using this function.
 #'
+#' The speaker TIER is identified by the `participant` column. Other tiers are
+#' in columns.
+#'
+#' Notes:
+#' - Annotations marked as PI are included. Filter them out if you don't want
+#'   them.
+#' - The transcribed utterance can be empty (''). Normally, that means that a
+#'   code interval has been segmented but not annotated. But there might be
+#'   other stray utterance segments like that.
+#' - (relevant for non-speaker TIERs only) Currently, there is no way to tell
+#'   whether an annotation is missing because it was not segmented or because it
+#'   was segmented but not yet annotated: both are represented as NA. This will
+#'   change in the future: missing segment will still be NA, but missing
+#'   annotation will be ''.
+#'
 #' @inheritParams get_seedlings_nouns
 #' @param table Which of the two tables should be loaded?
 #' @param merge Should annotations be merged with the intervals info? Not
@@ -495,7 +510,7 @@ get_dataset_version <- function(dataset) {
 #' @export
 #'
 #' @examples
-#' vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9000', merge=True)
+#' vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9000')
 get_vihi_annotations <- function(
     version = NULL,
     table = c('annotations', 'intervals', 'merged')) {
@@ -503,33 +518,33 @@ get_vihi_annotations <- function(
   table <- match.arg(table)
 
   col_types <- list(
-    annotations = cols(
-      eaf_filename = col_character(),
-      participant = col_character(),
-      onset = col_integer(),
-      offset = col_integer(),
-      annotation = col_character(),
-      participant_annotation_id = col_character(),
-      mwu = col_character(),
-      lex = col_character(),
-      vcm = col_character(),
-      cds = col_character(),
-      xds = col_character(),
+    annotations = readr::cols(
+      eaf_filename = readr::col_character(),
+      participant = readr::col_character(),
+      onset = readr::col_integer(),
+      offset = readr::col_integer(),
+      annotation = readr::col_character(),
+      participant_annotation_id = readr::col_character(),
+      mwu = readr::col_character(),
+      lex = readr::col_character(),
+      vcm = readr::col_character(),
+      cds = readr::col_character(),
+      xds = readr::col_character(),
       # The type of `code_num` has to match (a) blabpy, (b) intervals. Change
       # all three together if necessary.
-      code_num = col_character(),
-      PI = col_character(),
-      inq = col_character(),
-      utt = col_character()),
-    intervals= cols(
-      eaf_filename = col_character(),
+      code_num = readr::col_character(),
+      PI = readr::col_character(),
+      inq = readr::col_character(),
+      utt = readr::col_character()),
+    intervals= readr::cols(
+      eaf_filename = readr::col_character(),
       # See not before code_num in `annotations` above
-      code_num = col_character(),
-      sampling_type = col_character(),
-      onset = col_integer(),
-      offset = col_integer(),
-      context_onset = col_integer(),
-      context_offset = col_integer())
+      code_num = readr::col_character(),
+      sampling_type = readr::col_character(),
+      onset = readr::col_integer(),
+      offset = readr::col_integer(),
+      context_onset = readr::col_integer(),
+      context_offset = readr::col_integer())
   )
 
   version <- handle_dataset_version(repo = 'vihi_annotations',

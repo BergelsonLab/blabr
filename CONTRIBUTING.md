@@ -8,9 +8,15 @@
 
 -   Update `NEWS.md`.
 
--   Commit `NEWS.md` and `DESCRIPTION`.
+-   If you are on a branch:
 
--   Merge branch into `main`. Create a merge commit, don't squash, don't fast-forward. Amend the merge commit's message if an automatic one was used.
+    -  Commit `NEWS.md` and `DESCRIPTION`.
+
+    -  Merge branch into `main`. Create a merge commit, don't squash, don't fast-forward. Amend the merge commit's message if an automatic one was used.
+    
+-   If this is a small single-commit patch:
+
+    - Commit everything directly on `main`.
 
 -   Push.
 

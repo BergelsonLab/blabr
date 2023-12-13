@@ -1,3 +1,10 @@
+# blabr 0.19.1
+
+## Fixed
+
+- There were unqualified calls in `get_vihi_annotations`. I don't yet know why
+  this wasn't flagged by `devtools::check()` or didn't cause a test error.
+
 # blabr 0.19.0
 
 ## Added:

@@ -24,6 +24,24 @@ A tibble with
 Clone BLAB-private \href{https://github.com/bergelsonlab/vihi_annotations.git}{vihi_annotations}
 repo to \verb{~/BLAB_DATA} once before using this function.
 }
+\details{
+The speaker TIER is identified by the \code{participant} column. Other tiers are
+in columns.
+
+Notes:
+\itemize{
+\item Annotations marked as PI are included. Filter them out if you don't want
+them.
+\item The transcribed utterance can be empty (''). Normally, that means that a
+code interval has been segmented but not annotated. But there might be
+other stray utterance segments like that.
+\item (relevant for non-speaker TIERs only) Currently, there is no way to tell
+whether an annotation is missing because it was not segmented or because it
+was segmented but not yet annotated: both are represented as NA. This will
+change in the future: missing segment will still be NA, but missing
+annotation will be ''.
+}
+}
 \examples{
-vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9000', merge=True)
+vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9000')
 }
