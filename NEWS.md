@@ -1,3 +1,9 @@
+# blabr 0.19.0
+
+## Added:
+
+- Function `get_vihi_annotations` similar to other `get_*` functions.
+
 # blabr 0.18.1
 
 ## Fixed:

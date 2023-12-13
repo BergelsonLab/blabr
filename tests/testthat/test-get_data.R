@@ -31,7 +31,9 @@ suppressWarnings({
     motor = get_motor_spreadsheet(),
     reliability = get_reliability("audio", "06"),
     object_dict = gbl$object_dict,
-    annotid_disambiguation = gbl$annotid_disambiguation
+    annotid_disambiguation = gbl$annotid_disambiguation,
+    # 'merged' implicitly tests both 'annotations' and 'intervals'
+    vihi_annotations = get_vihi_annotations(table = 'merged')
 )})
 
 # TODO: merge with the loading code.
