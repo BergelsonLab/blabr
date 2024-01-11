@@ -1,5 +1,5 @@
 load_tsv <- function(fixrep_path, val_guess_max = 100000){
-  read_tsv(fixrep_path, na=character(), guess_max = val_guess_max)
+  readr::read_tsv(fixrep_path, na=character(), guess_max = val_guess_max)
 }
 
 object2string <- function(obj){
@@ -13,6 +13,12 @@ string2object <- function(string_name, val){
   # eval(parse(text = string_name))
 }
 
+#' Convert all character columns to factors
+#'
+#' @param df Dataframe whose columns need conversion.
+#'
+#' @return Dataframe with all character columns converted to factors.
+#' @export
 characters_to_factors <- function(df){
   df[sapply(df, is.character)] <- lapply(df[sapply(df, is.character)],
                                          as.factor)
@@ -22,6 +28,17 @@ characters_to_factors <- function(df){
 
 #################################################################################
 
+#' (no docs yet) Read EyeLink fixation report file
+#'
+#' @param fixrep_path
+#' @param val_guess_max 
+#' @param remove_unfinished 
+#' @param remove_practice 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinished=TRUE, remove_practice=TRUE){
   # load tsv file
   fix_report <- load_tsv(fixrep_path, val_guess_max)
@@ -41,6 +58,17 @@ fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinis
 
 #################################################################################
 
+#' (no docs yet) Bin fixations
+#'
+#' @param gaze 
+#' @param binSize 
+#' @param keepCols 
+#' @param maxTime 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber","Target","T"), maxTime=NULL){
   #convert a list of fixations to bins
   #binSize determines the size of each bin in ms
@@ -91,7 +119,19 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
 }
 
 #################################################################################
-# find key press issues and create doc to correct them
+
+#' (no docs yet) Find key press issues and create a doc to check and potentially correct them
+#'
+#' @param data 
+#' @param study 
+#' @param practice_trials 
+#' @param output_dir 
+#' @param out_csv 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 keypress_issues <- function(data, study = "eye_tracking_study", practice_trials = c("p1", "p2", "p3", "p4"), output_dir = "../data/", out_csv = FALSE){ # or study = NULL and take data[:-4]
   keypress_issues <- data %>%
     dplyr::filter(RT == -1 & !Trial %in% practice_trials) %>%
@@ -105,6 +145,17 @@ keypress_issues <- function(data, study = "eye_tracking_study", practice_trials 
 
 #################################################################################
 # retrieve corrected kp OR retrieve correct late target onset // separate functions?
+# TODO: zh: Update/delete the comment. I think it is out of date and the functions have already been separated
+
+#' (no docs yet) Load file with manually corrected key presses or late target onsets
+#'
+#' @param filename 
+#' @param drop_list 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 keypress_retrieved <- function(filename, drop_list = c("video_pop_time", "video_targetonset", "notes")){
   retrieved_kp <- read_excel(filename) %>%
     dplyr::select(-one_of(drop_list))
@@ -113,6 +164,16 @@ keypress_retrieved <- function(filename, drop_list = c("video_pop_time", "video_
 
 #################################################################################
 
+#' (no docs yet) Create message report with corrected key presses
+#'
+#' @param mesrep_all 
+#' @param fixed_kp 
+#' @param final_columns 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSION_LABEL", "CURRENT_MSG_TIME", "TRIAL_INDEX", "AudioTarget", "Trial")){
 
   mesrep_temp <- mesrep_all %>% #subset of mesrep_all
@@ -139,6 +200,18 @@ get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSIO
 
 #################################################################################
 
+#' (no docs yet) Find late target onsets and create a doc to check and potentially correct them
+#'
+#' @param data 
+#' @param max_time 
+#' @param study 
+#' @param output_dir 
+#' @param out_csv 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_study", output_dir = "../data/", out_csv = FALSE){
   late_target_onset <- data %>%
     dplyr::filter(CURRENT_MSG_TIME>max_time) %>%
@@ -152,6 +225,17 @@ get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_s
 
 #################################################################################
 # retrieve corrected kp OR retrieve correct late target onset // separate functions? ## IDENTICAL TO KP FUNCTION
+# TODO: zh: Update/delete the comment. I think it is out of date and the functions have already been separated
+
+#' (no docs yet) Load file with manually corrected late target onsets
+#'
+#' @param filename 
+#' @param drop_list 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "video_targetonset", "notes")){
   retrieved_late_target <- read_excel(filename) %>%
     dplyr::select(-one_of(drop_list))
@@ -161,12 +245,27 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #################################################################################
 
 
-
+#' (no docs yet) Add columns placing trials into time windows of short, medium, and long duration
+#'
+#' @param fix_mes_age 
+#' @param bin_size 
+#' @param nb_1 
+#' @param short_window_time 
+#' @param med_window_time 
+#' @param long_window_time 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time = 2000, med_window_time = 3500, long_window_time = 5000){
+  # TODO: zh: As far as I can tell, there is no reason for the input dataframe to include the ages. If so, rename the parameter.
   # TODO what is that 18 number, where is it coming from? eb: 18 is closest 20ms bin to 367 i.e. magic window onset from fernald et al
   short_window_lim = short_window_time/bin_size
   med_window_lim = med_window_time/bin_size
   long_window_lim = long_window_time/bin_size
+  # TODO: zh: the added columns need to be documented
+  # TODO: zh: do these columns need to be factors? Why not logical?
   exclude <- fix_mes_age %>%
     mutate(Nonset = (timeBin-floor(TargetOnset/bin_size))*bin_size,
          lowest = (TargetOnset/bin_size)+nb_1, # TODO nb_1 used here only
@@ -193,7 +292,22 @@ get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time
 
 #################################################################################
 
-#FindLowData----
+#' (no docs yet) Mark "low-data" trials with too few bins with fixations
+#'
+#' @param gazeData 
+#' @param subsetWin 
+#' @param window_size 
+#' @param nb_2 
+#' @param binSize 
+#' @param propt 
+#' @param timeBin 
+#' @param Trial 
+#' @param SubjectNumber 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 FindLowData <- function(gazeData,
                           subsetWin,
                           # maxBins = NULL,
@@ -228,6 +342,7 @@ FindLowData <- function(gazeData,
   }
 
   maxBins <- as.integer((window_size - nb_2)/binSize)
+  # TODO: zh: that 1/3 should be a parameter or at least a constant
   maxMissing <- as.integer((window_size - nb_2) - ((window_size - nb_2)/3))
 
 
@@ -269,6 +384,7 @@ FindLowData <- function(gazeData,
 #################################################################################
 
 #RemoveLowData ----
+# TODO: zh: if this function stays, it should call taglowdata instead of running its own version
 RemoveLowData <- function(gazeData,
                         subsetWin,
                         # maxBins = NULL,
@@ -380,6 +496,7 @@ outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
 # 3          1
 # 4          1
 # 5          1
+# TODO: zh: This function is used in BinifyFixations, move it before the latter is defined.
 expandFixList <- function(d, binSize=20){
   timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
   data.frame(timeBin=timeBin,FixationID=d$FixationID)
