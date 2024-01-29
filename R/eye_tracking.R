@@ -280,11 +280,11 @@ get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time
          medwin = factor(ifelse((timeBin >= lowest &
                                    timeBin <= med_max),"Y","N")),# this is a 367-3500ms window bc 3500/20 = 175
          whichwin_med = factor(ifelse(prewin == "Y","pre",
-                                      ifelse(longwin == "Y", "med", "neither"))),
+                                      ifelse(medwin == "Y", "med", "neither"))),
          shortwin = factor(ifelse((timeBin >= lowest &
                                      timeBin <= ((TargetOnset/bin_size)+short_window_lim)),"Y","N")),# this is a 367-2s window bc 2000/20 = 100
          whichwin_short = factor(ifelse(prewin=="Y","pre",
-                                        ifelse(longwin=="Y","short","neither")))) %>%
+                                        ifelse(shortwin=="Y","short","neither")))) %>%
     dplyr::select(-lowest, -short_max, -med_max, -long_max)
 
   exclude
