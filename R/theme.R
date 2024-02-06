@@ -3,7 +3,7 @@
 # if(Sys.info()['sysname'][[1]] == "Windows") {loadfonts(device = "win")}
 # loadfonts(device = "pdf")
 # loadfonts(device = "postscript")
-library(tidyverse)
+# library(tidyverse)
 # fonts()
 
 theme_blab <- function () {

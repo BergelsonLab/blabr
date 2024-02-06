@@ -1,6 +1,6 @@
-library(tidyverse)
+# library(tidyverse)
 
-#this function accepts a vector of column names and the output file 
+#this function accepts a vector of column names and the output file
 #type ("csv" or "feather"); returns a new tibble with unique 3 digit
 #ID code for each subject number, output a file with selected columns
 anonymous <- function(df, colNameList, fileType) {
