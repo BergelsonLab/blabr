@@ -249,16 +249,29 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #################################################################################
 
 
-#' (no docs yet) Add columns placing trials into time windows of short, medium, and long duration
+#' Assigns binned fixations to a short, medium, and long time windows
 #'
-#' @param fix_mes_age 
-#' @param bin_size 
-#' @param nb_1 
-#' @param short_window_time 
-#' @param med_window_time 
-#' @param long_window_time 
+#' @param fix_mes_age A fixations dataframe that is required to minimally contain these columns:
+#'  - `TargetOnset` (numeric): Time of target onset in milliseconds.
+#'  - `Time` (numeric): Time in ms (end of the bin).
+#' @param bin_size Width of bins in milliseconds. Defaults to 20 ms.
+#' @param nb_1 Number of the first bin to be considered as part of the windows. Defaults to 18.
+#' @param short_window_time,med_window_time,long_window_time End timepoints of the short, medium, and long windows in milliseconds from the target word onset. Default to `r DEFAULT_WINDOWS_UPPER_BOUNDS$short`, `r DEFAULT_WINDOWS_UPPER_BOUNDS$med`, and `r DEFAULT_WINDOWS_UPPER_BOUNDS$long`, respectively.
 #'
-#' @return
+#' @details
+#' Parameter `nb_1` defaults to 18, because it is the closest bin to 367 ms, which is the magic window onset from Fernald et al. (2008).
+#'
+#' A note on the window and bin boundaries. Let's use `nb_1 = 18` and the long window as an example. Both bins located exactly 360 ms and 5000 ms after the target onset will be counted as belonging to the long window (`longwin == "Y"`). In the case of the lower bound, this creates a slight inconsistency with the `Nonset` column: in most cases, the bin with `Nonset` equal to 360 ms will not belong to any windows, but in ~1/20 of the cases where the bin is exactly at 360 ms from the target onset, it will belong to all windows.
+#'
+#' @return The input dataframe with the following columns added:
+#' - `prewin` (factor): Whether a time bin comes before the target onset. Level labels are "Y" and "N".
+#' - `shortwin`, `medwin`, `longwin` (factor): Whether a time bin is in the short, medium, or long window, respectively. Level labels are "Y" and "N".
+#' - `whichwin_short`, `whichwin_med`, `whichwin_long` (factor): Whether a time bin
+#'   - is in the short, medium, or long window (level label "short", "medium", or "long", respectively),
+#'   - comes before the target onset (level "pre"), or
+#'   - neither (level "neither").
+#' - `Nonset` (numeric): Time (in ms) from the target onset rounded up to the nearest bin.
+#'
 #' @export
 get_windows <- function(
   fix_mes_age,
