@@ -260,39 +260,49 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #'
 #' @return
 #' @export
-#'
-#' @examples
-get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short, med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med, long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long) {
-  # TODO: zh: As far as I can tell, there is no reason for the input dataframe to include the ages. If so, rename the parameter.
-  # TODO what is that 18 number, where is it coming from? eb: 18 is closest 20ms bin to 367 i.e. magic window onset from fernald et al
-  short_window_lim = short_window_time/bin_size
-  med_window_lim = med_window_time/bin_size
-  long_window_lim = long_window_time/bin_size
-  # TODO: zh: the added columns need to be documented
-  # TODO: zh: do these columns need to be factors? Why not logical?
-  exclude <- fix_mes_age %>%
-    mutate(Nonset = (timeBin-floor(TargetOnset/bin_size))*bin_size,
-         lowest = (TargetOnset/bin_size)+nb_1, # TODO nb_1 used here only
-         short_max = (TargetOnset/bin_size)+short_window_lim,
-         med_max = (TargetOnset/bin_size)+med_window_lim,
-         long_max = (TargetOnset/bin_size)+long_window_lim,
-         prewin = factor(ifelse(Time <= TargetOnset, "Y", "N")),
-         longwin = factor(ifelse((timeBin >= lowest &
-                                    timeBin <= long_max),"Y", "N")),# this is a 367-5s window bc 5000/20 = 250
-         whichwin_long = factor(ifelse(prewin == "Y","pre",
-                                       ifelse(longwin == "Y", "long", "neither"))),
-         medwin = factor(ifelse((timeBin >= lowest &
-                                   timeBin <= med_max),"Y","N")),# this is a 367-3500ms window bc 3500/20 = 175
-         whichwin_med = factor(ifelse(prewin == "Y","pre",
-                                      ifelse(medwin == "Y", "med", "neither"))),
-         shortwin = factor(ifelse((timeBin >= lowest &
-                                     timeBin <= ((TargetOnset/bin_size)+short_window_lim)),"Y","N")),# this is a 367-2s window bc 2000/20 = 100
-         whichwin_short = factor(ifelse(prewin=="Y","pre",
-                                        ifelse(shortwin=="Y","short","neither")))) %>%
-    dplyr::select(-lowest, -short_max, -med_max, -long_max)
+get_windows <- function(
+  fix_mes_age,
+  bin_size = 20,
+  nb_1 = 18,
+  short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short,
+  med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med,
+  long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long) {
 
-  exclude
-}
+    original_columns <- colnames(fix_mes_age)
+    windows_start_ms <- nb_1 * bin_size
+
+    add_window_columns<- function(df, size, window_end_ms){
+      # adds '{size}win' and 'whichwin_{size}' columns where size is "short", "med", or "long"
+      df %>%
+        dplyr::mutate(
+          sizewin = dplyr::between(time_shifted_ms,
+                                   windows_start_ms, window_end_ms),
+          whichwin_size = dplyr::case_when(
+            prewin ~ "pre",
+            sizewin ~ size,  # e.g., "short"
+            TRUE ~ "neither")) %>%
+        dplyr::rename(
+          '{size}win' := sizewin,
+          'whichwin_{size}' := whichwin_size)
+    }
+
+    fix_mes_age %>%
+      dplyr::mutate(
+        time_shifted_ms = Time - TargetOnset,
+        prewin = time_shifted_ms <= 0) %>%
+      add_window_columns("short", short_window_time) %>%
+      add_window_columns("med", med_window_time) %>%
+      add_window_columns("long", long_window_time) %>%
+      dplyr::mutate(
+        dplyr::across(
+          c(prewin, shortwin, medwin, longwin),
+          ~ as.factor(ifelse(.x, "Y", "N")))) %>%
+      dplyr::mutate(Nonset = ceiling(time_shifted_ms / bin_size) * bin_size) %>%
+      dplyr::select(dplyr::all_of(original_columns),
+                    prewin,
+                    shortwin, medwin, longwin,
+                    whichwin_short, whichwin_med, whichwin_long,
+                    Nonset)}
 
 #################################################################################
 
