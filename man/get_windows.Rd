@@ -2,7 +2,7 @@
 % Please edit documentation in R/eye_tracking.R
 \name{get_windows}
 \alias{get_windows}
-\title{(no docs yet) Add columns placing trials into time windows of short, medium, and long duration}
+\title{Assigns binned fixations to a short, medium, and long time windows}
 \usage{
 get_windows(
   fix_mes_age,
@@ -14,18 +14,37 @@ get_windows(
 )
 }
 \arguments{
-\item{fix_mes_age}{}
+\item{fix_mes_age}{A fixations dataframe that is required to minimally contain these columns:
+\itemize{
+\item \code{TargetOnset} (numeric): Time of target onset in milliseconds.
+\item \code{Time} (numeric): Time in ms (end of the bin).
+}}
 
-\item{bin_size}{}
+\item{bin_size}{Width of bins in milliseconds. Defaults to 20 ms.}
 
-\item{nb_1}{}
+\item{nb_1}{Number of the first bin to be considered as part of the windows. Defaults to 18.}
 
-\item{short_window_time}{}
-
-\item{med_window_time}{}
-
-\item{long_window_time}{}
+\item{short_window_time, med_window_time, long_window_time}{End timepoints of the short, medium, and long windows in milliseconds from the target word onset. Default to 2000, 3500, and 5000, respectively.}
+}
+\value{
+The input dataframe with the following columns added:
+\itemize{
+\item \code{prewin} (factor): Whether a time bin comes before the target onset. Level labels are "Y" and "N".
+\item \code{shortwin}, \code{medwin}, \code{longwin} (factor): Whether a time bin is in the short, medium, or long window, respectively. Level labels are "Y" and "N".
+\item \code{whichwin_short}, \code{whichwin_med}, \code{whichwin_long} (factor): Whether a time bin
+\itemize{
+\item is in the short, medium, or long window (level label "short", "medium", or "long", respectively),
+\item comes before the target onset (level "pre"), or
+\item neither (level "neither").
+}
+\item \code{Nonset} (numeric): Time (in ms) from the target onset rounded up to the nearest bin.
+}
 }
 \description{
-(no docs yet) Add columns placing trials into time windows of short, medium, and long duration
+Assigns binned fixations to a short, medium, and long time windows
+}
+\details{
+Parameter \code{nb_1} defaults to 18, because it is the closest bin to 367 ms, which is the magic window onset from Fernald et al. (2008).
+
+A note on the window and bin boundaries. Let's use \code{nb_1 = 18} and the long window as an example. Both bins located exactly 360 ms and 5000 ms after the target onset will be counted as belonging to the long window (\code{longwin == "Y"}). In the case of the lower bound, this creates a slight inconsistency with the \code{Nonset} column: in most cases, the bin with \code{Nonset} equal to 360 ms will not belong to any windows, but in ~1/20 of the cases where the bin is exactly at 360 ms from the target onset, it will belong to all windows.
 }
