@@ -25,6 +25,10 @@ characters_to_factors <- function(df){
   df
 }
 
+DEFAULT_WINDOWS_UPPER_BOUNDS <- list(short = 2000,
+                                     med = 3500,
+                                     long = 5000)
+
 
 #################################################################################
 
@@ -258,7 +262,7 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #' @export
 #'
 #' @examples
-get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time = 2000, med_window_time = 3500, long_window_time = 5000){
+get_windows <- function(fix_mes_age, bin_size = 20, nb_1 = 18, short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short, med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med, long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long) {
   # TODO: zh: As far as I can tell, there is no reason for the input dataframe to include the ages. If so, rename the parameter.
   # TODO what is that 18 number, where is it coming from? eb: 18 is closest 20ms bin to 367 i.e. magic window onset from fernald et al
   short_window_lim = short_window_time/bin_size
@@ -333,11 +337,11 @@ FindLowData <- function(gazeData,
 
   if (is.null(window_size)){
     if (subsetWin=="longwin"){
-      window_size <- 5000
+      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$long
     } else if (subsetWin=="medwin"){
-      window_size <- 3500
+      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$med
     } else if (subsetWin=="shortwin"){
-      window_size <- 2000
+      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$short
     }
   }
 
@@ -409,11 +413,11 @@ RemoveLowData <- function(gazeData,
 
   if (is.null(window_size)){
     if (subsetWin=="longwin"){
-      window_size <- 5000
+      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$long
     } else if (subsetWin=="medwin"){
-      window_size <- 3500
+      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$med
     } else if (subsetWin=="shortwin"){
-      window_size <- 2000
+      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$short
     }
   }
 

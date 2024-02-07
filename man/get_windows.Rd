@@ -8,9 +8,9 @@ get_windows(
   fix_mes_age,
   bin_size = 20,
   nb_1 = 18,
-  short_window_time = 2000,
-  med_window_time = 3500,
-  long_window_time = 5000
+  short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short,
+  med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med,
+  long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long
 )
 }
 \arguments{
