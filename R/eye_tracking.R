@@ -335,77 +335,46 @@ get_windows <- function(
 #' @export
 #'
 #' @examples
+# TODO: zhenya2zhenya: tag_bins_in_low_data_trials would be a much more appropriate name
 FindLowData <- function(gazeData,
-                          subsetWin,
-                          # maxBins = NULL,
-                          # maxMissing = NULL,
-                          window_size = NULL,
-                          nb_2 = 0,
-                          binSize = 20,
-                          propt = "propt",
-                          timeBin = "timeBin",
-                          Trial = "Trial",
-                          SubjectNumber = "SubjectNumber") {
-  # this function is for making sure there's at least X amount of data in a trial; there are two potential sources of missing data: 1) off screen 2) elsewhere, not in an interest area
-  # gazeData is the dataset,
-  # subsetWin is the column name that contains "Y" indicating that's the part in which we are making sure there's enough data,
-  # maxBins is how many bins there could have been in the trial,
-  # minLength is how much data is the minimum to keep the trial, (not arg)
-  # maxMissing= in real time, how many ms of data need to be there
+                        subsetWin,
+                        window_size = NULL,
+                        nb_2 = 0,
+                        binSize = 20) {
+  # I don't want to change the API yet but I want meaningful variable names
+  # TODO: zhenya2zhenya: rename in the function definition later
+  windows_indicicator_column <- subsetWin
+  window_upper_bound <- window_size
+  window_lower_bound <- nb_2
+  bin_size <- binSize
+  
+  original_columns <- colnames(gazeData)
 
-  #binSize is what size of bins the fixations were turned into, this will usually be 20ms,
-  #propt is proportion of target looking,
-
-  #timeBin is the (20 ms) bin the trial that each line is
-
-  if (is.null(window_size)){
-    if (subsetWin=="longwin"){
-      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$long
-    } else if (subsetWin=="medwin"){
-      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$med
-    } else if (subsetWin=="shortwin"){
-      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$short
-    }
+  # If the window size is not provided, use the default for the window indicator column
+  if (is.null(window_upper_bound) &
+      windows_indicicator_column %in% c("shortwin", "medwin", "longwin")) {
+    window_size_label <- stringr::str_remove(windows_indicicator_column, "win$")
+    window_upper_bound <- DEFAULT_WINDOWS_UPPER_BOUNDS[[window_size_label]]
   }
 
-  maxBins <- as.integer((window_size - nb_2)/binSize)
-  # TODO: zh: that 1/3 should be a parameter or at least a constant
-  maxMissing <- as.integer((window_size - nb_2) - ((window_size - nb_2)/3))
+  MIN_DATA_FRACTION <- 1/3
+  window_size <- window_upper_bound - window_lower_bound
+  min_bins_with_data <- floor(window_size * MIN_DATA_FRACTION / bin_size)
 
+  gazeData_tagged <- gazeData %>%
+    dplyr::mutate(
+      in_time_window = !!sym(subsetWin) == "Y",
+      on_aoi = !is.na(propt),
+      has_data = in_time_window & on_aoi) %>%
+    dplyr::group_by(Trial, SubjectNumber) %>%
+    dplyr::mutate(
+      bins_with_data_count = sum(has_data),
+      missing_TF = bins_with_data_count < min_bins_with_data) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(dplyr::all_of(original_columns), missing_TF)
+  
+  return(gazeData_tagged)
 
-  gazeData2 <- gazeData %>%
-    dplyr::filter(gazeData[,subsetWin] == "Y")
-
-  print(dim(gazeData2))
-  #1) offscreen: those timebins don't exist with my version of binifyFixations so how many timebins
-  # are there in relation to the maximum given the trial length?
-
-  number_timebins <- gazeData2 %>%
-    group_by(Trial, SubjectNumber) %>%
-    tally() %>%
-    mutate(bins = n) %>%
-    dplyr::select(-n)%>%
-    mutate(missing_bins = maxBins - bins)
-
-  #2)elsewhere: let's see how many NAs we have for propt, our proportion of target looking
-
-  elsewhere_bins <- gazeData2 %>%
-    group_by(Trial, SubjectNumber) %>%
-    tally(is.na(propt)) %>%
-    mutate(elsewhere_bins = n) %>%
-    dplyr::select(-n)
-
-  # This is all the low data from either source
-
-  lowdata_bins <- left_join(number_timebins, elsewhere_bins) %>%
-    mutate(lowdata = missing_bins + elsewhere_bins) %>%
-    mutate(missing_TF = lowdata >floor(maxMissing/binSize)) %>%
-    dplyr::select(Trial, SubjectNumber, missing_TF)
-
-  gazeData <- left_join(gazeData, lowdata_bins)
-
-  message("new column missing_TF has been added. When T, the row has low data.")
-  return(gazeData)
 }
 
 #################################################################################
