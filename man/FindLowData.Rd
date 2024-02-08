@@ -2,39 +2,42 @@
 % Please edit documentation in R/eye_tracking.R
 \name{FindLowData}
 \alias{FindLowData}
-\title{(no docs yet) Mark "low-data" trials with too few bins with fixations}
+\title{Mark "low-data" trials}
 \usage{
-FindLowData(
-  gazeData,
-  subsetWin,
-  window_size = NULL,
-  nb_2 = 0,
-  binSize = 20,
-  propt = "propt",
-  timeBin = "timeBin",
-  Trial = "Trial",
-  SubjectNumber = "SubjectNumber"
-)
+FindLowData(gazeData, subsetWin, window_size = NULL, nb_2 = 0, binSize = 20)
 }
 \arguments{
-\item{gazeData}{}
+\item{gazeData}{A fixations dataframe that is required to minimally contain these columns:
+\itemize{
+\item \code{SubjectNumber} and \code{Trial}: We will used them to identify unique trials.
+\item \code{propt}: We will use NA values in this column to identify bins with fixations outside of the areas of interest.
+\item Column specified by \code{subsetWin}.
+}}
 
-\item{subsetWin}{}
+\item{subsetWin}{Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.}
 
-\item{window_size}{}
+\item{window_size}{Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the \code{get_windows} call, then that value MUST be supplied here. If NULL (default), the default corresponding to the \code{subsetWin} will be used.}
 
-\item{nb_2}{}
+\item{nb_2}{Lower bound of the window of intereset in milliseconds from the target onset.}
 
-\item{binSize}{}
-
-\item{propt}{}
-
-\item{timeBin}{}
-
-\item{Trial}{}
-
-\item{SubjectNumber}{}
+\item{binSize}{Width of the bins in ms. Defaults to 20 ms. MUST match the bin size used in \code{get_windows}.}
+}
+\value{
+The input dataframe
 }
 \description{
-(no docs yet) Mark "low-data" trials with too few bins with fixations
+Trials are considered to be "low-data" if less than one third of the window of interest contains fixations on either area of interest. Bins that won't count toward that one third are:
+}
+\details{
+\itemize{
+\item Bins that don't have a fixation due to being in a saccade or in a period with lost track. We are assuming that bins in \code{gazeData} were created by \code{binifyFixation} which skips such bins completely - there won't be rows with them.
+\item Bins with fixations outside of the areas of interest, including off-screen fixations. We will identify such fixations by NA values in the \code{propt} column.
+}
+
+Or looking at it from the opposite perspective, bins that do count toward the one third are bins in \code{gazeData} that:
+\itemize{
+\item Are present in \code{gazeData}.
+\item Are in the window of interest ("Y" in the column specified by \code{subsetWin}).
+\item Have fixations on either are of interest (non-NA values in the \code{propt} column).
+}
 }
