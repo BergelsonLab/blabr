@@ -319,22 +319,30 @@ get_windows <- function(
 
 #################################################################################
 
-#' (no docs yet) Mark "low-data" trials with too few bins with fixations
+#' Mark "low-data" trials
 #'
-#' @param gazeData 
-#' @param subsetWin 
-#' @param window_size 
-#' @param nb_2 
-#' @param binSize 
-#' @param propt 
-#' @param timeBin 
-#' @param Trial 
-#' @param SubjectNumber 
+#' Trials are considered to be "low-data" if less than one third of the window of interest contains fixations on either area of interest. Bins that won't count toward that one third are:
 #'
-#' @return
+#' - Bins that don't have a fixation due to being in a saccade or in a period with lost track. We are assuming that bins in `gazeData` were created by `binifyFixation` which skips such bins completely - there won't be rows with them.
+#' - Bins with fixations outside of the areas of interest, including off-screen fixations. We will identify such fixations by NA values in the `propt` column.
+#' 
+#' Or looking at it from the opposite perspective, bins that do count toward the one third are bins in `gazeData` that:
+#' - Are present in `gazeData`.
+#' - Are in the window of interest ("Y" in the column specified by `subsetWin`).
+#' - Have fixations on either are of interest (non-NA values in the `propt` column).
+#'
+#' @param gazeData  A fixations dataframe that is required to minimally contain these columns:
+#' - `SubjectNumber` and `Trial`: We will used them to identify unique trials.
+#' - `propt`: We will use NA values in this column to identify bins with fixations outside of the areas of interest.
+#'  - Column specified by `subsetWin`.
+#' @param subsetWin Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.
+#' @param window_size Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the `get_windows` call, then that value MUST be supplied here. If NULL (default), the default corresponding to the `subsetWin` will be used.
+#' @param nb_2 Lower bound of the window of intereset in milliseconds from the target onset.
+#' @param binSize Width of the bins in ms. Defaults to 20 ms. MUST match the bin size used in `get_windows`.
+#'
+#' @return The input dataframe
 #' @export
 #'
-#' @examples
 # TODO: zhenya2zhenya: tag_bins_in_low_data_trials would be a much more appropriate name
 FindLowData <- function(gazeData,
                         subsetWin,
