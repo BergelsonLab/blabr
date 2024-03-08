@@ -2,35 +2,44 @@
 % Please edit documentation in R/get_data.R
 \name{get_seedlings_nouns}
 \alias{get_seedlings_nouns}
+\alias{get_seedlings_nouns_extra}
+\alias{get_seedlings_nouns_codebook}
 \title{Load data from the SEEDLingS - Nouns dataset}
 \usage{
-get_seedlings_nouns(
+get_seedlings_nouns(version = NULL)
+
+get_seedlings_nouns_extra(version = NULL, table)
+
+get_seedlings_nouns_codebook(
   version = NULL,
-  table = c("seedlings-nouns", "regions", "recordings", "sub-recordings"),
-  get_codebook = FALSE
+  table = c("seedlings-nouns", "regions", "recordings", "sub-recordings")
 )
 }
 \arguments{
 \item{version}{version tag to checkout}
 
-\item{table}{Apart from the main "seedlings-nouns" table, the dataset contains three more: regions, recordings, and sub-recordings.
+\item{table}{For \code{get_seedlings_nouns_extra}, the extra table to load. One of: "regions", "recordings", "sub-recordings". For \code{get_seedlings_nouns_codebook}, the table can also be "seedlings-nouns" which is also the default for that function.
 See "public/README.md" of the \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns_private} for details.}
-
-\item{get_codebook}{Set to \code{TRUE} to get the requested table's codebook instead of the table itself.}
 }
 \value{
-By default, returns a dataframe with one row per annotated object.
-
-If \code{table} and or \code{get_codebook} are changed from their default values, returns the requested table/codebook.
+\itemize{
+\item For \code{get_seedlings_nouns}, a tibble with one annotated noun per row.
+\item For \code{get_seedlings_nouns_extra}, a tibble with one row per region, recording, or sub-recording depending on which table was requested.
+\item For \code{get_seedlings_nouns_codebook}, a tibble with ono row per column of the requested table.
+}
 }
 \description{
-Loads a requested table from the SEEDLingS - Nouns dataset.
-By default, loads the main "seedlings-nouns" table with all the annotated nouns in the SEEDLingS corpus.
-For the function to work, clone \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns} to \verb{~/BLAB_DATA/seedlings-nouns/} first.
+For the functions to work, clone \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns} to \verb{~/BLAB_DATA/seedlings-nouns/} first.
 }
 \details{
+\itemize{
+\item \code{get_seedlings_nouns()} loads the main "seedlings-nouns" table with the annotated nouns.
+\item \code{get_seedlings_nouns_extra()} function allows for loading additional tables: "regions", "recordings", and "sub-recordings".
+\item \code{get_seedlings_nouns_codebook()} function loads codebooks for any of the four tables mentioned above.
+}
+
 To get the same data every time you run the script, always supply the version argument.
-To get the latest version number, run \code{get_latest_version('seedlings-nouns')} and then set the version parameter to the output number, e.g., \code{get_seedlings_nouns(version = 'v1.0.2')}.
+To get the latest version number, run \code{get_latest_version('seedlings-nouns')} and then set the version parameter to the output number, e.g., \code{get_seedlings_nouns(version = 'v1.0.0')}.
 
 Alternatively, don't set the version parameter, run the function, look for the version number in the issued warning, and then set \code{version} to that number.
 You don't need to run the function again after that.
@@ -39,6 +48,11 @@ If you are a Bergelson Lab member and you need to use a version that hasn't been
 If you don't know the version number and want to get the most current one, get it with \code{get_latest_version('seedlings-nouns_private')}.
 }
 \examples{
-seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
+version <- 'v1.0.0'
+seedlings_nouns <- get_seedlings_nouns(version)
+seedlings_nouns_codebook <- get_seedlings_nouns_codebook(version)
+seedlings_regions <- get_seedlings_nouns_extra(version, 'regions')
+seedlings_regions_codebook <- get_seedlings_nouns_codebook(version,
+                                                           'recordings')
 
 }
