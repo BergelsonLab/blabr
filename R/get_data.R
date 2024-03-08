@@ -224,7 +224,7 @@ get_seedlings_nouns_csv <- function(
 
 #' Load data from the SEEDLingS - Nouns dataset
 #'
-#' For the functions to work, clone [seedlings-nouns](https://github.com/BergelsonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns/` first.
+#' For the functions to work, clone [seedlings-nouns](https://github.com/BergelsonLab/seedlings-nouns) to `~/BLAB_DATA/seedlings-nouns/` first.
 #'
 #' - `get_seedlings_nouns()` loads the main "seedlings-nouns" table with the annotated nouns.
 #' - `get_seedlings_nouns_extra()` function allows for loading additional tables: "regions", "recordings", and "sub-recordings".
@@ -236,12 +236,15 @@ get_seedlings_nouns_csv <- function(
 #' Alternatively, don't set the version parameter, run the function, look for the version number in the issued warning, and then set `version` to that number.
 #' You don't need to run the function again after that.
 #'
-#' If you are a Bergelson Lab member and you need to use a version that hasn't been made public yet, clone [seedlings-nouns_private](https://github.com/Bergel sonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/`.
-#' If you don't know the version number and want to get the most current one, get it with `get_latest_version('seedlings-nouns_private')`.
+#' If you are a Bergelson Lab member and you need to use a version that isn't public, clone [seedlings-nouns_private](https://github.com/Bergel sonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/`.
+#' The function will look in the private repository only if you supply a corresponding private version - one starting with "0." or ending with "-dev".
+#' To get the latest private version, use `get_latest_version('seedlings-nouns_private')`.
+#' Otherwise, look in the releases section on GitHub.
+#' There are no version descriptions though so you basically select the version by date.
 #'
 #' @inheritParams get_all_basiclevel
 #' @param table For `get_seedlings_nouns_extra`, the extra table to load. One of: "regions", "recordings", "sub-recordings". For `get_seedlings_nouns_codebook`, the table can also be "seedlings-nouns" which is also the default for that function.
-#' See "public/README.md" of the [seedlings-nouns_private](https://github.com/BergelsonLab/seedlings-nouns_private) for details.
+#' See ["README.md"](https://github.com/BergelsonLab/seedlings-nouns/blob/main/README.md) for details.
 #'
 #' @return
 #' - For `get_seedlings_nouns`, a tibble with one annotated noun per row.

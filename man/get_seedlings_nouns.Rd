@@ -19,7 +19,7 @@ get_seedlings_nouns_codebook(
 \item{version}{version tag to checkout}
 
 \item{table}{For \code{get_seedlings_nouns_extra}, the extra table to load. One of: "regions", "recordings", "sub-recordings". For \code{get_seedlings_nouns_codebook}, the table can also be "seedlings-nouns" which is also the default for that function.
-See "public/README.md" of the \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns_private} for details.}
+See \href{https://github.com/BergelsonLab/seedlings-nouns/blob/main/README.md}{"README.md"} for details.}
 }
 \value{
 \itemize{
@@ -29,7 +29,7 @@ See "public/README.md" of the \href{https://github.com/BergelsonLab/seedlings-no
 }
 }
 \description{
-For the functions to work, clone \href{https://github.com/BergelsonLab/seedlings-nouns_private}{seedlings-nouns} to \verb{~/BLAB_DATA/seedlings-nouns/} first.
+For the functions to work, clone \href{https://github.com/BergelsonLab/seedlings-nouns}{seedlings-nouns} to \verb{~/BLAB_DATA/seedlings-nouns/} first.
 }
 \details{
 \itemize{
@@ -44,8 +44,11 @@ To get the latest version number, run \code{get_latest_version('seedlings-nouns'
 Alternatively, don't set the version parameter, run the function, look for the version number in the issued warning, and then set \code{version} to that number.
 You don't need to run the function again after that.
 
-If you are a Bergelson Lab member and you need to use a version that hasn't been made public yet, clone \link{seedlings-nouns_private}(https://github.com/Bergel sonLab/seedlings-nouns_private) to \verb{~/BLAB_DATA/seedlings-nouns_private/}.
-If you don't know the version number and want to get the most current one, get it with \code{get_latest_version('seedlings-nouns_private')}.
+If you are a Bergelson Lab member and you need to use a version that isn't public, clone \link{seedlings-nouns_private}(https://github.com/Bergel sonLab/seedlings-nouns_private) to \verb{~/BLAB_DATA/seedlings-nouns_private/}.
+The function will look in the private repository only if you supply a corresponding private version - one starting with "0." or ending with "-dev".
+To get the latest private version, use \code{get_latest_version('seedlings-nouns_private')}.
+Otherwise, look in the releases section on GitHub.
+There are no version descriptions though so you basically select the version by date.
 }
 \examples{
 version <- 'v1.0.0'
