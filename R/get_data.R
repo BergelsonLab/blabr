@@ -154,7 +154,8 @@ seedlings_nouns_col_types <- list(
     values = readr::col_character(),
     description = readr::col_character(),
   ),
-  `seedlings-nouns-codebok-extra` = readr::cols(
+  # The codebook for seedlings-nouns has two extra columns
+  `seedlings-nouns-codebook-extra` = readr::cols(
     additional_info = readr::col_character(),
     additional_info_2 = readr::col_character()
   )
@@ -207,12 +208,13 @@ get_seedlings_nouns_csv <- function(
 
   if (isTRUE(get_codebook)) {
     col_types <- seedlings_nouns_col_types$codebook
-  } else {
-    col_types <- seedlings_nouns_col_types[[table]]
     if (table == 'seedlings-nouns') {
-      extra_cols <- seedlings_nouns_col_types['seedlings-nouns-codebok-extra']
+      # The codebook for seedlings-nouns has two extra columns
+      extra_cols <- seedlings_nouns_col_types['seedlings-nouns-codebook-extra']
       col_types$cols <- c(col_types$cols, extra_cols$cols)
     }
+  } else {
+    col_types <- seedlings_nouns_col_types[[table]]
   }
 
   file_path = file.path(folder, filename)
