@@ -277,16 +277,28 @@ get_seedlings_nouns_extra <- function(
     table) {
   stopifnot(table %in% c('regions', 'recordings', 'sub-recordings'))
 
+  df <- get_seedlings_nouns_csv(version = version,
+                                table = table,
+                                get_codebook = FALSE)
+
   if (table == 'sub-recordings') {
     message(glue::glue(
       'For anonymization purposes, the date of the first sub-recording of each',
       ' recording was set to Jan 1, 1920. If you need the actual dates for',
       ' your analysis, please contact the Bergelson Lab.'))
-  }
 
-  get_seedlings_nouns_csv(version = version,
-                          table = table,
-                          get_codebook = FALSE)
+    more_than_one_count <- df %>%
+      count(recording_id) %>%
+      filter(n > 1) %>%
+      nrow
+    message(glue::glue(
+      'Only {more_than_one_count} audio recordings were paused at any time and',
+      ' therefore have more than one sub-recording. The rest of the audio',
+      ' recordings and all video recordings have just one. We included them',
+      ' in this table to provide time of day when those single uninterrupted',
+      ' recordings started and ended.'
+    ))
+  }
 }
 
 #' @rdname get_seedlings_nouns
