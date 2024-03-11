@@ -276,6 +276,14 @@ get_seedlings_nouns_extra <- function(
     version = NULL,
     table) {
   stopifnot(table %in% c('regions', 'recordings', 'sub-recordings'))
+
+  if (table == 'sub-recordings') {
+    message(glue::glue(
+      'For anonymization purposes, the date of the first sub-recording of each',
+      ' recording was set to Jan 1, 1920. If you need the actual dates for',
+      ' your analysis, please contact the Bergelson Lab.'))
+  }
+
   get_seedlings_nouns_csv(version = version,
                           table = table,
                           get_codebook = FALSE)
