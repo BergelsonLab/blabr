@@ -222,6 +222,12 @@ get_seedlings_nouns_csv <- function(
                                  version = version, col_types = col_types,
                                  version_already_handled = TRUE)
 
+  if (isFALSE(get_codebook)) {
+    message(glue::glue(
+      'To get the codebook for the table, run `get_seedlings_nouns_codebook`',
+      ' with `table = \'{table}\'`.'))
+  }
+
   return(seedlings_nouns)
 }
 
@@ -299,6 +305,8 @@ get_seedlings_nouns_extra <- function(
       ' recordings started and ended.'
     ))
   }
+
+  return(df)
 }
 
 #' @rdname get_seedlings_nouns
