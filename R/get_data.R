@@ -219,7 +219,8 @@ get_seedlings_nouns_csv <- function(
 
   file_path = file.path(folder, filename)
   seedlings_nouns <- get_df_file(repo = repository, filename = file_path,
-                                 version = version, col_types = col_types)
+                                 version = version, col_types = col_types,
+                                 version_already_handled = TRUE)
 
   return(seedlings_nouns)
 }
@@ -478,10 +479,12 @@ handle_dataset_version <- function(repo, version = NULL,
 #' \dontrun{
 #' get_df_file('all_basiclevel', 'all_basiclevel.csv', version = '0.1.0')
 #' }
-get_df_file <- function(repo, filename, version = NULL, col_types = NULL) {
-  version <- handle_dataset_version(repo = repo, version = version,
-                                    tags_already_updated = FALSE,
-                                    check_for_updates = TRUE)
+get_df_file <- function(repo, filename, version = NULL, col_types = NULL,
+                        version_already_handled = FALSE) {
+  if (!version_already_handled) {
+    version <- handle_dataset_version(repo = repo, version = version,
+                                      tags_already_updated = FALSE,
+                                      check_for_updates = TRUE)}
 
   # Download the file
   checkout_tag(repo, tag = version)
