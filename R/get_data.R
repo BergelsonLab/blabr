@@ -314,6 +314,14 @@ get_seedlings_nouns_extra <- function(
       ' more times.'))
   }
 
+  if (table == 'regions') {
+    message(glue::glue(
+      'Regions are only defined for audio recordings in this dataset. Be aware',
+      ' that the video recordings are not included in this table, e.g., use',
+      ' left/right/outer join when merging with the other table on',
+      ' `recording_id`.'))
+  }
+
   return(df)
 }
 
