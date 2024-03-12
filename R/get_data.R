@@ -306,6 +306,14 @@ get_seedlings_nouns_extra <- function(
     ))
   }
 
+  if (table == 'recordings') {
+    message(glue::glue(
+      'See table \'sub-recordings\' if you are interested in the time of day',
+      ' the recordings were made. We couldn\'t add this information here',
+      ' because of a small subset of recordings had been inerrupted one or',
+      ' more times.'))
+  }
+
   return(df)
 }
 
