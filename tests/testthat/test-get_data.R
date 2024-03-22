@@ -44,24 +44,24 @@ test_that("all datasets can be downloaded", {
 })
 
 
-test_that("get_seedlings_nouns works with different arguments", {
-  public_version = 'v1.0.0'
-  dev_version = '0.0.0.9016'
-  for (get_codebook in c(TRUE, FALSE)) {
+test_that("get_seedlings_nouns and friends work", {
+  versions_to_test <- c('0.0.0.9016',  # a dev version
+                        'v1.0.0')  # a public version
+  for (version in versions_to_test) {
     for (table in c('seedlings-nouns', 'regions', 'recordings',
                     'sub-recordings')) {
-      get_sn <- function(version) {
-        get_seedlings_nouns(version = version,
-                            get_codebook = get_codebook, table = table)}
+      if (table == 'seedlings-nouns') {
+        get_table <- function() {
+          get_seedlings_nouns(version = version)
+        }}
+      else
+        {get_table <- function() {
+          get_seedlings_nouns_extra(version = version, table = table)
+        }}
 
-      # Test specific version
-      expect_non_empty_dataframe(get_sn(version = public_version))
-      expect_non_empty_dataframe(get_sn(version = dev_version))
-
-      # Test the current (public) version
-      # TODO: check that a warning about not setting a version is issued
-      # testthat::expect_warning()
-      expect_non_empty_dataframe(get_sn(version = NULL))
+      expect_non_empty_dataframe(get_table())
+      expect_non_empty_dataframe(
+        get_seedlings_nouns_codebook(version = version))
     }
   }
 })
