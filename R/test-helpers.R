@@ -15,3 +15,7 @@ expect_non_empty_dataframe <- function(object) {
   expect_s3_class(object, 'data.frame')
   expect_gt(nrow(object), 0)
 }
+
+without_warning_or_messages <- function(expr) {
+  suppressWarnings(suppressMessages(eval(expr)))
+}

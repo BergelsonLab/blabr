@@ -1,6 +1,7 @@
 test_that("the main table loads at all", {
   for (dataset in datasets) {
-    expect_non_empty_dataframe(get_seedlings_nouns())
+    expect_non_empty_dataframe(without_warning_or_messages(
+      get_seedlings_nouns()))
   }
 })
 
@@ -12,16 +13,24 @@ test_that("get_seedlings_nouns and friends work", {
                     'sub-recordings')) {
       if (table == 'seedlings-nouns') {
         get_table <- function() {
-          get_seedlings_nouns(version = version)
+          without_warning_or_messages(
+            get_seedlings_nouns(version = version)
+          )
         }}
-      else
-      {get_table <- function() {
-        get_seedlings_nouns_extra(version = version, table = table)
+      else {get_table <- function() {
+        without_warning_or_messages(
+          get_seedlings_nouns_extra(version = version, table = table)
+        )
       }}
 
+      get_codebook <- function() {
+        without_warning_or_messages(
+          get_seedlings_nouns_codebook(version = version, table = table)
+        )
+      }
+
       expect_non_empty_dataframe(get_table())
-      expect_non_empty_dataframe(
-        get_seedlings_nouns_codebook(version = version))
+      expect_non_empty_dataframe(get_codebook())
     }
   }
 })
