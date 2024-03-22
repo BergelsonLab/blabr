@@ -154,7 +154,8 @@ seedlings_nouns_col_types <- list(
     values = readr::col_character(),
     description = readr::col_character(),
   ),
-  `seedlings-nouns-codebok-extra` = readr::cols(
+  # The codebook for seedlings-nouns has two extra columns
+  `seedlings-nouns-codebook-extra` = readr::cols(
     additional_info = readr::col_character(),
     additional_info_2 = readr::col_character()
   )
@@ -172,36 +173,11 @@ is_public_version <- function(version) {
 }
 
 
-#' Load data from the SEEDLingS - Nouns dataset
-#'
-#' Loads a requested table from the SEEDLingS - Nouns dataset.
-#' By default, loads the main "seedlings-nouns" table with all the annotated nouns in the SEEDLingS corpus.
-#' For the function to work, clone [seedlings-nouns](https://github.com/BergelsonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns/` first.
-#'
-#' To get the same data every time you run the script, always supply the version argument.
-#' To get the latest version number, run `get_latest_version('seedlings-nouns')` and then set the version parameter to the output number, e.g., `get_seedlings_nouns(version = 'v1.0.2')`.
-#'
-#' Alternatively, don't set the version parameter, run the function, look for the version number in the issued warning, and then set `version` to that number.
-#' You don't need to run the function again after that.
-#'
-#' If you are a Bergelson Lab member and you need to use a version that hasn't been made public yet, clone [seedlings-nouns_private](https://github.com/Bergel sonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/`.
-#' If you don't know the version number and want to get the most current one, get it with `get_latest_version('seedlings-nouns_private')`.
-#'
-#' @inheritParams get_all_basiclevel
-#' @param table Apart from the main "seedlings-nouns" table, the dataset contains three more: regions, recordings, and sub-recordings.
-#' See "public/README.md" of the [seedlings-nouns_private](https://github.com/BergelsonLab/seedlings-nouns_private) for details.
-#' @param get_codebook Set to `TRUE` to get the requested table's codebook instead of the table itself.
-#'
-#' @return By default, returns a dataframe with one row per annotated object.
-#'
-#' If `table` and or `get_codebook` are changed from their default values, returns the requested table/codebook.
-#'
-#' @export
-#'
-#' @examples
-#' seedlings_nouns <- get_seedlings_nouns('0.0.0.9000')
-#'
-get_seedlings_nouns <- function(
+#' Loads all seedlings-nouns csv tables and their codebooks (which are also
+#' stored as csvs - hence the name)
+#' @keywords internal
+#' @noRd
+get_seedlings_nouns_csv <- function(
     version = NULL,
     table = c('seedlings-nouns', 'regions', 'recordings', 'sub-recordings'),
     get_codebook = FALSE) {
@@ -232,19 +208,132 @@ get_seedlings_nouns <- function(
 
   if (isTRUE(get_codebook)) {
     col_types <- seedlings_nouns_col_types$codebook
-  } else {
-    col_types <- seedlings_nouns_col_types[[table]]
     if (table == 'seedlings-nouns') {
-      extra_cols <- seedlings_nouns_col_types['seedlings-nouns-codebok-extra']
+      # The codebook for seedlings-nouns has two extra columns
+      extra_cols <- seedlings_nouns_col_types['seedlings-nouns-codebook-extra']
       col_types$cols <- c(col_types$cols, extra_cols$cols)
     }
+  } else {
+    col_types <- seedlings_nouns_col_types[[table]]
   }
 
   file_path = file.path(folder, filename)
   seedlings_nouns <- get_df_file(repo = repository, filename = file_path,
-                                 version = version, col_types = col_types)
+                                 version = version, col_types = col_types,
+                                 version_already_handled = TRUE)
+
+  if (isFALSE(get_codebook)) {
+    message(glue::glue(
+      'To get the codebook for the table, run `get_seedlings_nouns_codebook`',
+      ' with `table = \'{table}\'`.'))
+  }
 
   return(seedlings_nouns)
+}
+
+#' Load data from the SEEDLingS - Nouns dataset
+#'
+#' For the functions to work, clone [seedlings-nouns](https://github.com/BergelsonLab/seedlings-nouns) to `~/BLAB_DATA/seedlings-nouns/` first.
+#'
+#' - `get_seedlings_nouns()` loads the main "seedlings-nouns" table with the annotated nouns.
+#' - `get_seedlings_nouns_extra()` function allows for loading additional tables: "regions", "recordings", and "sub-recordings".
+#' - `get_seedlings_nouns_codebook()` function loads codebooks for any of the four tables mentioned above.
+#'
+#' To get the same data every time you run the script, always supply the version argument.
+#' To get the latest version number, run `get_latest_version('seedlings-nouns')` and then set the version parameter to the output number, e.g., `get_seedlings_nouns(version = 'v1.0.0')`.
+#'
+#' Alternatively, don't set the version parameter, run the function, look for the version number in the issued warning, and then set `version` to that number.
+#' You don't need to run the function again after that.
+#'
+#' If you are a Bergelson Lab member and you need to use a version that isn't public, clone [seedlings-nouns_private](https://github.com/Bergel sonLab/seedlings-nouns_private) to `~/BLAB_DATA/seedlings-nouns_private/`.
+#' The function will look in the private repository only if you supply a corresponding private version - one starting with "0." or ending with "-dev".
+#' To get the latest private version, use `get_latest_version('seedlings-nouns_private')`.
+#' Otherwise, look in the releases section on GitHub.
+#' There are no version descriptions though so you basically select the version by date.
+#'
+#' @inheritParams get_all_basiclevel
+#' @param table For `get_seedlings_nouns_extra`, the extra table to load. One of: "regions", "recordings", "sub-recordings". For `get_seedlings_nouns_codebook`, the table can also be "seedlings-nouns" which is also the default for that function.
+#' See ["README.md"](https://github.com/BergelsonLab/seedlings-nouns/blob/main/README.md) for details.
+#'
+#' @return
+#' - For `get_seedlings_nouns`, a tibble with one annotated noun per row.
+#' - For `get_seedlings_nouns_extra`, a tibble with one row per region, recording, or sub-recording depending on which table was requested.
+#' - For `get_seedlings_nouns_codebook`, a tibble with ono row per column of the requested table.
+#'
+#' @export
+#'
+#' @examples
+#' version <- 'v1.0.0'
+#' seedlings_nouns <- get_seedlings_nouns(version)
+#' seedlings_nouns_codebook <- get_seedlings_nouns_codebook(version)
+#' seedlings_regions <- get_seedlings_nouns_extra(version, 'regions')
+#' seedlings_regions_codebook <- get_seedlings_nouns_codebook(version,
+#'                                                            'recordings')
+#'
+get_seedlings_nouns <- function(version = NULL) {
+  get_seedlings_nouns_csv(version = version,
+                          table = 'seedlings-nouns',
+                          get_codebook = FALSE)
+}
+
+#' @rdname get_seedlings_nouns
+#' @export
+get_seedlings_nouns_extra <- function(
+    version = NULL,
+    table) {
+  stopifnot(table %in% c('regions', 'recordings', 'sub-recordings'))
+
+  df <- get_seedlings_nouns_csv(version = version,
+                                table = table,
+                                get_codebook = FALSE)
+
+  if (table == 'sub-recordings') {
+    message(glue::glue(
+      'For anonymization purposes, the date of the first sub-recording of each',
+      ' recording was set to Jan 1, 1920. If you need the actual dates for',
+      ' your analysis, please contact the Bergelson Lab.'))
+
+    more_than_one_count <- df %>%
+      dplyr::count(recording_id) %>%
+      dplyr::filter(n > 1) %>%
+      nrow
+    message(glue::glue(
+      'Only {more_than_one_count} audio recordings were paused at any time and',
+      ' therefore have more than one sub-recording. The rest of the audio',
+      ' recordings and all video recordings have just one. We included them',
+      ' in this table to provide time of day when those single uninterrupted',
+      ' recordings started and ended.'
+    ))
+  }
+
+  if (table == 'recordings') {
+    message(glue::glue(
+      'See table \'sub-recordings\' if you are interested in the time of day',
+      ' the recordings were made. We couldn\'t add this information here',
+      ' because of a small subset of recordings had been inerrupted one or',
+      ' more times.'))
+  }
+
+  if (table == 'regions') {
+    message(glue::glue(
+      'Regions are only defined for audio recordings in this dataset. Be aware',
+      ' that the video recordings are not included in this table, e.g., use',
+      ' left/right/outer join when merging with the other table on',
+      ' `recording_id`.'))
+  }
+
+  return(df)
+}
+
+#' @rdname get_seedlings_nouns
+#' @export
+get_seedlings_nouns_codebook <- function(
+    version = NULL,
+    table = c('seedlings-nouns', 'regions', 'recordings', 'sub-recordings')) {
+  table <- match.arg(table)
+  get_seedlings_nouns_csv(version = version,
+                          table = table,
+                          get_codebook = TRUE)
 }
 
 
@@ -434,10 +523,12 @@ handle_dataset_version <- function(repo, version = NULL,
 #' \dontrun{
 #' get_df_file('all_basiclevel', 'all_basiclevel.csv', version = '0.1.0')
 #' }
-get_df_file <- function(repo, filename, version = NULL, col_types = NULL) {
-  version <- handle_dataset_version(repo = repo, version = version,
-                                    tags_already_updated = FALSE,
-                                    check_for_updates = TRUE)
+get_df_file <- function(repo, filename, version = NULL, col_types = NULL,
+                        version_already_handled = FALSE) {
+  if (!version_already_handled) {
+    version <- handle_dataset_version(repo = repo, version = version,
+                                      tags_already_updated = FALSE,
+                                      check_for_updates = TRUE)}
 
   # Download the file
   checkout_tag(repo, tag = version)
