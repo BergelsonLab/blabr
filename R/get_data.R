@@ -294,8 +294,8 @@ get_seedlings_nouns_extra <- function(
       ' your analysis, please contact the Bergelson Lab.'))
 
     more_than_one_count <- df %>%
-      count(recording_id) %>%
-      filter(n > 1) %>%
+      dplyr::count(recording_id) %>%
+      dplyr::filter(n > 1) %>%
       nrow
     message(glue::glue(
       'Only {more_than_one_count} audio recordings were paused at any time and',
