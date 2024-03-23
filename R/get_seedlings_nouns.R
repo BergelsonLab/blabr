@@ -35,6 +35,7 @@ seedlings_nouns_col_types <- list(
     recording_id = readr::col_character(),
     child = readr::col_factor(levels = sn_factor_levels$children),
     month = readr::col_factor(levels = sn_factor_levels$months),
+    subject_month = readr::col_character(),
     onset = readr::col_integer(),
     offset = readr::col_integer(),
     annotid = readr::col_character(),
@@ -43,13 +44,17 @@ seedlings_nouns_col_types <- list(
     object = readr::col_character(),
     basic_level = readr::col_character(),
     global_basic_level = readr::col_character(),
+    transcription = readr::col_character(),
     utterance_type =
       readr::col_factor(levels = sn_factor_levels$utterance_types),
     object_present =
       readr::col_factor(levels = sn_factor_levels$object_present_values),
+    is_subregion = readr::col_logical(),
     is_top_3_hours = readr::col_logical(),
     is_top_4_hours = readr::col_logical(),
-    is_surplus = readr::col_logical()
+    is_surplus = readr::col_logical(),
+    position = readr::col_integer(),
+    subregion_rank = readr::col_integer(),
   ),
   regions = readr::cols(
     recording_id = readr::col_character(),
@@ -129,14 +134,15 @@ get_seedlings_nouns_csv <- function(
 
   # Determine the name of the requested file
   table <- match.arg(table)
-  if (isTRUE(get_codebook)) {table <- glue::glue('{table}.codebook')}
-  filename <- glue::glue('{table}.csv')
+  suffix <- ifelse(isTRUE(get_codebook), '.codebook', '')
+  filename <- glue::glue('{table}{suffix}.csv')
 
   if (isTRUE(get_codebook)) {
     col_types <- seedlings_nouns_col_types$codebook
     if (table == 'seedlings-nouns') {
       # The codebook for seedlings-nouns has two extra columns
-      extra_cols <- seedlings_nouns_col_types['seedlings-nouns-codebook-extra']
+      extra_cols <-
+        seedlings_nouns_col_types[['seedlings-nouns-codebook-extra']]
       col_types$cols <- c(col_types$cols, extra_cols$cols)
     }
   } else {
