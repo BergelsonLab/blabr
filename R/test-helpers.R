@@ -19,3 +19,40 @@ expect_non_empty_dataframe <- function(object) {
 without_warning_or_messages <- function(expr) {
   suppressWarnings(suppressMessages(eval(expr)))
 }
+
+assert_df_matches_col_types <- function(df, col_types) {
+  # Assert that the column names in the data frame completely match the column
+  # names in the col_types specification. This is different from read_csv's
+  # behavior, which issues a warning when col_types contains columns that aren't
+  # in the file and does nothing when the file contains columns that aren't in
+  # col_types.
+
+  # Extract column names from the dataframe
+  df_col_names <- sort(colnames(df))
+
+  # Extract column names from col_types specification
+  col_types_col_names <- sort(names(col_types$cols))
+
+  # Check if the sets of column names are the same, ignoring order
+  if (!setequal(df_col_names, col_types_col_names)) {
+    missing_cols <- setdiff(col_types_col_names, df_col_names)
+    extra_cols <- setdiff(df_col_names, col_types_col_names)
+
+    error_message <- "Column names do not match.\n"
+
+    if (length(missing_cols) > 0) {
+      error_message <- paste0(error_message,
+                              "Missing columns in DataFrame: ",
+                              paste(shQuote(missing_cols), collapse = ", "),
+                              ".\n")}
+
+    if (length(extra_cols) > 0) {
+      error_message <- paste0(error_message,
+                              "Extra columns in DataFrame: ",
+                              paste(shQuote(extra_cols), collapse = ", "),
+                              ".\n")}
+
+    stop(error_message)
+  }
+}
+

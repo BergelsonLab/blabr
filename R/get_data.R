@@ -271,6 +271,17 @@ get_df_file <- function(repo, filename, version = NULL, col_types = NULL,
   file_path <- file.path(blab_data, repo, filename)
   if (endsWith(file_path, ".csv")) {
     result <- readr::read_csv(file_path, col_types = col_types)
+
+    tryCatch({
+      assert_df_matches_col_types(result, col_types)},
+      error = function(e) {
+        message <- paste0(
+          "The file ", file_path, " does not match the expected column types. ",
+          "This could be due to a change in the dataset or a bug in blabr. ",
+          "Please report this issue to the lab staff.\n\n",
+          e$message)
+        stop(message)})
+
   } else if (endsWith(file_path, ".feather")) {
     result <- arrow::read_feather(file_path)
   }
