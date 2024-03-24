@@ -92,6 +92,26 @@ seedlings_nouns_col_types <- list(
   )
 )
 
+# Starting with v2.0.0-dev, all extra tables got audio_video, child, and month
+# columns added. Regions additionally received region_id.
+
+version_2_dev <- 'v2.0.0-dev'
+
+# Copy audio_video, child, and month column specification from the main table.
+composite_key_cols <- c('audio_video', 'child', 'month')
+composite_key_col_types <- subset_col_types(
+  seedlings_nouns_col_types[['seedlings-nouns']],
+  composite_key_cols)
+
+# List added columns for each table.
+seedlings_nouns_col_types_added <- list()
+seedlings_nouns_col_types_added[[version_2_dev]] <-
+  list(
+    `regions` = composite_key_col_types %>%
+      add_col_types(readr::cols(region_id = readr::col_character())),
+    `recordings` = composite_key_col_types,
+    `sub-recordings` = composite_key_col_types %>%
+      add_col_types(readr::cols(sub_recording_id = readr::col_character())))
 
 is_public_version <- function(version) {
   if (startsWith(version, '0') | endsWith(version, '-dev')) {
@@ -101,6 +121,28 @@ is_public_version <- function(version) {
   } else {
     stop(glue::glue('Unrecognized version {version}'))
   }
+}
+
+build_seedlings_nouns_col_types <- function(table, get_codebook, version) {
+  if (isTRUE(get_codebook)) {
+    col_types <- seedlings_nouns_col_types$codebook
+    if (table == 'seedlings-nouns') {
+      # The codebook for seedlings-nouns has two extra columns
+      extra_cols <-
+        seedlings_nouns_col_types[['seedlings-nouns-codebook-extra']]
+      col_types$cols <- c(col_types$cols, extra_cols$cols)
+    }
+  } else {
+    col_types <- seedlings_nouns_col_types[[table]]
+
+    if (parse_version(version) >= parse_version(version_2_dev)) {
+      col_types_added <- seedlings_nouns_col_types_added[[version_2_dev]]
+      if (table %in% names(col_types_added)) {
+        col_types <- add_col_types(col_types, col_types_added[[table]])
+      }}
+  }
+
+  return(col_types)
 }
 
 
@@ -137,17 +179,8 @@ get_seedlings_nouns_csv <- function(
   suffix <- ifelse(isTRUE(get_codebook), '.codebook', '')
   filename <- glue::glue('{table}{suffix}.csv')
 
-  if (isTRUE(get_codebook)) {
-    col_types <- seedlings_nouns_col_types$codebook
-    if (table == 'seedlings-nouns') {
-      # The codebook for seedlings-nouns has two extra columns
-      extra_cols <-
-        seedlings_nouns_col_types[['seedlings-nouns-codebook-extra']]
-      col_types$cols <- c(col_types$cols, extra_cols$cols)
-    }
-  } else {
-    col_types <- seedlings_nouns_col_types[[table]]
-  }
+  col_types <- build_seedlings_nouns_col_types(
+    table = table, get_codebook = get_codebook, version = version)
 
   file_path = file.path(folder, filename)
   seedlings_nouns <- get_df_file(repo = repository, filename = file_path,
