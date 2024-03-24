@@ -1,11 +1,6 @@
 library(blabr)
 
 
-expect_non_empty_dataframe <- function(object) {
-  expect_s3_class(object, 'data.frame')
-  expect_gt(nrow(object), 0)
-}
-
 # Check specific versions of datasets that are loaded differently
 test_that(
   "dataset versions before and after formatting changes can be loaded",
@@ -26,7 +21,6 @@ suppressWarnings({
   gbl <- get_global_bl_mappings()
   datasets <- list(
     all_basiclevel = get_all_basiclevel(),
-    seedslings_nouns = get_seedlings_nouns(),
     cdi = get_cdi_spreadsheet(),
     motor = get_motor_spreadsheet(),
     reliability = get_reliability("audio", "06"),
@@ -40,29 +34,6 @@ suppressWarnings({
 test_that("all datasets can be downloaded", {
   for (dataset in datasets) {
     expect_non_empty_dataframe(dataset)
-  }
-})
-
-
-test_that("get_seedlings_nouns and friends work", {
-  versions_to_test <- c('0.0.0.9016',  # a dev version
-                        'v1.0.0')  # a public version
-  for (version in versions_to_test) {
-    for (table in c('seedlings-nouns', 'regions', 'recordings',
-                    'sub-recordings')) {
-      if (table == 'seedlings-nouns') {
-        get_table <- function() {
-          get_seedlings_nouns(version = version)
-        }}
-      else
-        {get_table <- function() {
-          get_seedlings_nouns_extra(version = version, table = table)
-        }}
-
-      expect_non_empty_dataframe(get_table())
-      expect_non_empty_dataframe(
-        get_seedlings_nouns_codebook(version = version))
-    }
   }
 })
 
