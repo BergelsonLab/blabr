@@ -1,8 +1,7 @@
 test_that("the main table loads at all", {
-  for (dataset in datasets) {
-    expect_non_empty_dataframe(without_warning_or_messages(
+  expect_non_empty_dataframe(
+    without_warning_or_messages(
       get_seedlings_nouns()))
-  }
 })
 
 test_that("get_seedlings_nouns and friends work", {
