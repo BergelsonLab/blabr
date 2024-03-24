@@ -30,7 +30,8 @@ Imports:
     withr,
     fs,
     forcats,
-    ggplot2
+    ggplot2,
+    semver
 Remotes:
   HomeBankCode/rlena
 RoxygenNote: 7.2.3
