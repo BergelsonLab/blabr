@@ -8,8 +8,7 @@ source(test_path('files.R'))
 
 
 # Paths
-pn_opus_path <- Sys.getenv('PN_OPUS_PATH')
-subject_dir <- file.path(pn_opus_path, 'VIHI/SubjectFiles/LENA/HI/HI_424/HI_424_527/')
+subject_dir <- file.path(blab_share_path, 'VIHI/SubjectFiles/LENA/HI/HI_424/HI_424_527/')
 its_path <- file.path(subject_dir, 'HI_424_527.its')
 assert_that(are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
                       check.names = FALSE))
