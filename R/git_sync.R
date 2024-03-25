@@ -79,7 +79,7 @@ run_git_command <- function(repo, command, return_output = FALSE) {
 #' update_tags('all_basiclevel')
 #' }
 update_tags <- function(repo) {
-  run_git_command(repo, 'fetch --tags --prune')
+  run_git_command(repo, 'fetch --tags --prune --prune-tags')
 }
 
 
