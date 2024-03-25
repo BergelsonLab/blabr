@@ -1,3 +1,25 @@
+# blabr 0.20.0
+
+## Added
+
+- Introduced `get_seedlings_nouns_extra` and `get_seedlings_nouns_codebook` functions.
+  `get_seedlings_nouns` only loads the main table now.
+- `get_seedlings_nouns` and friends now produce messages informing user about the existence of codebooks, relation to other tables, etc.
+- Dataset versions removed from GitHub but persisting locally will no longer be loaded.
+- Add `get_blab_share_path`, remove `get_pn_opus_path`.
+
+## Fixed
+
+- The help page of `get_seedlings_nouns` has been updated.
+- Check that the requested dataset versions are present in the GitHub repo.
+  Supplying non-exitent versions to `get_*` functions (`get_seedlings_nouns`, `get_vihi_annotaitons`, etc.) used to lead to loading of the version that was currently in `BLAB_DATA`.
+- Enforce column specification in `get_*` functions: throw an error if it doesn't match the data.
+  Previously, if I messed up and didn't add new columns to the code at all or didn't use them for specific dataset versions, there was no indication of that.
+- Fix column misspecification of seedlings-nouns tables revealed by enforcing column specifications.
+- Add missing column specs to get_vihi_annotations.
+- Avoid repeating dataset version handling unnecessariliy resulting in doubling of reminder to supply a version to the function call or update the requested version.
+- Throw an error if a git command throws one.
+
 # blabr 0.19.1
 
 ## Fixed
