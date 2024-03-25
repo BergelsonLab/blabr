@@ -418,7 +418,9 @@ get_vihi_annotations <- function(
       onset = readr::col_integer(),
       offset = readr::col_integer(),
       context_onset = readr::col_integer(),
-      context_offset = readr::col_integer())
+      context_offset = readr::col_integer(),
+      is_silent = readr::col_character(),
+      rank = readr::col_integer())
   )
 
   version <- handle_dataset_version(repo = 'vihi_annotations',
