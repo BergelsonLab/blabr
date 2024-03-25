@@ -106,7 +106,7 @@ get_cdi_spreadsheet <- function(version = NULL, type="feather") {
 #' @export
 #'
 #' @examples
-#' motor <- get_motor_spreadsheet(version = '0.1.0')
+#' motor <- get_motor_spreadsheet(version = '0.0.1')
 get_motor_spreadsheet <- function(version = NULL, type="feather") {
   col_types <- readr::cols(
     .default = readr::col_character(),

@@ -18,5 +18,5 @@ a tibble contaiing the SEEDLingS Motor Questionaire spreadsheet
 The the motor questionaire spreadsheet for the SEEDLingS babies
 }
 \examples{
-motor <- get_motor_spreadsheet(version = '0.1.0')
+motor <- get_motor_spreadsheet(version = '0.0.1')
 }
