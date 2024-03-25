@@ -97,6 +97,7 @@ version_2_dev <- 'v2.0.0-dev'
 #' Starting with v2.0.0-dev, all extra tables got audio_video, child, and month
 #' columns added. Regions additionally received region_id, sub-recordings -
 #' sub_recording_id.
+#' @noRd
 build_v2_extra_col_types <- function() {
   composite_key_col_types <- subset_col_types(
     seedlings_nouns_col_types[['seedlings-nouns']],

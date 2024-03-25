@@ -125,6 +125,7 @@ get_latest_tag <- function(repo, tags_already_updated = FALSE) {
 }
 
 #' List tags in the dataset repository
+#' @noRd
 get_tags <- function(repo, tags_already_updated = tags_already_updated) {
   if (!tags_already_updated) {update_tags(repo)}
   run_git_command(repo, 'tag --list', return_output = TRUE)
