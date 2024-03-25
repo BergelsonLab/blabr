@@ -92,26 +92,29 @@ seedlings_nouns_col_types <- list(
   )
 )
 
-# Starting with v2.0.0-dev, all extra tables got audio_video, child, and month
-# columns added. Regions additionally received region_id.
-
 version_2_dev <- 'v2.0.0-dev'
 
-# Copy audio_video, child, and month column specification from the main table.
-composite_key_cols <- c('audio_video', 'child', 'month')
-composite_key_col_types <- subset_col_types(
-  seedlings_nouns_col_types[['seedlings-nouns']],
-  composite_key_cols)
+#' Starting with v2.0.0-dev, all extra tables got audio_video, child, and month
+#' columns added. Regions additionally received region_id, sub-recordings -
+#' sub_recording_id.
+build_v2_extra_col_types <- function() {
+  composite_key_col_types <- subset_col_types(
+    seedlings_nouns_col_types[['seedlings-nouns']],
+    c('audio_video', 'child', 'month'))
 
-# List added columns for each table.
-seedlings_nouns_col_types_added <- list()
-seedlings_nouns_col_types_added[[version_2_dev]] <-
-  list(
-    `regions` = composite_key_col_types %>%
-      add_col_types(readr::cols(region_id = readr::col_character())),
-    `recordings` = composite_key_col_types,
-    `sub-recordings` = composite_key_col_types %>%
-      add_col_types(readr::cols(sub_recording_id = readr::col_character())))
+  # List added columns for each table.
+  v2_extra_col_types <-
+    list(
+      `regions` = composite_key_col_types %>%
+        add_col_types(readr::cols(region_id = readr::col_character())),
+      `recordings` = composite_key_col_types,
+      `sub-recordings` = composite_key_col_types %>%
+        add_col_types(readr::cols(sub_recording_id = readr::col_character()))
+    )
+
+  return(v2_extra_col_types)
+}
+
 
 is_public_version <- function(version) {
   if (startsWith(version, '0') | endsWith(version, '-dev')) {
@@ -128,17 +131,18 @@ build_seedlings_nouns_col_types <- function(table, get_codebook, version) {
     col_types <- seedlings_nouns_col_types$codebook
     if (table == 'seedlings-nouns') {
       # The codebook for seedlings-nouns has two extra columns
-      extra_cols <-
-        seedlings_nouns_col_types[['seedlings-nouns-codebook-extra']]
-      col_types$cols <- c(col_types$cols, extra_cols$cols)
+      col_types <- add_col_types(
+        col_types,
+        seedlings_nouns_col_types[['seedlings-nouns-codebook-extra']])
     }
   } else {
     col_types <- seedlings_nouns_col_types[[table]]
 
     if (parse_version(version) >= parse_version(version_2_dev)) {
-      col_types_added <- seedlings_nouns_col_types_added[[version_2_dev]]
-      if (table %in% names(col_types_added)) {
-        col_types <- add_col_types(col_types, col_types_added[[table]])
+      v2_extra_col_types <- build_v2_extra_col_types()
+      if (table %in% names(v2_extra_col_types)) {
+        col_types <- add_col_types(col_types,
+                                   v2_extra_col_types[[table]])
       }}
   }
 
