@@ -31,7 +31,8 @@ Imports:
     fs,
     forcats,
     ggplot2,
-    semver
+    semver,
+    processx
 Remotes:
   HomeBankCode/rlena
 RoxygenNote: 7.2.3

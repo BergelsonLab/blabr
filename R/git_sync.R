@@ -38,15 +38,34 @@ run_git_command <- function(repo, command, return_output = FALSE) {
   repo_root <- get_repo_path(repo)
   if (!dir.exists(repo_root)) {
     stop(glue::glue(
-      'Expected to find the "{repo}" repository at the following \\
-       location:
-       {repo_root}.
-       Please, clone it.'))
+      'Expected to find the "{repo}" repository at the following location: {repo_root}. Please clone it.'))
   }
-  arguments <- c('-C', get_repo_path(repo), strsplit(command, '\\s+')[[1]])
-  result <- system2(git_bin, arguments, wait = TRUE, stdout = TRUE)
-  if (return_output) {return(result)}
+
+  process <- processx::process
+
+  cmd_args <- strsplit(command, '\\s+')[[1]]
+  process <- process$new(git_bin, c('-C', repo_root, cmd_args),
+                         stdout = "|", stderr = "|")
+  process$wait()
+
+  exit_status <- process$get_exit_status()
+
+  if (exit_status != 0) {
+    error_message <- paste("Error executing git command:\n\n",
+                           command,
+                           "\n\nError message:\n\n",
+                           process$read_error())
+    stop(error_message)
+  }
+
+  if (return_output) {
+    # Split the output into lines for consistency with the previous version that
+    # used system2
+    output_lines <- strsplit(process$read_output(), "\n")[[1]]
+    return(output_lines)
+  }
 }
+
 
 
 #' Fetches dataset tags from GitHub
