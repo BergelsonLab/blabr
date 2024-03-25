@@ -124,6 +124,12 @@ get_latest_tag <- function(repo, tags_already_updated = FALSE) {
   return(last_version)
 }
 
+#' List tags in the dataset repository
+get_tags <- function(repo, tags_already_updated = tags_already_updated) {
+  if (!tags_already_updated) {update_tags(repo)}
+  run_git_command(repo, 'tag --list', return_output = TRUE)
+}
+
 
 #' Find tag label of the currently checked out commit.
 #'

@@ -206,6 +206,20 @@ get_latest_version <- function(repo, tags_already_updated = FALSE) {
 }
 
 
+#' List available versions
+#'
+#' @inheritParams get_latest_tag
+#'
+#' @return the version string
+#' @export
+#'
+#' @examples
+#' get_versions('seedlings-nouns')
+get_versions <- function(repo, tags_already_updated = FALSE) {
+  get_tags(repo, tags_already_updated = tags_already_updated)
+}
+
+
 #' Handles the version.
 #'
 #' If the version isn't specified, finds the newest version and warns that not
@@ -217,11 +231,23 @@ get_latest_version <- function(repo, tags_already_updated = FALSE) {
 handle_dataset_version <- function(repo, version = NULL,
                                    tags_already_updated = FALSE,
                                    check_for_updates = TRUE) {
+  if (!tags_already_updated) {update_tags(repo)}
+
+  if (!is.null(version) && !version %in% get_versions(repo)) {
+    stop(glue::glue("
+      Couldn't find version {version} in {repo}.
+
+      Please check the available versions with
+
+      `get_versions('{repo}')`
+      "))
+  }
+
   # We will only need to get the latest version in these two cases.
   if (is.null(version) | isTRUE(check_for_updates)) {
     latest_version <- get_latest_version(
       repo = repo,
-      tags_already_updated = tags_already_updated)
+      tags_already_updated = TRUE)
 
     if (is.null(version)) {
       version <- latest_version
