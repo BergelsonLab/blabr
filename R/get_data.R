@@ -397,8 +397,8 @@ get_vihi_annotations <- function(
       participant = readr::col_character(),
       onset = readr::col_integer(),
       offset = readr::col_integer(),
-      annotation = readr::col_character(),
-      participant_annotation_id = readr::col_character(),
+      transcription = readr::col_character(),
+      transcription_id = readr::col_character(),
       mwu = readr::col_character(),
       lex = readr::col_character(),
       vcm = readr::col_character(),
@@ -409,7 +409,11 @@ get_vihi_annotations <- function(
       code_num = readr::col_character(),
       PI = readr::col_character(),
       inq = readr::col_character(),
-      utt = readr::col_character()),
+      utt = readr::col_character(),
+      fun = readr::col_character(),
+      pro = readr::col_character(),
+      rep = readr::col_character()
+      ),
     intervals= readr::cols(
       eaf_filename = readr::col_character(),
       # See not before code_num in `annotations` above

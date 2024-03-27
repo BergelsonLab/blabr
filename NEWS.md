@@ -1,3 +1,11 @@
+# blabr 0.20.1
+
+## Added
+
+- Account for changes in the vihi_annotations dataset: 
+  - Three new tiers: fun, pro, rep.
+  - Columns with the transcription and its annotation id are now called `transcription` and `transcription_id`.
+
 # blabr 0.20.0
 
 ## Added
