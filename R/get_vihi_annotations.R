@@ -1,39 +1,5 @@
-#' Load VIHI annotation data
-#'
-#' Clone BLAB-private [vihi_annotations](https://github.com/bergelsonlab/vihi_annotations.git)
-#' repo to `~/BLAB_DATA` once before using this function.
-#'
-#' The speaker TIER is identified by the `participant` column. Other tiers are
-#' in columns.
-#'
-#' Notes:
-#' - Annotations marked as PI are included. Filter them out if you don't want
-#'   them.
-#' - The transcribed utterance can be empty (''). Normally, that means that a
-#'   code interval has been segmented but not annotated. But there might be
-#'   other stray utterance segments like that.
-#' - (relevant for non-speaker TIERs only) Currently, there is no way to tell
-#'   whether an annotation is missing because it was not segmented or because it
-#'   was segmented but not yet annotated: both are represented as NA. This will
-#'   change in the future: missing segment will still be NA, but missing
-#'   annotation will be ''.
-#'
-#' @inheritParams get_seedlings_nouns
-#' @param table Which of the two tables should be loaded?
-#' @param merge Should annotations be merged with the intervals info? Not
-#' applicable if `table == 'intervals'`. True by default.
-#'
-#' @return A tibble with
-#' @export
-#'
-#' @examples
-#' vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9000')
-get_vihi_annotations <- function(
-    version = NULL,
-    table = c('annotations', 'intervals', 'merged')) {
-
-  table <- match.arg(table)
-
+#' Load all tables from the vihi_annotations repo
+get_vihi_annotations_tables <- function(version = NULL) {
   col_types <- list(
     annotations = readr::cols(
       eaf_filename = readr::col_character(),
@@ -80,20 +46,60 @@ get_vihi_annotations <- function(
     get_df_file(repo = 'vihi_annotations',
                 filename = glue::glue('{table_name}.csv'),
                 version = version,
-                col_types = col_types[[table_name]])}
+                col_types = col_types[[table_name]],
+                version_already_handled = TRUE)}
 
-  if (table %in% c('annotations', 'merged')) {
-    annotations <- get_table('annotations')
-  }
+  return(list(
+    annotations = get_table('annotations'),
+    intervals = get_table('intervals')))
+}
 
-  if (table %in% c('intervals', 'merged')) {
-    intervals <- get_table('intervals')
-  }
+
+#' Load VIHI annotation data
+#'
+#' Clone BLAB-private [vihi_annotations](https://github.com/bergelsonlab/vihi_annotations.git)
+#' repo to `~/BLAB_DATA` once before using this function.
+#'
+#' The speaker TIER is identified by the `participant` column. Other tiers are
+#' in columns.
+#'
+#' Notes:
+#' - Annotations marked as PI are included. Filter them out if you don't want
+#'   them.
+#' - The transcribed utterance can be empty (''). Normally, that means that a
+#'   code interval has been segmented but not annotated. But there might be
+#'   other stray utterance segments like that.
+#' - (relevant for non-speaker TIERs only) Currently, there is no way to tell
+#'   whether an annotation is missing because it was not segmented or because it
+#'   was segmented but not yet annotated: both are represented as NA. This will
+#'   change in the future: missing segment will still be NA, but missing
+#'   annotation will be ''.
+#'
+#' @inheritParams get_seedlings_nouns
+#' @param table Which of the two tables should be loaded?
+#' @param merge Should annotations be merged with the intervals info? Not
+#' applicable if `table == 'intervals'`. True by default.
+#'
+#' @return A tibble with
+#' @export
+#'
+#' @examples
+#' vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9006-dev.1')
+get_vihi_annotations <- function(
+    version = NULL,
+    subset = c('random', 'everything', 'VI+TD-VI'),
+    table = c('annotations', 'intervals', 'merged')) {
+
+  subset <- match.arg(subset)
+  table <- match.arg(table)
+
+  tables <- get_vihi_annotations_tables(version)
 
   result <- switch(table,
-                   'annotations' = annotations,
-                   'intervals' = intervals,
-                   'merged' = dplyr::left_join(annotations, intervals,
+                   'annotations' = tables$annotations,
+                   'intervals' = tables$intervals,
+                   'merged' = dplyr::left_join(tables$annotations,
+                                               tables$intervals,
                                                by=c('eaf_filename', 'code_num'),
                                                relationship = 'many-to-one'))
 
