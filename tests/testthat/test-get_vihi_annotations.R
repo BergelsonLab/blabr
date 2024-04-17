@@ -10,6 +10,11 @@ test_that("get_vihi_annotations works", {
                                                     table = table))
   }
 
+  tables <- get_vihi_annotations(version = version, table = 'all')
+  for (table in tables) {
+    expect_non_empty_dataframe(table)
+  }
+
   for (subset in c('everything', 'VI+TD-VI')) {
     expect_non_empty_dataframe(get_vihi_annotations(version = version,
                                                     subset = subset,

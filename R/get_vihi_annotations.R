@@ -68,6 +68,97 @@ get_vihi_annotations_tables <- function(version = NULL) {
   return(tables)
 }
 
+find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
+  # For interactive debugging
+  # tables <- get_vihi_annotations(version = '0.0.0.9006-dev.2',
+  #                                table = 'all', subset = 'VI+TD-VI')
+  # annotations <- tables$annotations
+
+  # Helper functions
+  is_empty <- function(column) {
+    tidyr::replace_na({{ column }}, '') == ''
+  }
+
+  is_not_empty <- function(...) {!is_empty(...)}
+
+  add_age_in_months <- function(df) {
+    df %>%
+      dplyr::mutate(
+        days = stringr::str_match(eaf_filename,
+                                  '\\w_\\d{3}_(\\d{3})\\.eaf')[, 2],
+        months = as.numeric(days) / 30.25) %>%
+      select(-days)
+  }
+
+  errors <- bind_rows(
+    # "Empty" transcriptions
+    annotations %>%
+      dplyr::filter(transcription == '0.',
+                    !(participant %in% c('CHI', 'EE1'))) %>%
+      dplyr::mutate(
+        error = 'transcription is 0. but participant is not CHI or EE1'),
+    empty_transcriptions <- annotations %>%
+      dplyr::filter(is_empty(transcription)) %>%
+      dplyr::mutate(error = 'transcription is empty'),
+    # Tiers that should be empty but aren't for CHI/non-CHI
+    too_young_for_lex_or_mwu <- annotations %>%
+      add_age_in_months %>%
+      dplyr::filter(months < 8,
+                    participant == 'CHI',
+                    is_not_empty(lex) | is_not_empty(mwu)) %>%
+      select(-months) %>%
+      dplyr::mutate(error = glue::glue('participant is younger than 8 months',
+                                       ' but lex/mwu is filled')),
+    chi_with_xds <- annotations %>%
+      dplyr::filter(participant == 'CHI', is_not_empty(xds)) %>%
+      dplyr::mutate(error = glue::glue('participant is CHI but xds is filled')),
+    non_chi_with_chi_subtiers <- annotations %>%
+      dplyr::filter(
+        participant != 'CHI',
+        is_not_empty(lex) | is_not_empty(mwu) | is_not_empty(vcm)) %>%
+      mutate(error = 'participant is not CHI but lex/mwu/vcm is filled'),
+    # Tiers that shouldn't be empty but are for CHI/non-CHI
+    non_chi_without_xds <- annotations %>%
+      filter(participant != 'CHI', is_empty(xds)) %>%
+      mutate(error = 'participant is not CHI but xds is empty'),
+    old_chi_without_vcm <- annotations %>%
+      add_age_in_months %>%
+      dplyr::filter(participant == 'CHI',
+                    months >= 8,
+                    is_empty(vcm)) %>%
+      select(-months) %>%
+      dplyr::mutate(
+        error = 'participant is older than 8 months but vcm is empty'),
+    # vcm/lex/mwu dependencies
+    annotations %>%
+      add_age_in_months %>%
+      filter(months >= 8) %>%
+      select(-months) %>%
+      # vcm is 'C', lex should be filled; if lex is 'W', mwu should be filled
+      mutate(error = case_when(
+        vcm == 'C' & is_empty(lex) ~ 'vcm is C but lex is empty',
+        vcm != 'C' & is_not_empty(lex) ~ 'vcm is not C but lex is filled',
+        lex == 'W' & is_empty(mwu) ~ 'lex is W but mwu is empty',
+        lex != 'W' & is_not_empty(mwu) ~ 'lex is not W but mwu is filled',
+        TRUE ~ NA
+      )) %>%
+      filter(!is.na(error)))
+
+  # Check that there is just one error column added in all the chains above
+  assertthat::are_equal(colnames(annotations),
+                        colnames(errors %>% select(-error))) %>%
+    invisible()
+
+  errors_wide <- errors %>%
+    dplyr::select(eaf_filename, transcription_id, error) %>%
+    dplyr::mutate(error_number = row_number(),
+                  .by = c(eaf_filename, transcription_id)) %>%
+    tidyr::pivot_wider(values_from = error, names_from = error_number,
+                       names_prefix = 'error_')
+
+  return(errors_wide)
+}
+
 
 #' Load VIHI annotation data
 #'
@@ -78,6 +169,8 @@ get_vihi_annotations_tables <- function(version = NULL) {
 #' in columns.
 #'
 #' Notes:
+#' - Annotation are checked for errors for the standard ACLEW tiers only.
+#'   Interval-level checks aren't currently checked at all.
 #' - Annotations marked as PI are included. Filter them out if you don't want
 #'   them.
 #' - The transcribed utterance can be empty (''). Normally, that means that a
@@ -90,7 +183,12 @@ get_vihi_annotations_tables <- function(version = NULL) {
 #'   annotation will be ''.
 #'
 #' @inheritParams get_seedlings_nouns
-#' @param table Which of the two tables should be loaded?
+#'
+#' @param table Which table to return - `annotations` (the default) or
+#' `intervals`. If `merged`, returns the `annotations` table with the interval
+#' information merged in. Intervals without annotations won't be included. If
+#' `all`, returns a named list of both tables.#'
+#'
 #' @param subset Which pre-defined subset of the data should be loaded?
 #' - 'random' (the default) loads the annotations from the 15 randomly sampled
 #' intervals from all recordings in the corpus.
@@ -98,22 +196,38 @@ get_vihi_annotations_tables <- function(version = NULL) {
 #' high-volubility intervals from VI recordings and their TD matches.
 #' - 'everything' loads all annotations from all tiers. Exercise caution with
 #' this option: the data will include incomplete and unchecked annotations.
+#'
 #' @param include_all_tier_types Should all tier types be included in the
 #' output? If `FALSE` (the default), only tiers that are relevant to the subset
 #' are returned. For the 'random' and 'VI+TD-VI' subsets, the relevant tier
 #' types are: transcription, vcm, lex, mwu, xds. For the 'everything' subset,
 #' this parameter is ignored as all tier types are returned.
 #'
-#' @return A tibble with
+#' @param allow_annotation_errors In case errors are found in the annotations,
+#' should the function throw an error (`FALSE`, the default) or add `error_n`
+#' columns to the `annotations` table? Use only as a way to inspect the errors,
+#' not as a way to ignore them.
+#'
+#' @return A table or a list of tables depending on the `table` parameter.
 #' @export
 #'
 #' @examples
 #' vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9006-dev.2')
+#'
+#' vitd_annotations <- get_vihi_annotations(version='0.0.0.9006-dev.2',
+#'                                          subset='VI+TD-VI')
+#'
+#' vitd <- get_vihi_annotations(version='0.0.0.9006-dev.2', subset='VI+TD-VI',
+#'                              table='all')
+#' vitd$annotations %>% head()
+#' vitd$intervals %>% head()
+#'
 get_vihi_annotations <- function(
     version = NULL,
     subset = c('random', 'everything', 'VI+TD-VI'),
-    table = c('annotations', 'intervals', 'merged'),
-    include_all_tier_types = FALSE) {
+    table = c('annotations', 'intervals', 'merged', 'all'),
+    include_all_tier_types = FALSE,
+    allow_annotation_errors = FALSE) {
 
   subset <- match.arg(subset)
   table <- match.arg(table)
@@ -153,13 +267,45 @@ get_vihi_annotations <- function(
 
   }
 
+  # Run checks on annotations
+  annotation_errors <- find_errors_in_vihi_annotations(tables$annotations)
+  if (nrow(annotation_errors) > 0) {
+    if (isTRUE(allow_annotation_errors)) {
+      tables$annotations <- tables$annotations %>%
+        dplyr::left_join(annotation_errors,
+                         by=c('eaf_filename', 'transcription_id'))
+      warning(glue::glue('
+        Errors found in {nrow(annotation_errors)} annotations - check the \\
+        `error` column in the `annotations` table.
+
+        You set `allow_annotation_errors` to TRUE. This setting should only \\
+        be used to inspect the errors. Do not use it to ignore and forget.'))
+    } else {
+      stop(glue::glue("
+        Errors found in `nrow(annotation_errors)` annotations. \\
+        Rerun with allow_annotation_errors=TRUE and `table` set to anything \\
+        but `intervals` and check the `error` column in the `annotations` \\
+        table. For example:
+
+        library(dplyr)
+
+        tables <- get_vihi_annotations(version=\'{version}\',
+                                       table = \'all\',
+                                       allow_annotation_errors=TRUE)
+        tables$annotations %>%
+           filter(if_any(starts_with('error_'), ~ !is.na(.)))
+        "))
+    }
+  }
+
   result <- switch(table,
                    'annotations' = tables$annotations,
                    'intervals' = tables$intervals,
                    'merged' = dplyr::left_join(tables$annotations,
                                                tables$intervals,
                                                by=c('eaf_filename', 'code_num'),
-                                               relationship = 'many-to-one'))
+                                               relationship = 'many-to-one'),
+                   'all' = tables[c('annotations', 'intervals')])
 
   if (rlang::is_null(result)) {
     stop(glue::glue('Unknown values of the `table` argument: `table`'))

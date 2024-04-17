@@ -7,8 +7,9 @@
 get_vihi_annotations(
   version = NULL,
   subset = c("random", "everything", "VI+TD-VI"),
-  table = c("annotations", "intervals", "merged"),
-  include_all_tier_types = FALSE
+  table = c("annotations", "intervals", "merged", "all"),
+  include_all_tier_types = FALSE,
+  allow_annotation_errors = FALSE
 )
 }
 \arguments{
@@ -24,16 +25,24 @@ high-volubility intervals from VI recordings and their TD matches.
 this option: the data will include incomplete and unchecked annotations.
 }}
 
-\item{table}{Which of the two tables should be loaded?}
+\item{table}{Which table to return - \code{annotations} (the default) or
+\code{intervals}. If \code{merged}, returns the \code{annotations} table with the interval
+information merged in. Intervals without annotations won't be included. If
+\code{all}, returns a named list of both tables.#'}
 
 \item{include_all_tier_types}{Should all tier types be included in the
 output? If \code{FALSE} (the default), only tiers that are relevant to the subset
 are returned. For the 'random' and 'VI+TD-VI' subsets, the relevant tier
 types are: transcription, vcm, lex, mwu, xds. For the 'everything' subset,
 this parameter is ignored as all tier types are returned.}
+
+\item{allow_annotation_errors}{In case errors are found in the annotations,
+should the function throw an error (\code{FALSE}, the default) or add \code{error_n}
+columns to the \code{annotations} table? Use only as a way to inspect the errors,
+not as a way to ignore them.}
 }
 \value{
-A tibble with
+A table or a list of tables depending on the \code{table} parameter.
 }
 \description{
 Clone BLAB-private \href{https://github.com/bergelsonlab/vihi_annotations.git}{vihi_annotations}
@@ -45,6 +54,8 @@ in columns.
 
 Notes:
 \itemize{
+\item Annotation are checked for errors for the standard ACLEW tiers only.
+Interval-level checks aren't currently checked at all.
 \item Annotations marked as PI are included. Filter them out if you don't want
 them.
 \item The transcribed utterance can be empty (''). Normally, that means that a
@@ -59,4 +70,13 @@ annotation will be ''.
 }
 \examples{
 vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9006-dev.2')
+
+vitd_annotations <- get_vihi_annotations(version='0.0.0.9006-dev.2',
+                                         subset='VI+TD-VI')
+
+vitd <- get_vihi_annotations(version='0.0.0.9006-dev.2', subset='VI+TD-VI',
+                             table='all')
+vitd$annotations \%>\% head()
+vitd$intervals \%>\% head()
+
 }
