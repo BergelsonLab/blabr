@@ -56,3 +56,18 @@ assert_df_matches_col_types <- function(df, col_types) {
   }
 }
 
+calculate_column_hashes <- function(df) {
+  df %>%
+    summarise(across(everything(), digest)) %>%
+    as.list
+}
+
+#' Checks that each column in a data frame has the same data as before
+#'
+#' To use, run `dput(calculate_column_hashes(<your-df>))` in the console and
+#' paste the output into `expect_column_contents(<your-df>, <paste-here>)`.
+#' @noRd
+expect_column_contents <- function(df, expected_hashes) {
+  actual_hashes <- calculate_column_hashes(df)
+  expect_mapequal(actual_hashes, expected_hashes)
+}

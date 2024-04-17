@@ -1,4 +1,5 @@
 #' Load all tables from the vihi_annotations repo
+#' @noRd
 get_vihi_annotations_tables <- function(version = NULL) {
   col_types <- list(
     annotations = readr::cols(
@@ -23,9 +24,9 @@ get_vihi_annotations_tables <- function(version = NULL) {
       pro = readr::col_character(),
       rep = readr::col_character()
     ),
-    intervals= readr::cols(
+    intervals = readr::cols(
       eaf_filename = readr::col_character(),
-      # See not before code_num in `annotations` above
+      # See note before code_num in `annotations` above
       code_num = readr::col_character(),
       sampling_type = readr::col_character(),
       onset = readr::col_integer(),
@@ -33,7 +34,11 @@ get_vihi_annotations_tables <- function(version = NULL) {
       context_onset = readr::col_integer(),
       context_offset = readr::col_integer(),
       is_silent = readr::col_character(),
-      rank = readr::col_integer())
+      rank = readr::col_integer()),
+    vi_td_matches = readr::cols(
+        pair = readr::col_double(),
+        VIHI_ID = readr::col_character(),
+        match_group = readr::col_character())
   )
 
   version <- handle_dataset_version(repo = 'vihi_annotations',
@@ -49,9 +54,18 @@ get_vihi_annotations_tables <- function(version = NULL) {
                 col_types = col_types[[table_name]],
                 version_already_handled = TRUE)}
 
-  return(list(
+  tables <- list(
     annotations = get_table('annotations'),
-    intervals = get_table('intervals')))
+    intervals = get_table('intervals'),
+    vi_td_matches = get_table('vi_td_matches'))
+
+  tables$intervals <- tables$intervals %>%
+    dplyr::mutate(
+      is_top_5_high_vol = (sampling_type == 'high-volubility')
+      & (dplyr::dense_rank(rank) <= 5),
+      .by = eaf_filename)
+
+  return(tables)
 }
 
 
@@ -77,23 +91,67 @@ get_vihi_annotations_tables <- function(version = NULL) {
 #'
 #' @inheritParams get_seedlings_nouns
 #' @param table Which of the two tables should be loaded?
-#' @param merge Should annotations be merged with the intervals info? Not
-#' applicable if `table == 'intervals'`. True by default.
+#' @param subset Which pre-defined subset of the data should be loaded?
+#' - 'random' (the default) loads the annotations from the 15 randomly sampled
+#' intervals from all recordings in the corpus.
+#' - 'VI+TD-VI' loads the annotations from the random and the top-5
+#' high-volubility intervals from VI recordings and their TD matches.
+#' - 'everything' loads all annotations from all tiers. Exercise caution with
+#' this option: the data will include incomplete and unchecked annotations.
+#' @param include_all_tier_types Should all tier types be included in the
+#' output? If `FALSE` (the default), only tiers that are relevant to the subset
+#' are returned. For the 'random' and 'VI+TD-VI' subsets, the relevant tier
+#' types are: transcription, vcm, lex, mwu, xds. For the 'everything' subset,
+#' this parameter is ignored as all tier types are returned.
 #'
 #' @return A tibble with
 #' @export
 #'
 #' @examples
-#' vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9006-dev.1')
+#' vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9006-dev.2')
 get_vihi_annotations <- function(
     version = NULL,
     subset = c('random', 'everything', 'VI+TD-VI'),
-    table = c('annotations', 'intervals', 'merged')) {
+    table = c('annotations', 'intervals', 'merged'),
+    include_all_tier_types = FALSE) {
 
   subset <- match.arg(subset)
   table <- match.arg(table)
 
   tables <- get_vihi_annotations_tables(version)
+
+  if (subset %in% c('random', 'VI+TD-VI')) {
+    # Filter out recordings by removing the corresponding intervals
+    if (subset == 'VI+TD-VI') {
+      tables$intervals <- tables$intervals %>%
+        dplyr::filter(fs::path_ext_remove(eaf_filename)
+                      %in% tables$vi_td_matches$VIHI_ID)
+    }
+
+    # Select the intervals
+    if (subset == 'random') {
+      tables$intervals <- tables$intervals %>%
+        dplyr::filter(sampling_type == 'random')
+    } else if (subset == 'VI+TD-VI') {
+      tables$intervals <- tables$intervals %>%
+        dplyr::filter(
+          fs::path_ext_remove(eaf_filename) %in% tables$vi_td_matches$VIHI_ID,
+          sampling_type == 'random' | is_top_5_high_vol
+        )
+    }
+
+    # Keep only annotations from the selected intervals
+    tables$annotations <- tables$annotations %>%
+      dplyr::semi_join(tables$intervals, by=c('eaf_filename', 'code_num'))
+
+
+    # Select tiers, unless include_all_tier_types is TRUE
+    if (!isTRUE(include_all_tier_types)) {
+      tables$annotations <- tables$annotations %>%
+        dplyr::select(-any_of(c('utt', 'inq', 'fun', 'pro', 'rep', 'cds')))
+    }
+
+  }
 
   result <- switch(table,
                    'annotations' = tables$annotations,
