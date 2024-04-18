@@ -1,3 +1,18 @@
+# blabr 0.21.0
+
+## Changed
+
+- `get_vihi_annotations` now
+  - filters out PI by default,
+  - returns only randomly sample intervals by default,
+  - can return annotations from random and top-5 high-volubitlity intevals for VI and their TD matches with `subset = 'VI+TD-VI'`,
+  - checks ACLEW tiers for consistency,
+  - see `?get_vihi_annotations` for more details.
+  
+## Fixed
+
+- Lots in tests. They are still faling though.
+
 # blabr 0.20.1
 
 ## Added
