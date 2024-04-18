@@ -40,11 +40,13 @@ test_that("get_vihi_annotations works if errors are allowed", {
 })
 
 test_that("VI+TD-VI subset looks right", {
-  vi_tdvi_annotations <- get_vihi_annotations(version = version,
-                                              subset = 'VI+TD-VI',
-                                              allow_annotation_errors = TRUE,
-                                              include_pi = TRUE) %>%
+  vi_tdvi_annotations <-
+    get_vihi_annotations(
+      version = version,
+      subset = 'VI+TD-VI',
+      allow_annotation_errors = TRUE) %>%
     select(-starts_with('error_'))
+
   vi_and_td_matches <- c(
     'VI_001_676', 'TD_436_678',
     'VI_002_336', 'TD_443_341',
@@ -66,23 +68,21 @@ test_that("VI+TD-VI subset looks right", {
     fs::path_ext_remove(vi_tdvi_annotations$eaf_filename),
     vi_and_td_matches)
 
-  expect_equal(dim(vi_tdvi_annotations), c(28845, 12))
+  expect_equal(dim(vi_tdvi_annotations), c(28788, 12))
   expect_column_contents(
     vi_tdvi_annotations,
-    list(
-      eaf_filename = "c1d377845d0dd9f2cab4b423a9005411",
-      participant = "ef351bfacc3593b5830f63859b5faa54",
-      onset = "8ebae3e7b6ee8b15e39c34f7bd6c5af4",
-      offset = "04954d408e58a40171b2ccd62006c078",
-      transcription = "5e00f8ace8940cc98c4ef462bfba10ed",
-      transcription_id = "dcebf75854d0915876c6ecd6a0f0d54d",
-      mwu = "5101eef6a8da05fa8ce1daf3461875e3",
-      lex = "27e2166712ebefd378cf70b0d4628f8c",
-      vcm = "7af82950ffa88699046ba434ace3a862",
-      xds = "c55805021d3db0eaa01c0dbdb793209f",
-      code_num = "06fcbc1880531afc16eb462eb221c9ef",
-      PI = "4e853a0600055da784adbbd6fe242f6f"
-    )
+    list(eaf_filename = "c423f61580f79aac9ee52dec24bbb86b",
+         participant = "d4bd9c8395ec83e48b0d0924a0c97684",
+         onset = "9378e0f82e76f60c210cefdf0a0fabce",
+         offset = "695181900e6be31f42d364da76c72e13",
+         transcription = "d3155f5cc79c942f13abbba109868ac4",
+         transcription_id = "b70316acd93e615d0cd37bc9690a6616",
+         mwu = "084eec7a98c4f9e04b5cdd00cf9fc8b3",
+         lex = "7c75095882e2c3601acb663283740f1d",
+         vcm = "cfb3fbd0a35aa39f4dc8c4452256b172",
+         xds = "c4a40767c30386cd640b8a6c394a483c",
+         code_num = "bfaa7e515a31d0b6213f414fd580c24a",
+         PI = "38c876f5349f88366a475315c0109ddf")
   )
 
 })
