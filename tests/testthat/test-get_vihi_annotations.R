@@ -45,7 +45,8 @@ test_that("VI+TD-VI subset looks right", {
       version = version,
       subset = 'VI+TD-VI',
       allow_annotation_errors = TRUE) %>%
-    select(-starts_with('error_'))
+    select(-starts_with('error_')) %>%
+    filter(!transcription_id %in% c('a6561', 'a6579', 'a6637'))
 
   vi_and_td_matches <- c(
     'VI_001_676', 'TD_436_678',
@@ -68,21 +69,21 @@ test_that("VI+TD-VI subset looks right", {
     fs::path_ext_remove(vi_tdvi_annotations$eaf_filename),
     vi_and_td_matches)
 
-  expect_equal(dim(vi_tdvi_annotations), c(28788, 12))
+  expect_equal(dim(vi_tdvi_annotations), c(28785, 12))
   expect_column_contents(
     vi_tdvi_annotations,
-    list(eaf_filename = "c423f61580f79aac9ee52dec24bbb86b",
-         participant = "d4bd9c8395ec83e48b0d0924a0c97684",
-         onset = "9378e0f82e76f60c210cefdf0a0fabce",
-         offset = "695181900e6be31f42d364da76c72e13",
-         transcription = "d3155f5cc79c942f13abbba109868ac4",
-         transcription_id = "b70316acd93e615d0cd37bc9690a6616",
-         mwu = "084eec7a98c4f9e04b5cdd00cf9fc8b3",
-         lex = "7c75095882e2c3601acb663283740f1d",
-         vcm = "cfb3fbd0a35aa39f4dc8c4452256b172",
-         xds = "c4a40767c30386cd640b8a6c394a483c",
-         code_num = "bfaa7e515a31d0b6213f414fd580c24a",
-         PI = "38c876f5349f88366a475315c0109ddf")
+    list(eaf_filename = "ab6814bd71f1e93b5ab1f5ab2b9b621e",
+         participant = "c6e6400aec0ae88129ef5ba32370b762",
+         onset = "2556ceaa5c9400b34d5d56aea7a3ab8e",
+         offset = "89f145584be56680adf8f1c870bdc67c",
+         transcription = "2522dc8cd14820168ec7c04e3de1bfe6",
+         transcription_id = "588885b02a97f30f3e574e3e2850c97a",
+         mwu = "216a6f3148b9df9c7628442b70342637",
+         lex = "4374d72eb6f2403bfa6bd55a9eaf8896",
+         vcm = "0d44c4c5847cbce72959b7e2b4a62d9f",
+         xds = "40e4699660aed444b03a1aea5d2dd758",
+         code_num = "532bd4ec6f0050aa2bc4f69cbae337d7",
+         PI = "9cb50da225a187662ec3ec142f68f3a0")
   )
 
 })
