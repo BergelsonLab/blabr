@@ -87,10 +87,10 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
         days = stringr::str_match(eaf_filename,
                                   '\\w_\\d{3}_(\\d{3})\\.eaf')[, 2],
         months = as.numeric(days) / 30.25) %>%
-      select(-days)
+      dplyr::select(-days)
   }
 
-  errors <- bind_rows(
+  errors <- dplyr::bind_rows(
     # "Empty" transcriptions
     annotations %>%
       dplyr::filter(transcription == '0.',
@@ -106,7 +106,7 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
       dplyr::filter(months < 8,
                     participant == 'CHI',
                     is_not_empty(lex) | is_not_empty(mwu)) %>%
-      select(-months) %>%
+      dplyr::select(-months) %>%
       dplyr::mutate(error = glue::glue('participant is younger than 8 months',
                                        ' but lex/mwu is filled')),
     chi_with_xds <- annotations %>%
@@ -126,7 +126,7 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
       dplyr::filter(participant == 'CHI',
                     months >= 8,
                     is_empty(vcm)) %>%
-      select(-months) %>%
+      dplyr::select(-months) %>%
       dplyr::mutate(
         error = 'participant is older than 8 months but vcm is empty'),
     # vcm/lex/mwu dependencies
@@ -169,7 +169,7 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 
   errors_wide <- errors %>%
     dplyr::select(eaf_filename, transcription_id, error) %>%
-    dplyr::mutate(error_number = row_number(),
+    dplyr::mutate(error_number = dplyr::row_number(),
                   .by = c(eaf_filename, transcription_id)) %>%
     tidyr::pivot_wider(values_from = error, names_from = error_number,
                        names_prefix = 'error_')
@@ -309,7 +309,7 @@ get_vihi_annotations <- function(
         be used to inspect the errors. Do not use it to ignore and forget.'))
     } else {
       stop(glue::glue("
-        Errors found in `nrow(annotation_errors)` annotations. \\
+        Errors found in {nrow(annotation_errors)} annotations. \\
         Rerun with allow_annotation_errors=TRUE and `table` set to anything \\
         but `intervals` and check the `error` column in the `annotations` \\
         table. For example:

@@ -58,7 +58,7 @@ assert_df_matches_col_types <- function(df, col_types) {
 
 calculate_column_hashes <- function(df) {
   df %>%
-    summarise(across(everything(), digest)) %>%
+    summarise(across(everything(), digest::digest)) %>%
     as.list
 }
 

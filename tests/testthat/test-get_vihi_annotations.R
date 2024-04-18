@@ -1,7 +1,4 @@
-library(dplyr)
-library(fs)
-
-version <- '0.0.0.9006-dev.2'
+version <- '0.0.0.9006-dev.5'
 
 
 test_that("get_vihi_annotations works if errors are allowed", {
@@ -18,13 +15,11 @@ test_that("get_vihi_annotations works if errors are allowed", {
     expect_non_empty_dataframe(table)
   }
 
-  for (subset in c('everything', 'VI+TD-VI')) {
-    expect_non_empty_dataframe(
-      get_vihi_annotations(version = version,
-                           subset = subset,
-                           table = 'merged',
-                           allow_annotation_errors = TRUE))
-  }
+  expect_non_empty_dataframe(
+    get_vihi_annotations(version = version,
+                         subset = 'everything',
+                         table = 'merged',
+                         allow_annotation_errors = TRUE))
 
   annotations <- get_vihi_annotations(version = version,
                                       allow_annotation_errors = TRUE)
@@ -43,10 +38,7 @@ test_that("VI+TD-VI subset looks right", {
   vi_tdvi_annotations <-
     get_vihi_annotations(
       version = version,
-      subset = 'VI+TD-VI',
-      allow_annotation_errors = TRUE) %>%
-    select(-starts_with('error_')) %>%
-    filter(!transcription_id %in% c('a6561', 'a6579', 'a6637'))
+      subset = 'VI+TD-VI')
 
   vi_and_td_matches <- c(
     'VI_001_676', 'TD_436_678',
@@ -78,10 +70,10 @@ test_that("VI+TD-VI subset looks right", {
          offset = "89f145584be56680adf8f1c870bdc67c",
          transcription = "2522dc8cd14820168ec7c04e3de1bfe6",
          transcription_id = "588885b02a97f30f3e574e3e2850c97a",
-         mwu = "216a6f3148b9df9c7628442b70342637",
-         lex = "4374d72eb6f2403bfa6bd55a9eaf8896",
-         vcm = "0d44c4c5847cbce72959b7e2b4a62d9f",
-         xds = "40e4699660aed444b03a1aea5d2dd758",
+         mwu = "ce2a786c14093bc8d92e573a404a3ad8",
+         lex = "8f8c2bdc6d8675608a7bdd48b8835d2a",
+         vcm = "472fc875df5766634cbfb0b5bfa1c050",
+         xds = "38c9b3dcdb7ab1b86f59024f3ce6e8fe",
          code_num = "532bd4ec6f0050aa2bc4f69cbae337d7",
          PI = "9cb50da225a187662ec3ec142f68f3a0")
   )
