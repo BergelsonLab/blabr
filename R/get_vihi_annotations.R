@@ -116,11 +116,11 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
       dplyr::filter(
         participant != 'CHI',
         is_not_empty(lex) | is_not_empty(mwu) | is_not_empty(vcm)) %>%
-      mutate(error = 'participant is not CHI but lex/mwu/vcm is filled'),
+      dplyr::mutate(error = 'participant is not CHI but lex/mwu/vcm is filled'),
     # Tiers that shouldn't be empty but are for CHI/non-CHI
     non_chi_without_xds <- annotations %>%
-      filter(participant != 'CHI', is_empty(xds)) %>%
-      mutate(error = 'participant is not CHI but xds is empty'),
+      dplyr::filter(participant != 'CHI', is_empty(xds)) %>%
+      dplyr::mutate(error = 'participant is not CHI but xds is empty'),
     old_chi_without_vcm <- annotations %>%
       add_age_in_months %>%
       dplyr::filter(participant == 'CHI',
@@ -132,21 +132,39 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
     # vcm/lex/mwu dependencies
     annotations %>%
       add_age_in_months %>%
-      filter(months >= 8) %>%
-      select(-months) %>%
+      dplyr::filter(months >= 8) %>%
+      dplyr::select(-months) %>%
       # vcm is 'C', lex should be filled; if lex is 'W', mwu should be filled
-      mutate(error = case_when(
+      dplyr::mutate(error = dplyr::case_when(
         vcm == 'C' & is_empty(lex) ~ 'vcm is C but lex is empty',
         vcm != 'C' & is_not_empty(lex) ~ 'vcm is not C but lex is filled',
         lex == 'W' & is_empty(mwu) ~ 'lex is W but mwu is empty',
         lex != 'W' & is_not_empty(mwu) ~ 'lex is not W but mwu is filled',
         TRUE ~ NA
       )) %>%
-      filter(!is.na(error)))
+      dplyr::filter(!is.na(error)),
+    # vcm, lex, mwu, xds only take expected values
+    annotations %>%
+      dplyr::filter(is_not_empty(vcm),
+             !vcm %in% c('C', 'N', 'Y', 'L', 'U')) %>%
+      dplyr::mutate(error = 'vcm is not C, N, Y, L, or U'),
+    annotations %>%
+      dplyr::filter(is_not_empty(lex),
+                    !lex %in% c('W', '0')) %>%
+      dplyr::mutate(error = 'lex is not W or 0'),
+    annotations %>%
+      dplyr::filter(is_not_empty(mwu),
+                    !mwu %in% c('1', 'M')) %>%
+      dplyr::mutate(error = 'mwu is not 1 or M'),
+    annotations %>%
+      dplyr::filter(is_not_empty(xds),
+                    !xds %in% c("A", "C", "U", "O", "B", "P")) %>%
+      dplyr::mutate(error = 'xds is not A, C, U, O, B, or P'),
+    )
 
   # Check that there is just one error column added in all the chains above
   assertthat::are_equal(colnames(annotations),
-                        colnames(errors %>% select(-error))) %>%
+                        colnames(errors %>% dplyr::select(-error))) %>%
     invisible()
 
   errors_wide <- errors %>%
