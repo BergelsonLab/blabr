@@ -4,27 +4,35 @@ library(fs)
 version <- '0.0.0.9006-dev.2'
 
 
-test_that("get_vihi_annotations works", {
+test_that("get_vihi_annotations works if errors are allowed", {
   for (table in c('annotations', 'intervals', 'merged')) {
-    expect_non_empty_dataframe(get_vihi_annotations(version = version,
-                                                    table = table))
+    expect_non_empty_dataframe(
+      get_vihi_annotations(version = version,
+                           table = table,
+                           allow_annotation_errors = TRUE))
   }
 
-  tables <- get_vihi_annotations(version = version, table = 'all')
+  tables <- get_vihi_annotations(version = version, table = 'all',
+                                 allow_annotation_errors = TRUE)
   for (table in tables) {
     expect_non_empty_dataframe(table)
   }
 
   for (subset in c('everything', 'VI+TD-VI')) {
-    expect_non_empty_dataframe(get_vihi_annotations(version = version,
-                                                    subset = subset,
-                                                    table = 'merged'))
+    expect_non_empty_dataframe(
+      get_vihi_annotations(version = version,
+                           subset = subset,
+                           table = 'merged',
+                           allow_annotation_errors = TRUE))
   }
 
-  annotations <- get_vihi_annotations(version = version)
+  annotations <- get_vihi_annotations(version = version,
+                                      allow_annotation_errors = TRUE)
 
   annotations_with_all_tier_types <-
-    get_vihi_annotations(version = version, include_all_tier_types = TRUE)
+    get_vihi_annotations(version = version,
+                         include_all_tier_types = TRUE,
+                         allow_annotation_errors = TRUE)
   expect_equal(annotations_with_all_tier_types %>%
                  select(all_of(colnames(annotations))),
                annotations)
@@ -33,7 +41,10 @@ test_that("get_vihi_annotations works", {
 
 test_that("VI+TD-VI subset looks right", {
   vi_tdvi_annotations <- get_vihi_annotations(version = version,
-                                              subset = 'VI+TD-VI')
+                                              subset = 'VI+TD-VI',
+                                              allow_annotation_errors = TRUE,
+                                              include_pi = TRUE) %>%
+    select(-starts_with('error_'))
   vi_and_td_matches <- c(
     'VI_001_676', 'TD_436_678',
     'VI_002_336', 'TD_443_341',
