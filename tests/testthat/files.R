@@ -1,9 +1,11 @@
 # Paths to actual corpus files used in tests
 
-library(assertthat)
-
 blab_share_path <- Sys.getenv('BLAB_SHARE_PATH')
-assert_that(is.dir(blab_share_path))
+if (endsWith(blab_share_path, ':')) {
+  blab_share_path <- paste0(blab_share_path, '/')
+}
+assertthat::assert_that(
+  is.dir(blab_share_path))
 
 
 # Seedlings

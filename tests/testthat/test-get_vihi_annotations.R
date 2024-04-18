@@ -29,7 +29,7 @@ test_that("get_vihi_annotations works if errors are allowed", {
                          include_all_tier_types = TRUE,
                          allow_annotation_errors = TRUE)
   expect_equal(annotations_with_all_tier_types %>%
-                 select(all_of(colnames(annotations))),
+                 dplyr::select(dplyr::all_of(colnames(annotations))),
                annotations)
 
 })

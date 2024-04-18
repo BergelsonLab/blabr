@@ -126,7 +126,7 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
   intervals <- intervals %>% add_interval_end_wav
 
   interval_stats <- intervals %>%
-    dplyr::inner_join(segments, by = character()) %>%
+    dplyr::cross_join(segments) %>%
     dplyr::filter(interval_start_wav < endTime
                   & startTime < interval_end_wav) %>%
     # Adjust stats for segments with only partial overlaps
@@ -166,7 +166,8 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
   intervals_with_stats <- intervals %>%
     dplyr::left_join(interval_stats,
                      by = c('interval_start_wav', 'interval_end_wav')) %>%
-    dplyr::mutate(dplyr::across(new_columns, ~ tidyr::replace_na(.x, 0))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(new_columns),
+                                ~ tidyr::replace_na(.x, 0))) %>%
     dplyr::select(-interval_end_wav)
 
   return(intervals_with_stats)
@@ -180,7 +181,8 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
 #'
 #' @examples
 #' # Download the example ITS file (code from rlena's README)
-#' url <- "https://cdn.rawgit.com/HomeBankCode/lena-its-tools/master/Example/e20160420_165405_010572.its"
+#' url <- paste0("https://cdn.rawgit.com/HomeBankCode/lena-its-tools/",
+#'               "master/Example/e20160420_165405_010572.its")
 #' tmp <- tempfile()
 #' download.file(url, tmp)
 #' its <- rlena::read_its_file(tmp)
@@ -222,7 +224,7 @@ get_lena_speaker_stats <- function(its_xml, intervals) {
   intervals <- intervals %>% dplyr::select(interval_start, interval_end)
   intervals %>%
     # start: conditional left join: startClockTimeLocal within interval
-    dplyr::inner_join(segment_stats, by = character()) %>%
+    dplyr::cross_join(segment_stats) %>%
     dplyr::filter(interval_start <= startClockTimeLocal
                   & startClockTimeLocal < interval_end) %>%
     dplyr::right_join(intervals, by = c('interval_start', 'interval_end')) %>%
@@ -285,7 +287,7 @@ match_intervals_to_vtc_annotations <- function(intervals, all_rttm) {
 
   intervals %>%
     # cross-join
-    dplyr::inner_join(all_rttm, by = character()) %>%
+    dplyr::cross_join(all_rttm) %>%
     # keep only rows
     dplyr::filter(
       onset < interval_end_wav_s
@@ -381,7 +383,7 @@ get_seedlings_speaker_stats <- function(intervals, annotations) {
 
   intervals %>%
     # start: conditional left join: intervals overlap
-    dplyr::inner_join(annotations, by = character()) %>%
+    dplyr::cross_join(annotations) %>%
     dplyr::filter(
       onset < interval_end_wav_s
       & interval_start_wav_s < offset

@@ -7,7 +7,8 @@ test_that("theme functions work", {
 test_that("theme function result in the same plot as before", {
   # TODO: Add relevant elements to this plot. It doesn't have many that the
   # themes affect
-  histogram <- ggplot(mtcars, aes(disp)) + geom_histogram(bins = 30)
+  histogram <- ggplot2::ggplot(mtcars, ggplot2::aes(disp)) +
+    ggplot2::geom_histogram(bins = 30)
 
   vdiffr::expect_doppelganger("plot with theme_blab", histogram + theme_blab())
   vdiffr::expect_doppelganger("plot with theme_spooky",

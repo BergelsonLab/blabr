@@ -8,8 +8,12 @@ source(test_path('files.R'))
 
 
 # Paths
-subject_dir <- file.path(blab_share_path, 'VIHI/SubjectFiles/LENA/HI/HI_424/HI_424_527/')
-its_path <- file.path(subject_dir, 'HI_424_527.its')
+subject_dir <- file.path(blab_share_path,
+                         'VIHI/SubjectFiles/LENA/annotations/',
+                         'HI/HI_424/HI_424_527/')
+its_dir <- file.path(blab_share_path, 'VIHI/SubjectFiles/LENA/rawish_data/its/')
+its_path <- file.path(its_dir, 'HI_424_527.its')
+assert_that(fs::is_file(its_path))
 assert_that(are_equal(md5sum(its_path), "43057eb7635560b8fbd726eeff040280",
                       check.names = FALSE))
 
@@ -62,7 +66,15 @@ test_that("make_five_min_approximation works", {
 })
 
 test_that("add_lena_stats works", {
-  its_xml <- rlena::read_its_file('/Users/ek221/blab/GIN/bergelson/.git/annex/objects/MM/z1/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its')
+  # Figure out what the recording was and use path on blab share
+  # its_xml <- rlena::read_its_file(file.path(
+  #   '/Users/ek221/blab/GIN/bergelson/.git/annex/objects',
+  #   'MM/z1/MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its',
+  #   'MD5E-s5185224--56ccf872857f514356e5f33bb3508d78.its'))
+  # Using its_path makes no sense because, of course, the hashes will be
+  # different but if figuring out what the right .its should be used above
+  # doesn't work, might as well use its_path and update the hashes.
+  its_xml <- rlena::read_its_file(its_path)
   intervals <- intervals %>%
     select(-c(cvc, ctc, awc)) %>%
     add_interval_end_wav
