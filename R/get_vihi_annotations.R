@@ -208,6 +208,9 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 #' columns to the `annotations` table? Use only as a way to inspect the errors,
 #' not as a way to ignore them.
 #'
+#' @param include_pi Should annotations marked as PI be included in the output?
+#' If `FALSE` (the default), they are filtered out.
+#'
 #' @return A table or a list of tables depending on the `table` parameter.
 #' @export
 #'
@@ -227,7 +230,8 @@ get_vihi_annotations <- function(
     subset = c('random', 'everything', 'VI+TD-VI'),
     table = c('annotations', 'intervals', 'merged', 'all'),
     include_all_tier_types = FALSE,
-    allow_annotation_errors = FALSE) {
+    allow_annotation_errors = FALSE,
+    include_pi = FALSE) {
 
   subset <- match.arg(subset)
   table <- match.arg(table)
@@ -265,6 +269,11 @@ get_vihi_annotations <- function(
         dplyr::select(-any_of(c('utt', 'inq', 'fun', 'pro', 'rep', 'cds')))
     }
 
+  }
+
+  if (!include_pi) {
+    tables$annotations <- tables$annotations %>%
+      dplyr::filter(is.na(PI))
   }
 
   # Run checks on annotations

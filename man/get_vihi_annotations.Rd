@@ -9,7 +9,8 @@ get_vihi_annotations(
   subset = c("random", "everything", "VI+TD-VI"),
   table = c("annotations", "intervals", "merged", "all"),
   include_all_tier_types = FALSE,
-  allow_annotation_errors = FALSE
+  allow_annotation_errors = FALSE,
+  include_pi = FALSE
 )
 }
 \arguments{
@@ -40,6 +41,9 @@ this parameter is ignored as all tier types are returned.}
 should the function throw an error (\code{FALSE}, the default) or add \code{error_n}
 columns to the \code{annotations} table? Use only as a way to inspect the errors,
 not as a way to ignore them.}
+
+\item{include_pi}{Should annotations marked as PI be included in the output?
+If \code{FALSE} (the default), they are filtered out.}
 }
 \value{
 A table or a list of tables depending on the \code{table} parameter.
