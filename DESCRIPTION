@@ -32,7 +32,8 @@ Imports:
     forcats,
     ggplot2,
     semver,
-    processx
+    processx,
+    lifecycle
 Remotes:
   HomeBankCode/rlena
 RoxygenNote: 7.2.3

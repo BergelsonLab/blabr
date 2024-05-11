@@ -1,7 +1,3 @@
-load_tsv <- function(fixrep_path, val_guess_max = 100000){
-  readr::read_tsv(fixrep_path, na=character(), guess_max = val_guess_max)
-}
-
 object2string <- function(obj){
   # Gets string from name of the object, ex object2string(blop) returns "blop"
   deparse(substitue(obj))
@@ -53,9 +49,12 @@ read_report <- function(fixrep_path, val_guess_max = 100000){
 #' @export
 #'
 #' @examples
-fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinished=TRUE, remove_practice=TRUE){
+read_fixations_report <- function(fixrep_path, val_guess_max = 100000,
+                                  remove_unfinished = TRUE,
+                                  remove_practice = TRUE){
   # load tsv file
-  fix_report <- load_tsv(fixrep_path, val_guess_max)
+  fix_report <- read_report(fixrep_path, val_guess_max)
+
   # remove incomplete studies
   # Zhenya: note: I don't know why this works or what "studies" means here.
   if (remove_unfinished){
@@ -74,7 +73,7 @@ fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinis
 }
 
 
-#' (no docs yet) Bin fixations
+#' (no docs yet) Convert a fixations table to an evenly spaced timeseries
 #'
 #' @param gaze
 #' @param binSize
@@ -85,7 +84,10 @@ fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinis
 #' @export
 #'
 #' @examples
-binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber","Target","T"), maxTime=NULL){
+fixations_to_timeseries <- function(
+  gaze, binSize = 20, keepCols=c("Subject", "TrialNumber", "Target", "T"),
+  maxTime = NULL) {
+
   #convert a list of fixations to bins
   #binSize determines the size of each bin in ms
   #keepCols determines which columns from the original data frame will show up in the output
@@ -284,7 +286,7 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #' - `Nonset` (numeric): Time (in ms) from the target onset rounded up to the nearest bin.
 #'
 #' @export
-get_windows <- function(
+assign_time_windows <- function(
   fix_mes_age,
   bin_size = 20,
   nb_1 = 18,
@@ -353,9 +355,8 @@ get_windows <- function(
 #'
 #' @return The input dataframe
 #' @export
-#'
-# TODO: zhenya2zhenya: tag_bins_in_low_data_trials would be a much more appropriate name
-FindLowData <- function(gazeData,
+
+tag_low_data_trials <- function(gazeData,
                         subsetWin,
                         window_size = NULL,
                         nb_2 = 0,
