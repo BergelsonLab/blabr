@@ -7,11 +7,13 @@ object2string <- function(obj){
   deparse(substitue(obj))
 }
 
+
 string2object <- function(string_name, val){
   assign(string_name, val)
   # how to return it?
   # eval(parse(text = string_name))
 }
+
 
 #' Convert all character columns to factors
 #'
@@ -25,19 +27,27 @@ characters_to_factors <- function(df){
   df
 }
 
+
 DEFAULT_WINDOWS_UPPER_BOUNDS <- list(short = 2000,
                                      med = 3500,
                                      long = 5000)
 
 
-#################################################################################
+#' Load the tsv file containing a fixation or a message report
+#' @noRd
+read_report <- function(fixrep_path, val_guess_max = 100000){
+  # ek: note: using guess_max
+  # ek: issue: change to na = '.'
+  readr::read_tsv(fixrep_path, na=character(), guess_max = val_guess_max)
+}
+
 
 #' (no docs yet) Read EyeLink fixation report file
 #'
 #' @param fixrep_path
-#' @param val_guess_max 
-#' @param remove_unfinished 
-#' @param remove_practice 
+#' @param val_guess_max
+#' @param remove_unfinished
+#' @param remove_practice
 #'
 #' @return
 #' @export
@@ -47,27 +57,29 @@ fixations_report <- function(fixrep_path, val_guess_max = 100000, remove_unfinis
   # load tsv file
   fix_report <- load_tsv(fixrep_path, val_guess_max)
   # remove incomplete studies
+  # Zhenya: note: I don't know why this works or what "studies" means here.
   if (remove_unfinished){
     fix_report <- fix_report %>%
       dplyr::filter(!is.na(order))
   }
+
   # remove practice rows
+  # Zhenya: issue: Assert that practice is "y", "n" or NA/'.'.
   if(remove_practice){
     fix_report <- fix_report %>%
       dplyr::filter(practice=="n")
   }
 
-  return(fix_report) # necessary? or just `fix_report`?
+  return(fix_report)
 }
 
-#################################################################################
 
 #' (no docs yet) Bin fixations
 #'
-#' @param gaze 
-#' @param binSize 
-#' @param keepCols 
-#' @param maxTime 
+#' @param gaze
+#' @param binSize
+#' @param keepCols
+#' @param maxTime
 #'
 #' @return
 #' @export
@@ -122,15 +134,14 @@ binifyFixations <- function(gaze, binSize=20, keepCols=c("Subject","TrialNumber"
   return(dataFull)
 }
 
-#################################################################################
 
 #' (no docs yet) Find key press issues and create a doc to check and potentially correct them
 #'
-#' @param data 
-#' @param study 
-#' @param practice_trials 
-#' @param output_dir 
-#' @param out_csv 
+#' @param data
+#' @param study
+#' @param practice_trials
+#' @param output_dir
+#' @param out_csv
 #'
 #' @return
 #' @export
@@ -144,17 +155,18 @@ keypress_issues <- function(data, study = "eye_tracking_study", practice_trials 
   if (out_csv){
     write_csv(keypress_issues, paste(output_dir, "keypress_issues_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
   }
-  keypress_issues #return?
+  keypress_issues
 }
 
-#################################################################################
+
 # retrieve corrected kp OR retrieve correct late target onset // separate functions?
 # TODO: zh: Update/delete the comment. I think it is out of date and the functions have already been separated
 
+
 #' (no docs yet) Load file with manually corrected key presses or late target onsets
 #'
-#' @param filename 
-#' @param drop_list 
+#' @param filename
+#' @param drop_list
 #'
 #' @return
 #' @export
@@ -166,13 +178,12 @@ keypress_retrieved <- function(filename, drop_list = c("video_pop_time", "video_
   retrieved_kp #return?
 }
 
-#################################################################################
 
 #' (no docs yet) Create message report with corrected key presses
 #'
-#' @param mesrep_all 
-#' @param fixed_kp 
-#' @param final_columns 
+#' @param mesrep_all
+#' @param fixed_kp
+#' @param final_columns
 #'
 #' @return
 #' @export
@@ -206,11 +217,11 @@ get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSIO
 
 #' (no docs yet) Find late target onsets and create a doc to check and potentially correct them
 #'
-#' @param data 
-#' @param max_time 
-#' @param study 
-#' @param output_dir 
-#' @param out_csv 
+#' @param data
+#' @param max_time
+#' @param study
+#' @param output_dir
+#' @param out_csv
 #'
 #' @return
 #' @export
@@ -233,8 +244,8 @@ get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_s
 
 #' (no docs yet) Load file with manually corrected late target onsets
 #'
-#' @param filename 
-#' @param drop_list 
+#' @param filename
+#' @param drop_list
 #'
 #' @return
 #' @export
@@ -325,7 +336,7 @@ get_windows <- function(
 #'
 #' - Bins that don't have a fixation due to being in a saccade or in a period with lost track. We are assuming that bins in `gazeData` were created by `binifyFixation` which skips such bins completely - there won't be rows with them.
 #' - Bins with fixations outside of the areas of interest, including off-screen fixations. We will identify such fixations by NA values in the `propt` column.
-#' 
+#'
 #' Or looking at it from the opposite perspective, bins that do count toward the one third are bins in `gazeData` that:
 #' - Are present in `gazeData`.
 #' - Are in the window of interest ("Y" in the column specified by `subsetWin`).
@@ -355,7 +366,7 @@ FindLowData <- function(gazeData,
   window_upper_bound <- window_size
   window_lower_bound <- nb_2
   bin_size <- binSize
-  
+
   original_columns <- colnames(gazeData)
 
   # If the window size is not provided, use the default for the window indicator column
@@ -380,15 +391,14 @@ FindLowData <- function(gazeData,
       missing_TF = bins_with_data_count < min_bins_with_data) %>%
     dplyr::ungroup() %>%
     dplyr::select(dplyr::all_of(original_columns), missing_TF)
-  
+
   return(gazeData_tagged)
 
 }
 
 #################################################################################
 
-#RemoveLowData ----
-# TODO: zh: if this function stays, it should call taglowdata instead of running its own version
+# Zhenya: issue: Deprecate this function, tell to use tag_low_data_trials
 RemoveLowData <- function(gazeData,
                         subsetWin,
                         # maxBins = NULL,
@@ -500,7 +510,7 @@ outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
 # 3          1
 # 4          1
 # 5          1
-# TODO: zh: This function is used in BinifyFixations, move it before the latter is defined.
+# Zhenya: issue: This function is only used in BinifyFixations, move it there.
 expandFixList <- function(d, binSize=20){
   timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
   data.frame(timeBin=timeBin,FixationID=d$FixationID)
@@ -525,6 +535,7 @@ FindFrozenTrials <- function(gazeData,
 #################################################################################
 
 #RemoveFrozenTrials-----
+# Zhenya: issue: Deprecate this functions, tell users to use FindFrozenTrials
 RemoveFrozenTrials <- function(gazeData,
                              Trial,
                              SubjectNumber,
@@ -539,8 +550,3 @@ RemoveFrozenTrials <- function(gazeData,
   message("frozen trials have been removed. To identify them in a new column without removing them, use blabr::FindFrozenTrials.")
   return(gazeData)
 }
-
-# expandFixList <- function(d, binSize=20){
-#   timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
-#   data.frame(timeBin=timeBin,FixationID=d$FixationID)
-# }
