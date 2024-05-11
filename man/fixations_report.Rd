@@ -12,10 +12,6 @@ fixations_report(
 )
 }
 \arguments{
-\item{val_guess_max}{}
-
-\item{remove_unfinished}{}
-
 \item{remove_practice}{}
 }
 \description{

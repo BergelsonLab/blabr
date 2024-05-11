@@ -13,14 +13,6 @@ keypress_issues(
 )
 }
 \arguments{
-\item{data}{}
-
-\item{study}{}
-
-\item{practice_trials}{}
-
-\item{output_dir}{}
-
 \item{out_csv}{}
 }
 \description{

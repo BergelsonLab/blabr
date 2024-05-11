@@ -13,14 +13,6 @@ get_late_target_onset(
 )
 }
 \arguments{
-\item{data}{}
-
-\item{max_time}{}
-
-\item{study}{}
-
-\item{output_dir}{}
-
 \item{out_csv}{}
 }
 \description{

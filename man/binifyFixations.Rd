@@ -12,12 +12,6 @@ binifyFixations(
 )
 }
 \arguments{
-\item{gaze}{}
-
-\item{binSize}{}
-
-\item{keepCols}{}
-
 \item{maxTime}{}
 }
 \description{

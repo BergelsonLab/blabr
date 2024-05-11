@@ -10,8 +10,6 @@ keypress_retrieved(
 )
 }
 \arguments{
-\item{filename}{}
-
 \item{drop_list}{}
 }
 \description{

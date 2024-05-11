@@ -12,10 +12,6 @@ get_mesrep(
 )
 }
 \arguments{
-\item{mesrep_all}{}
-
-\item{fixed_kp}{}
-
 \item{final_columns}{}
 }
 \description{
