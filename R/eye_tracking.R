@@ -380,56 +380,60 @@ assign_time_windows <- function(
 #' - Are in the window of interest ("Y" in the column specified by `subsetWin`).
 #' - Have fixations on either are of interest (non-NA values in the `propt` column).
 #'
-#' @param gazeData  A fixations dataframe that is required to minimally contain these columns:
-#' - `SubjectNumber` and `Trial`: We will used them to identify unique trials.
-#' - `propt`: We will use NA values in this column to identify bins with fixations outside of the areas of interest.
-#'  - Column specified by `subsetWin`.
-#' @param subsetWin Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.
-#' @param window_size Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the `get_windows` call, then that value MUST be supplied here. If NULL (default), the default corresponding to the `subsetWin` will be used.
-#' @param nb_2 Lower bound of the window of intereset in milliseconds from the target onset.
-#' @param binSize Width of the bins in ms. Defaults to 20 ms. MUST match the bin size used in `get_windows`.
+#' @param fixation_timeseries  A fixations dataframe that is required to minimally contain these columns:
+#' - `recording_id` and `trial_index` to uniquely trials.
+#' - `is_good_timepoint` - only rows with TRUE in this column will be counted as having data.
+#' - Column specified by `window_column`.
+#' @param window_column Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.
+#' @param t_start Lower bound of the window of interest in milliseconds from the target onset.
+#' @param t_end Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the `get_windows` call, then that value MUST be supplied here. If NULL (default), the default corresponding to the `subsetWin` will be used.
+#' @param t_step Timeseries time step. MUST match the one used in `fixations_to_timeseries`.
 #'
-#' @return The input dataframe
+#' @return The input dataframe with boolean `is_trial_low_data` column added.
 #' @export
 
-tag_low_data_trials <- function(gazeData,
-                        subsetWin,
-                        window_size = NULL,
-                        nb_2 = 0,
-                        binSize = 20) {
-  # I don't want to change the API yet but I want meaningful variable names
-  # TODO: zhenya2zhenya: rename in the function definition later
-  windows_indicicator_column <- subsetWin
-  window_upper_bound <- window_size
-  window_lower_bound <- nb_2
-  bin_size <- binSize
+tag_low_data_trials <- function(
+    fixation_timeseries,
+    window_column,
+    t_start,
+    t_end = NULL,
+    t_step = 20,
+    min_fraction = 1/3) {
 
-  original_columns <- colnames(gazeData)
+  assertthat::assert_that(has_columns(
+    fixation_timeseries,
+    c("recording_id", "trial_index", "is_good_timepoint", window_column)))
+
+  original_columns <- colnames(fixation_timeseries)
 
   # If the window size is not provided, use the default for the window indicator column
-  if (is.null(window_upper_bound) &
-      windows_indicicator_column %in% c("shortwin", "medwin", "longwin")) {
-    window_size_label <- stringr::str_remove(windows_indicicator_column, "win$")
-    window_upper_bound <- DEFAULT_WINDOWS_UPPER_BOUNDS[[window_size_label]]
+  if (is.null(t_end)) {
+    assertthat::assert_that(
+      window_column %in% c("shortwin", "medwin", "longwin"),
+      msg = glue::glue("If `t_end` is NULL, `window_column` must be one of",
+                       " 'shortwin', 'medwin', or 'longwin'."))
+
+    # Look up t_end for short/med/long window
+    window_size_label <- stringr::str_remove(window_column, "win$")
+    t_end <- DEFAULT_WINDOWS_UPPER_BOUNDS[[window_size_label]]
   }
 
-  MIN_DATA_FRACTION <- 1/3
-  window_size <- window_upper_bound - window_lower_bound
-  min_bins_with_data <- floor(window_size * MIN_DATA_FRACTION / bin_size)
+  min_points_with_data <- floor((t_end - t_start) / t_step * min_fraction)
 
-  gazeData_tagged <- gazeData %>%
+  tagged <- fixation_timeseries %>%
+    assertr::verify(!!sym(window_column) %in% c('Y', 'N')) %>%
     dplyr::mutate(
-      in_time_window = !!sym(subsetWin) == "Y",
-      on_aoi = !is.na(propt),
-      has_data = in_time_window & on_aoi) %>%
-    dplyr::group_by(Trial, SubjectNumber) %>%
+      # issue: check that `window_column` only takes "Y" or "N" values
+      in_time_window = !!sym(window_column) == "Y",
+      has_data = in_time_window & is_good_timepoint) %>%
+    dplyr::group_by(recording_id, trial_index) %>%
     dplyr::mutate(
       bins_with_data_count = sum(has_data),
-      missing_TF = bins_with_data_count < min_bins_with_data) %>%
+      is_trial_low_data = bins_with_data_count < min_points_with_data) %>%
     dplyr::ungroup() %>%
-    dplyr::select(dplyr::all_of(original_columns), missing_TF)
+    dplyr::select(dplyr::all_of(original_columns), is_trial_low_data)
 
-  return(gazeData_tagged)
+  return(tagged)
 
 }
 

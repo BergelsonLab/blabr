@@ -5,31 +5,32 @@
 \title{Mark "low-data" trials}
 \usage{
 tag_low_data_trials(
-  gazeData,
-  subsetWin,
-  window_size = NULL,
-  nb_2 = 0,
-  binSize = 20
+  fixation_timeseries,
+  window_column,
+  t_start,
+  t_end = NULL,
+  t_step = 20,
+  min_fraction = 1/3
 )
 }
 \arguments{
-\item{gazeData}{A fixations dataframe that is required to minimally contain these columns:
+\item{fixation_timeseries}{A fixations dataframe that is required to minimally contain these columns:
 \itemize{
-\item \code{SubjectNumber} and \code{Trial}: We will used them to identify unique trials.
-\item \code{propt}: We will use NA values in this column to identify bins with fixations outside of the areas of interest.
-\item Column specified by \code{subsetWin}.
+\item \code{recording_id} and \code{trial_index} to uniquely trials.
+\item \code{is_good_timepoint} - only rows with TRUE in this column will be counted as having data.
+\item Column specified by \code{window_column}.
 }}
 
-\item{subsetWin}{Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.}
+\item{window_column}{Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.}
 
-\item{window_size}{Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the \code{get_windows} call, then that value MUST be supplied here. If NULL (default), the default corresponding to the \code{subsetWin} will be used.}
+\item{t_start}{Lower bound of the window of interest in milliseconds from the target onset.}
 
-\item{nb_2}{Lower bound of the window of intereset in milliseconds from the target onset.}
+\item{t_end}{Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the \code{get_windows} call, then that value MUST be supplied here. If NULL (default), the default corresponding to the \code{subsetWin} will be used.}
 
-\item{binSize}{Width of the bins in ms. Defaults to 20 ms. MUST match the bin size used in \code{get_windows}.}
+\item{t_step}{Timeseries time step. MUST match the one used in \code{fixations_to_timeseries}.}
 }
 \value{
-The input dataframe
+The input dataframe with boolean \code{is_trial_low_data} column added.
 }
 \description{
 Trials are considered to be "low-data" if less than one third of the window of interest contains fixations on either area of interest. Bins that won't count toward that one third are:
