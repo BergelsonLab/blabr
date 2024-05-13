@@ -29,49 +29,85 @@ DEFAULT_WINDOWS_UPPER_BOUNDS <- list(short = 2000,
                                      long = 5000)
 
 
-#' Load the tsv file containing a fixation or a message report
-#' @noRd
-read_report <- function(fixrep_path, val_guess_max = 100000){
-  # ek: note: using guess_max
-  # ek: issue: change to na = '.'
-  readr::read_tsv(fixrep_path, na=character(), guess_max = val_guess_max)
-}
-
-
-#' (no docs yet) Read EyeLink fixation report file
+#' Read EyeLink fixation/message report file
 #'
-#' @param fixrep_path
-#' @param val_guess_max
-#' @param remove_unfinished
-#' @param remove_practice
+#' @param report_path Report file path.
+#  issue: Do not use this parameter by default. Instead, raise an error if there
+#    were problems during reading and suggest setting `guess_max` to the
+#    smallest number that doesn't lead to problems. The current version is
+#    unnecessarily slow.
+#' @param guess_max Passed to `readr::read_tsv`. Default is 100000. Decreasing
+#'   this number can speed up reading, just make sure there were no problems
+#'   during reading by looking out for warning from `readr` or by passing the
+#'   output dataframe to `readr::problems`.
+#' @param remove_unfinished Removes lines where the `order` column is NA. Does
+#'   not work in the current version because no value are interpreted as NA.
+#' @param remove_practice Only keeps rows where the `practice` column is "n".
 #'
 #' @return
-#' @export
-#'
-#' @examples
-read_fixations_report <- function(fixrep_path, val_guess_max = 100000,
-                                  remove_unfinished = TRUE,
-                                  remove_practice = TRUE){
+#' @keywords internal
+# @noRd
+read_report <- function(report_path,
+                        guess_max = 100000,
+                        remove_unfinished = TRUE,
+                        remove_practice = TRUE){
   # load tsv file
-  fix_report <- read_report(fixrep_path, val_guess_max)
+  # issue: Switch to na = '.'. na = character() implicitly makes readr treat
+  #   any column with missing values as character. There is no need to do this.
+  report <- readr::read_tsv(report_path,
+                            na = character(),
+                            guess_max = guess_max)
 
   # remove incomplete studies
-  # Zhenya: note: I don't know why this works or what "studies" means here.
+  # note: I don't know why this'd work or what "studies" means here. Zhenya.
+  # issue: Because we are doing na = character() in read_tsv, `order` is never
+  #   NA so this isn't doing anything at all.
   if (remove_unfinished){
-    fix_report <- fix_report %>%
+    report <- report %>%
       dplyr::filter(!is.na(order))
   }
 
   # remove practice rows
-  # Zhenya: issue: Assert that practice is "y", "n" or NA/'.'.
-  if(remove_practice){
-    fix_report <- fix_report %>%
-      dplyr::filter(practice=="n")
+  # issue: Assert that practice is "y", "n" or NA/'.'.
+  if (remove_practice){
+    report <- report %>%
+      dplyr::filter(practice == "n")
   }
 
-  return(fix_report)
+  return(report)
 }
 
+#' Read EyeLink fixation report file
+#'
+#' @inherit read_report
+#' @export
+read_fixation_report <- function(report_path,
+                                 guess_max = 100000,
+                                 remove_unfinished = TRUE,
+                                 remove_practice = TRUE) {
+  read_report(report_path = report_path,
+              guess_max = guess_max,
+              remove_unfinished = remove_unfinished,
+              remove_practice = remove_practice)
+}
+
+#' Read EyeLink message report file
+#'
+#' @inherit read_report
+#' @export
+#'
+# note: The parameters are copied here instead of using `@inheritDotParams`
+#   and function(...) read_report(...) in order th have parameter autocomplete.
+read_message_report <- function(report_path,
+                                guess_max = 100000,
+                                remove_unfinished = TRUE,
+                                remove_practice = TRUE) {
+
+  read_report(report_path = report_path,
+              guess_max = guess_max,
+              remove_unfinished = remove_unfinished,
+              remove_practice = remove_practice)
+}
 
 #' (no docs yet) Convert a fixations table to an evenly spaced timeseries
 #'

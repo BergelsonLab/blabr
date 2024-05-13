@@ -40,7 +40,7 @@ binifyFixations <- function(
     gaze, binSize = 20, keepCols=c("Subject", "TrialNumber", "Target", "T"),
     maxTime = NULL) {
   lifecycle::deprecate_stop(
-    "0.22.0", "binifyFixations()", "read_fixations_report()")
+    "0.22.0", "binifyFixations()", "read_fixation_report()")
 }
 
 #' @export
