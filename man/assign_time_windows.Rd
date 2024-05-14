@@ -5,24 +5,24 @@
 \title{Assigns binned fixations to a short, medium, and long time windows}
 \usage{
 assign_time_windows(
-  fix_mes_age,
-  bin_size = 20,
-  nb_1 = 18,
+  fixation_timeseries,
+  t_step = 20,
+  t_start = 360,
   short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short,
   med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med,
   long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long
 )
 }
 \arguments{
-\item{fix_mes_age}{A fixations dataframe that is required to minimally contain these columns:
+\item{fixation_timeseries}{A fixation timeseries dataframe that is required to minimally contain these columns:
 \itemize{
-\item \code{TargetOnset} (numeric): Time of target onset in milliseconds.
-\item \code{Time} (numeric): Time in ms (end of the bin).
+\item \code{target_onset} (numeric): Time of target onset in milliseconds.
+\item \code{time} (numeric): Time in ms from the start of the trial.
 }}
 
-\item{bin_size}{Width of bins in milliseconds. Defaults to 20 ms.}
+\item{t_step}{The time step in ms. MUST match the one used in \code{fixations_to_timeseries}.}
 
-\item{nb_1}{Number of the first bin to be considered as part of the windows. Defaults to 18.}
+\item{t_start}{Time when the windows starts, defaults to 360. Must be a multiple of \code{bin_size}.}
 
 \item{short_window_time, med_window_time, long_window_time}{End timepoints of the short, medium, and long windows in milliseconds from the target word onset. Default to 2000, 3500, and 5000, respectively.}
 }
@@ -37,14 +37,14 @@ The input dataframe with the following columns added:
 \item comes before the target onset (level "pre"), or
 \item neither (level "neither").
 }
-\item \code{Nonset} (numeric): Time (in ms) from the target onset rounded up to the nearest bin.
+\item \code{t_onset} (numeric): Time (in ms) from the target onset rounded up to the nearest multiple of \code{bin_size}.
 }
 }
 \description{
 Assigns binned fixations to a short, medium, and long time windows
 }
 \details{
-Parameter \code{nb_1} defaults to 18, because it is the closest bin to 367 ms, which is the magic window onset from Fernald et al. (2008).
+Parameter \code{t_start} defaults to 360, because it is the closest bin to 367 ms, which is the magic window onset from Fernald et al. (2008).
 
 A note on the window and bin boundaries. Let's use \code{nb_1 = 18} and the long window as an example. Both bins located exactly 360 ms and 5000 ms after the target onset will be counted as belonging to the long window (\code{longwin == "Y"}). In the case of the lower bound, this creates a slight inconsistency with the \code{Nonset} column: in most cases, the bin with \code{Nonset} equal to 360 ms will not belong to any windows, but in ~1/20 of the cases where the bin is exactly at 360 ms from the target onset, it will belong to all windows.
 }

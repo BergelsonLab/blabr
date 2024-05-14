@@ -27,7 +27,7 @@ tag_low_data_trials(
 
 \item{t_end}{Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the \code{get_windows} call, then that value MUST be supplied here. If NULL (default), the default corresponding to the \code{subsetWin} will be used.}
 
-\item{t_step}{Timeseries time step. MUST match the one used in \code{fixations_to_timeseries}.}
+\item{t_step}{The time step in ms. MUST match the one used in \code{fixations_to_timeseries}.}
 }
 \value{
 The input dataframe with boolean \code{is_trial_low_data} column added.

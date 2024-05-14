@@ -300,15 +300,15 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 
 #' Assigns binned fixations to a short, medium, and long time windows
 #'
-#' @param fix_mes_age A fixations dataframe that is required to minimally contain these columns:
-#'  - `TargetOnset` (numeric): Time of target onset in milliseconds.
-#'  - `Time` (numeric): Time in ms (end of the bin).
-#' @param bin_size Width of bins in milliseconds. Defaults to 20 ms.
-#' @param nb_1 Number of the first bin to be considered as part of the windows. Defaults to 18.
+#' @param fixation_timeseries A fixation timeseries dataframe that is required to minimally contain these columns:
+#'  - `target_onset` (numeric): Time of target onset in milliseconds.
+#'  - `time` (numeric): Time in ms from the start of the trial.
+#' @param t_step The time step in ms. MUST match the one used in `fixations_to_timeseries`.
+#' @param t_start Time when the windows starts, defaults to 360. Must be a multiple of `bin_size`.
 #' @param short_window_time,med_window_time,long_window_time End timepoints of the short, medium, and long windows in milliseconds from the target word onset. Default to `r DEFAULT_WINDOWS_UPPER_BOUNDS$short`, `r DEFAULT_WINDOWS_UPPER_BOUNDS$med`, and `r DEFAULT_WINDOWS_UPPER_BOUNDS$long`, respectively.
 #'
 #' @details
-#' Parameter `nb_1` defaults to 18, because it is the closest bin to 367 ms, which is the magic window onset from Fernald et al. (2008).
+#' Parameter `t_start` defaults to 360, because it is the closest bin to 367 ms, which is the magic window onset from Fernald et al. (2008).
 #'
 #' A note on the window and bin boundaries. Let's use `nb_1 = 18` and the long window as an example. Both bins located exactly 360 ms and 5000 ms after the target onset will be counted as belonging to the long window (`longwin == "Y"`). In the case of the lower bound, this creates a slight inconsistency with the `Nonset` column: in most cases, the bin with `Nonset` equal to 360 ms will not belong to any windows, but in ~1/20 of the cases where the bin is exactly at 360 ms from the target onset, it will belong to all windows.
 #'
@@ -319,38 +319,57 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #'   - is in the short, medium, or long window (level label "short", "medium", or "long", respectively),
 #'   - comes before the target onset (level "pre"), or
 #'   - neither (level "neither").
-#' - `Nonset` (numeric): Time (in ms) from the target onset rounded up to the nearest bin.
+#' - `t_onset` (numeric): Time (in ms) from the target onset rounded up to the nearest multiple of `bin_size`.
 #'
 #' @export
 assign_time_windows <- function(
-  fix_mes_age,
-  bin_size = 20,
-  nb_1 = 18,
+  fixation_timeseries,
+  t_step = 20,
+  t_start = 360,  # floor(367 / 20)
   short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short,
   med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med,
   long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long) {
 
-    original_columns <- colnames(fix_mes_age)
-    windows_start_ms <- nb_1 * bin_size
+    original_columns <- colnames(fixation_timeseries)
 
-    add_window_columns<- function(df, size, window_end_ms){
-      # adds '{size}win' and 'whichwin_{size}' columns where size is "short", "med", or "long"
+    # Assert that t_start is a multiple of bin_size
+    assertthat::assert_that(
+      t_start %% t_step == 0,
+      msg = "t_start must be a multiple of bin_size")
+
+    # Check that the time and target_onset columns are present and are numeric
+    assertthat::assert_that(
+      all(c("time", "target_onset") %in% colnames(fixation_timeseries)),
+      msg = "fixation_timeseries must contain columns 'time' and 'target_onset'")
+
+    assertr::assert(fixation_timeseries, is.numeric, time, target_onset)
+
+    # Check that target_onset is not NA and is a positive number
+    assertthat::assert_that(
+      !any(is.na(fixation_timeseries$target_onset)) &&
+      all(fixation_timeseries$target_onset > 0),
+      msg = "target_onset must be a non-empty positive number")
+
+    # Adds '{size}win' and 'whichwin_{size}' columns where size is "short",
+    # "med", or "long"
+    add_window_columns <- function(df, size, window_end_ms) {
       df %>%
         dplyr::mutate(
-          sizewin = dplyr::between(time_shifted_ms,
-                                   windows_start_ms, window_end_ms),
+          sizewin = dplyr::between(.data$time_shifted_ms,
+                                   .env$t_start, .env$window_end_ms),
           whichwin_size = dplyr::case_when(
-            prewin ~ "pre",
-            sizewin ~ size,  # e.g., "short"
+            # Both prewin and sizewin are boolean at this point
+            .data$prewin ~ "pre",
+            .data$sizewin ~ .env$size,  # e.g., "short"
             TRUE ~ "neither")) %>%
         dplyr::rename(
-          '{size}win' := sizewin,
-          'whichwin_{size}' := whichwin_size)
+          '{size}win' := .data$sizewin,
+          'whichwin_{size}' := .data$whichwin_size)
     }
 
-    fix_mes_age %>%
+    fixation_timeseries %>%
       dplyr::mutate(
-        time_shifted_ms = Time - TargetOnset,
+        time_shifted_ms = time - target_onset,
         prewin = time_shifted_ms <= 0) %>%
       add_window_columns("short", short_window_time) %>%
       add_window_columns("med", med_window_time) %>%
@@ -359,12 +378,12 @@ assign_time_windows <- function(
         dplyr::across(
           c(prewin, shortwin, medwin, longwin),
           ~ as.factor(ifelse(.x, "Y", "N")))) %>%
-      dplyr::mutate(Nonset = ceiling(time_shifted_ms / bin_size) * bin_size) %>%
+      dplyr::mutate(t_onset = ceiling(time_shifted_ms / t_step) * t_step) %>%
       dplyr::select(dplyr::all_of(original_columns),
                     prewin,
                     shortwin, medwin, longwin,
                     whichwin_short, whichwin_med, whichwin_long,
-                    Nonset)}
+                    t_onset)}
 
 #################################################################################
 
@@ -387,7 +406,7 @@ assign_time_windows <- function(
 #' @param window_column Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.
 #' @param t_start Lower bound of the window of interest in milliseconds from the target onset.
 #' @param t_end Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the `get_windows` call, then that value MUST be supplied here. If NULL (default), the default corresponding to the `subsetWin` will be used.
-#' @param t_step Timeseries time step. MUST match the one used in `fixations_to_timeseries`.
+#' @inheritParams assign_time_windows
 #'
 #' @return The input dataframe with boolean `is_trial_low_data` column added.
 #' @export
