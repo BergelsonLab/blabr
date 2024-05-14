@@ -178,19 +178,24 @@ fixations_to_timeseries <- function(
   # Make a fixation_id variable so we can later map fixations to the time points
   fixations$fixation_id <- 1:nrow(fixations)
 
-  expand_single_fixation <- function(row, t_step) {
-    time_bin_start <- ceiling(row$t_start / t_step)
-    time_bin_end <- ceiling(row$t_end / t_step)
-    data.frame(time_bin = time_bin_start:time_bin_end,
-               fixation_id = row$fixation_id)
-  }
-
+  # Match fixations to a dataframe with timepoints from the start of the
+  # earliest fixation to the end of the latest fixation
   timepoints <- fixations %>%
-    dplyr::group_by(fixation_id) %>%
-    dplyr::do(expand_single_fixation(., t_step = t_step)) %>%
-    dplyr::ungroup() %>%
-    #added by EB 8/7/20 bc the following line's subset breaks on tbls (!?)
-    as.data.frame()
+    dplyr::mutate(
+      dplyr::across(c(t_start, t_end),
+                    ~ ceiling(.x / t_step) * t_step)) %>%
+    dplyr::inner_join(
+      tibble(time_bin = seq(as.integer(min(.$t_start) / t_step),
+                            as.integer(max(.$t_end) / t_step),
+                            by = 1L),
+             time = time_bin * t_step),
+      by = dplyr::join_by(between(y$time, x$t_start, x$t_end))) %>%
+    # note: This is basically the output dataframe already. I am selecting the
+    #   columns here so that I don't need to change the code below now. Not
+    #   doing that and then not doing the join below would probably speed up the
+    #   function by a factor of ~2.
+    dplyr::select(time_bin, fixation_id) %>%
+    as.data.frame
 
   # There is a border case in which two fixations share a time point resulting
   # in two rows with the same `time`. Ex.:
