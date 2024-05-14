@@ -175,27 +175,24 @@ fixations_to_timeseries <- function(
     fixations$t_end[fixations$t_end > t_max] <- t_max
   }
 
-  # Make a fixation_id variable so we can later map fixations to the time points
-  fixations$fixation_id <- 1:nrow(fixations)
-
   # Match fixations to a dataframe with timepoints from the start of the
   # earliest fixation to the end of the latest fixation
-  timepoints <- fixations %>%
+  fixation_timeseries <- fixations %>%
     dplyr::mutate(
       dplyr::across(c(t_start, t_end),
-                    ~ ceiling(.x / t_step) * t_step)) %>%
+                    ~ ceiling(.x / t_step) * t_step,
+                    .names = '{.col}_rounded')) %>%
     dplyr::inner_join(
-      tibble(time_bin = seq(as.integer(min(.$t_start) / t_step),
-                            as.integer(max(.$t_end) / t_step),
+      tibble(time_bin = seq(as.integer(min(.$t_start_rounded) / t_step),
+                            as.integer(max(.$t_end_rounded) / t_step),
                             by = 1L),
              time = time_bin * t_step),
-      by = dplyr::join_by(between(y$time, x$t_start, x$t_end))) %>%
-    # note: This is basically the output dataframe already. I am selecting the
-    #   columns here so that I don't need to change the code below now. Not
-    #   doing that and then not doing the join below would probably speed up the
-    #   function by a factor of ~2.
-    dplyr::select(time_bin, fixation_id) %>%
-    as.data.frame
+      by = dplyr::join_by(between(y$time,
+                                  x$t_start_rounded, x$t_end_rounded))) %>%
+    dplyr::select(-t_start_rounded, -t_end_rounded) %>%
+    dplyr::rename(
+      fixation_start = t_start,
+      fixation_end = t_end)
 
   # There is a border case in which two fixations share a time point resulting
   # in two rows with the same `time`. Ex.:
@@ -209,26 +206,9 @@ fixations_to_timeseries <- function(
   #   highest fixation_id. In practice, this is probably fine because the
   #   fixation report *is* sorted and so should the fixations table be, unless
   #   someone intentionally reorders at some step in the pipeline.
-  timepoints <- subset(
-    timepoints,
+  fixation_timeseries <- subset(
+    fixation_timeseries,
     c(time_bin[2:length(time_bin)] != time_bin[1:(length(time_bin)-1)], TRUE))
-
-  # Combine the fixation data with the time bins
-  fixation_timeseries <-
-    fixations %>%
-    dplyr::rename(fixation_start = t_start,
-                  fixation_end = t_end) %>%
-    dplyr::inner_join(
-      timepoints,
-      # It is rare but possible for a fixation to disappear in the corner-case
-      # dealing step above. See  ht_seedlings, 26_10, trial index 18, fixation
-      # intervals (6902, 6902) and (6920, 6966)
-      unmatched = "drop",
-      relationship = "one-to-many",
-      by = "fixation_id")
-
-  # Add a variable with actual time instead of time bin
-  fixation_timeseries$time <- fixation_timeseries$time_bin * t_step
 
   return(fixation_timeseries)
 }
