@@ -292,8 +292,6 @@ get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSIO
   mesrep # return?
 }
 
-#################################################################################
-
 #' (no docs yet) Find late target onsets and create a doc to check and potentially correct them
 #'
 #' @param data
@@ -317,7 +315,6 @@ get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_s
   late_target_onset
 }
 
-#################################################################################
 # retrieve corrected kp OR retrieve correct late target onset // separate functions? ## IDENTICAL TO KP FUNCTION
 # TODO: zh: Update/delete the comment. I think it is out of date and the functions have already been separated
 
@@ -335,8 +332,6 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
     dplyr::select(-one_of(drop_list))
   retrieved_late_target #return?
 }
-
-#################################################################################
 
 
 #' Assigns binned fixations to a short, medium, and long time windows
@@ -426,7 +421,6 @@ assign_time_windows <- function(
                     whichwin_short, whichwin_med, whichwin_long,
                     t_onset)}
 
-#################################################################################
 
 #' Mark "low-data" trials
 #'
@@ -497,7 +491,6 @@ tag_low_data_trials <- function(
 
 }
 
-#################################################################################
 
 # Zhenya: issue: Deprecate this function, tell to use tag_low_data_trials
 RemoveLowData <- function(gazeData,
@@ -572,7 +565,6 @@ RemoveLowData <- function(gazeData,
   return(gazeData)
 }
 
-#################################################################################
 
 get_pairs <- function(data, study = "eye_tracking", output_dir = '../data/', out_csv = FALSE){
   res <- data %>%
@@ -586,9 +578,7 @@ get_pairs <- function(data, study = "eye_tracking", output_dir = '../data/', out
   res
 }
 
-#################################################################################
 
-#Outlier----
 outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
   (cross_item_mean_proptcorrTT >
      (mean(cross_item_mean_proptcorrTT) +
@@ -599,9 +589,6 @@ outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
 }
 
 
-#################################################################################
-
-#FindFrozenTrials----
 FindFrozenTrials <- function(gazeData,
                              Trial,
                              SubjectNumber,
@@ -615,9 +602,7 @@ FindFrozenTrials <- function(gazeData,
  return(gazeData)
 }
 
-#################################################################################
 
-#RemoveFrozenTrials-----
 # Zhenya: issue: Deprecate this functions, tell users to use FindFrozenTrials
 RemoveFrozenTrials <- function(gazeData,
                              Trial,
