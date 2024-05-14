@@ -2,18 +2,63 @@
 % Please edit documentation in R/eye_tracking.R
 \name{fixations_to_timeseries}
 \alias{fixations_to_timeseries}
-\title{(no docs yet) Convert a fixations table to an evenly spaced timeseries}
+\title{Convert a dataframe of fixation intervals to an evenly spaced timeseries}
 \usage{
-fixations_to_timeseries(
-  gaze,
-  binSize = 20,
-  keepCols = c("Subject", "TrialNumber", "Target", "T"),
-  maxTime = NULL
-)
+fixations_to_timeseries(fixations, t_step = 20, t_max = NULL)
 }
 \arguments{
-\item{maxTime}{}
+\item{fixations}{A dataframe that must minimally contain the following
+columns:
+\itemize{
+\item \code{recording_id} and \code{trial_index} that uniquely identify trials.
+\item \code{t_start}, \code{t_end} - the start and end times of the
+fixations in ms. Use \verb{read_*_report}, \verb{split_*_report}, and
+\code{merge_split_reports} to get such a dataframe.
+}}
+
+\item{t_step}{The time step in ms.}
+
+\item{t_max}{Optional. The maximum time in ms. Fixations that start after
+this time will be removed and the end time of fixations that end after this
+time will be set to this time.}
+}
+\value{
+A dataframe with similar columns as the input dataframe but with
+many more rows. Here are the differences in columns:0
+\itemize{
+\item A new column \code{time} was added that contains the time points that are
+multiples of \code{t_step} and are within the fixation interval after it was
+rounded up to the nearest multiple of \code{t_step}.
+\item The \code{t_start} and \code{t_end} columns were renamed to \code{fixation_start} and
+\code{fixation_end}.
+\item Some fixations may have been dropped if they started after \code{t_max} or if
+they were all in one time bin and it was shared with another fixation.
+}
 }
 \description{
-(no docs yet) Convert a fixations table to an evenly spaced timeseries
+\itemize{
+\item The fixations are first dropped/trimmed if \code{t_max} is set.
+\item The fixation interval boundaries are then rounded up to the nearest
+multiples of \code{t_step}.
+\item Each fixation row is then duplicated as many time as there are time points
+(also multiples of \code{t_step}) falling within the rounded up intervals. The
+timepoins are stored in a new column \code{time}.
+\item If a timepoint falls within multiple fixations, only the row with the
+later fixation is kept.
+\item If a timepoint doesn't fall within any fixations in a given trial, it won't
+appear in the output at all.
+}
+}
+\examples{
+fixations <- data.frame(
+  recording_id = seq(1, 3),
+  trial_index = seq(1, 3),
+  t_start = c(105, 202, 256),
+  t_end = c(155, 241, 560),
+  x = c(0, -50, 50),
+  y = rep(0, 3))
+t_step <- 20
+t_max <- 400
+fixations_to_timeseries(fixations, t_step, t_max)
+
 }

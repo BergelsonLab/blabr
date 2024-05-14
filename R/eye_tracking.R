@@ -109,67 +109,123 @@ read_message_report <- function(report_path,
               remove_practice = remove_practice)
 }
 
-#' (no docs yet) Convert a fixations table to an evenly spaced timeseries
+#' Convert a dataframe of fixation intervals to an evenly spaced timeseries
 #'
-#' @param gaze
-#' @param binSize
-#' @param keepCols
-#' @param maxTime
+#' - The fixations are first dropped/trimmed if `t_max` is set.
+#' - The fixation interval boundaries are then rounded up to the nearest
+#'   multiples of `t_step`.
+#' - Each fixation row is then duplicated as many time as there are time points
+#'   (also multiples of `t_step`) falling within the rounded up intervals. The
+#'   timepoins are stored in a new column `time`.
+#' - If a timepoint falls within multiple fixations, only the row with the
+#'   later fixation is kept.
+#' - If a timepoint doesn't fall within any fixations in a given trial, it won't
+#'   appear in the output at all.
 #'
-#' @return
+#' @param fixations A dataframe that must minimally contain the following
+#'   columns:
+#'   - `recording_id` and `trial_index` that uniquely identify trials.
+#'   - `t_start`, `t_end` - the start and end times of the
+#'     fixations in ms. Use `read_*_report`, `split_*_report`, and
+#'     `merge_split_reports` to get such a dataframe.
+#' @param t_step The time step in ms.
+#' @param t_max Optional. The maximum time in ms. Fixations that start after
+#'  this time will be removed and the end time of fixations that end after this
+#'  time will be set to this time.
+#'
+#' @return A dataframe with similar columns as the input dataframe but with
+#'   many more rows. Here are the differences in columns:0
+#' - A new column `time` was added that contains the time points that are
+#'   multiples of `t_step` and are within the fixation interval after it was
+#'   rounded up to the nearest multiple of `t_step`.
+#' - The `t_start` and `t_end` columns were renamed to `fixation_start` and
+#'   `fixation_end`.
+#' - Some fixations may have been dropped if they started after `t_max` or if
+#'   they were all in one time bin and it was shared with another fixation.
+#'
 #' @export
 #'
 #' @examples
+#' fixations <- data.frame(
+#'   recording_id = seq(1, 3),
+#'   trial_index = seq(1, 3),
+#'   t_start = c(105, 202, 256),
+#'   t_end = c(155, 241, 560),
+#'   x = c(0, -50, 50),
+#'   y = rep(0, 3))
+#' t_step <- 20
+#' t_max <- 400
+#' fixations_to_timeseries(fixations, t_step, t_max)
+#'
 fixations_to_timeseries <- function(
-  gaze, binSize = 20, keepCols=c("Subject", "TrialNumber", "Target", "T"),
-  maxTime = NULL) {
+  fixations,
+  t_step = 20,
+  t_max = NULL) {
 
-  #convert a list of fixations to bins
-  #binSize determines the size of each bin in ms
-  #keepCols determines which columns from the original data frame will show up in the output
-  #	will no longer need fixation start and duration, nor fixation location coordinates
-  #
-  #maxTime can be used to cut down trial length
-  #
+  assertthat::assert_that(has_columns(fixations, c(
+    "recording_id",
+    "trial_index",
+    "t_start",
+    "t_end")))
 
-  #need to know when fixations end
-  if ("CURRENT_FIX_END" %in% names(gaze)) {
-    gaze$FixEnd <- gaze$CURRENT_FIX_END
-  } else {
-    #compute end of fixation from start and duration
-    gaze$FixEnd <- gaze$CURRENT_FIX_START + gaze$CURRENT_FIX_DURATION
-  }
-  #if maxTime is defined, do some trimming
-  if (!is.null(maxTime)) {
-    #drop all fixations that start after the maxTime
-    gaze<-subset(gaze,CURRENT_FIX_START < maxTime)
-    #trim fixation end times to be less than maxTime
-    gaze$FixEnd[gaze$FixEnd>maxTime]<-maxTime
+  if (!is.null(t_max)) {
+    # Drop all fixations that start after the t_max
+    fixations <- subset(fixations, t_start < t_max)
+    # Trim fixation end times to be less than t_max
+    fixations$t_end[fixations$t_end > t_max] <- t_max
   }
 
-  #make a fixation ID variable that is just the fixation number in the overall data frame
-  gaze$FixationID <- 1:nrow(gaze)
+  # Make a fixation_id variable so we can later map fixations to the time points
+  fixations$fixation_id <- 1:nrow(fixations)
 
-  #  data <- ddply(idata.frame(gaze), .(FixationID), expandFixList, binSize=binSize) #this was edited on 1/21/15 to stop using ddply
+  expand_single_fixation <- function(row, t_step) {
+    time_bin_start <- ceiling(row$t_start / t_step)
+    time_bin_end <- ceiling(row$t_end / t_step)
+    data.frame(time_bin = time_bin_start:time_bin_end,
+               fixation_id = row$fixation_id)
+  }
 
-  data <- gaze %>%
-    group_by(FixationID) %>%
-    do(expandFixList(., binSize=binSize)) %>%
-    ungroup() %>%
-    as.data.frame()#added by EB 8/7/20 bc the following line's subset breaks on tbls (!?)
+  timepoints <- fixations %>%
+    dplyr::group_by(fixation_id) %>%
+    dplyr::do(expand_single_fixation(., t_step = t_step)) %>%
+    dplyr::ungroup() %>%
+    #added by EB 8/7/20 bc the following line's subset breaks on tbls (!?)
+    as.data.frame()
 
-  #there is a border case in which two redundant bins can be generated
-  #clean them up by keeping the second one
-  data<-subset(data,timeBin[2:length(timeBin)]!=timeBin[1:(length(timeBin)-1)])
+  # There is a border case in which two fixations share a time point resulting
+  # in two rows with the same `time`. Ex.:
+  # fixation intervals (1, 41) and (49, 69) will be rounded to (20, 60) and
+  # (60, 80) and then expanded to time points [20, 40, 60] and [60, 80]. We will
+  # use data from the second fixation at time point 60 in such cases.
+  #
+  # issue: This a fragile way to handle this because it relies on the fixations
+  #   being sorted by `t_start` and `t_end`. Either sort the fixations or find
+  #   (recording_id, trial_index, time_bin) duplicates and keep the row with the
+  #   highest fixation_id. In practice, this is probably fine because the
+  #   fixation report *is* sorted and so should the fixations table be, unless
+  #   someone intentionally reorders at some step in the pipeline.
+  timepoints <- subset(
+    timepoints,
+    time_bin[2:length(time_bin)] != time_bin[1:(length(time_bin)-1)])
 
-  #combine data
-  #dataFull <- merge(data,gaze[,c(keepCols,"FixationID")],by="FixationID")
-  dataFull <- left_join(data,gaze[,c(keepCols,"FixationID")],by="FixationID") #modified 5/12/16 to use join
+  # Combine the fixation data with the time bins
+  fixation_timeseries <-
+    fixations %>%
+    dplyr::rename(fixation_start = t_start,
+                  fixation_end = t_end) %>%
+    dplyr::inner_join(
+      timepoints,
+      # It is rare but possible for a fixation to disappear in the corner-case
+      # dealing step above. See  ht_seedlings, 26_10, trial index 18, fixation
+      # intervals (6902, 6902) and (6920, 6966)
+      unmatched = "drop",
+      relationship = "one-to-many",
+      by = "fixation_id")
 
-  #add a variable with actual time instead of time bin
-  dataFull$Time <- dataFull$timeBin*binSize
+  # Add a variable with actual time instead of time bin
+  fixation_timeseries$time <- fixation_timeseries$time_bin * t_step
 
-  return(dataFull)
+  return(fixation_timeseries)
 }
 
 
@@ -557,24 +613,6 @@ outlier <- function(cross_item_mean_proptcorrTT, num_sd=3) {
         num_sd*(sd(cross_item_mean_proptcorrTT))))
 }
 
-#################################################################################
-
-#expandFixList----
-# this gives you back a little data frame where for a given FixationID,
-# there's a row for each timeBin, based on the start and stop time  (i.e.
-#(CURRENT_FIX_START) and (FixEnd) of that fixation.
-# e.g. if FixationID #1 went from 30-310ms, it would make a range,
-# ceiling(30/20) : ceiling(90/20), i.e. 2:5, so you'd see
-# timeBin FixationID
-# 2          1
-# 3          1
-# 4          1
-# 5          1
-# Zhenya: issue: This function is only used in BinifyFixations, move it there.
-expandFixList <- function(d, binSize=20){
-  timeBin<-(ceiling(d$CURRENT_FIX_START/binSize):ceiling(d$FixEnd/binSize))
-  data.frame(timeBin=timeBin,FixationID=d$FixationID)
-}
 
 #################################################################################
 
