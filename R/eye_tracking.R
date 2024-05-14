@@ -183,10 +183,9 @@ fixations_to_timeseries <- function(
                     ~ ceiling(.x / t_step) * t_step,
                     .names = '{.col}_rounded')) %>%
     dplyr::inner_join(
-      tibble(time_bin = seq(as.integer(min(.$t_start_rounded) / t_step),
-                            as.integer(max(.$t_end_rounded) / t_step),
-                            by = 1L),
-             time = time_bin * t_step),
+      tibble(time = seq(min(.$t_start_rounded),
+                        max(.$t_end_rounded),
+                        by = t_step)),
       by = dplyr::join_by(between(y$time,
                                   x$t_start_rounded, x$t_end_rounded))) %>%
     dplyr::select(-t_start_rounded, -t_end_rounded) %>%
@@ -202,13 +201,13 @@ fixations_to_timeseries <- function(
   #
   # issue: This a fragile way to handle this because it relies on the fixations
   #   being sorted by `t_start` and `t_end`. Either sort the fixations or find
-  #   (recording_id, trial_index, time_bin) duplicates and keep the row with the
-  #   highest fixation_id. In practice, this is probably fine because the
+  #   (recording_id, trial_index, time) duplicates and keep the row with the
+  #   highest fixation_start. In practice, this is probably fine because the
   #   fixation report *is* sorted and so should the fixations table be, unless
   #   someone intentionally reorders at some step in the pipeline.
   fixation_timeseries <- subset(
     fixation_timeseries,
-    c(time_bin[2:length(time_bin)] != time_bin[1:(length(time_bin)-1)], TRUE))
+    c(time[2:length(time)] != time[1:(length(time)-1)], TRUE))
 
   return(fixation_timeseries)
 }
