@@ -211,7 +211,7 @@ fixations_to_timeseries <- function(
   #   someone intentionally reorders at some step in the pipeline.
   timepoints <- subset(
     timepoints,
-    time_bin[2:length(time_bin)] != time_bin[1:(length(time_bin)-1)])
+    c(time_bin[2:length(time_bin)] != time_bin[1:(length(time_bin)-1)], TRUE))
 
   # Combine the fixation data with the time bins
   fixation_timeseries <-
