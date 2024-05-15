@@ -31,7 +31,7 @@ DEFAULT_WINDOWS_UPPER_BOUNDS <- list(short = 2000,
 
 #' Split a fixation or message report into hierarchical dataframes
 #'
-#' @param drop_empty_columns Logical. If TRUE, columns that are all '.' will be
+#' @param drop_empty_columns Logical. If TRUE, columns that are all NA will be
 #'   dropped.
 #'
 #' @keywords internal
@@ -49,14 +49,15 @@ split_report <- function(report,
 
   if (isTRUE(drop_empty_columns)) {
     report <- report %>%
-      dplyr::select_if(~ !all(.x == '.'))
+      dplyr::select_if(~ !all(is.na(.x)))
   }
 
   find_constant_columns <- function(df, .by = NULL) {
     constant_columns <- df %>%
-      dplyr::summarise(dplyr::across(dplyr::everything(),
-                                     ~ all(.x == .x[1])),
-                       .by = .by) %>%
+      dplyr::summarise(
+        dplyr::across(dplyr::everything(),
+                      ~ length(unique(.x)) == 1),
+        .by = .by) %>%
       dplyr::select(-dplyr::all_of(.by)) %>%
       dplyr::select(dplyr::where(~ all(.x))) %>%
       colnames
@@ -342,24 +343,23 @@ read_report <- function(report_path,
                         guess_max = 100000,
                         remove_unfinished = TRUE,
                         remove_practice = TRUE){
-  # load tsv file
-  # issue: Switch to na = '.'. na = character() implicitly makes readr treat
-  #   any column with missing values as character. There is no need to do this.
+
   report <- readr::read_tsv(report_path,
-                            na = character(),
+                            na = '.',
                             guess_max = guess_max)
 
   # remove incomplete studies
   # note: I don't know why this'd work or what "studies" means here. Zhenya.
-  # issue: Because we are doing na = character() in read_tsv, `order` is never
-  #   NA so this isn't doing anything at all.
+  # note: Previously, we had na = character() in read_tsv and `order` was never
+  #   NA so this didn't do anything at all. Now, we have na = '.' so this might
+  #   change things for existing analyses.
   if (remove_unfinished){
     report <- report %>%
       dplyr::filter(!is.na(order))
   }
 
   # remove practice rows
-  # issue: Assert that practice is "y", "n" or NA/'.'.
+  # issue: Assert that practice is "y", "n" or NA.
   if (remove_practice){
     report <- report %>%
       dplyr::filter(practice == "n")
