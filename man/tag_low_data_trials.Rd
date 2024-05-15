@@ -28,23 +28,18 @@ tag_low_data_trials(
 \item{t_end}{Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the \code{get_windows} call, then that value MUST be supplied here. If NULL (default), the default corresponding to the \code{subsetWin} will be used.}
 
 \item{t_step}{The time step in ms. MUST match the one used in \code{fixations_to_timeseries}.}
+
+\item{min_fraction}{Minimum fraction of the window that must contain fixations on either area of interest for the trial to be considered "high-data". Default is 1/3.}
 }
 \value{
 The input dataframe with boolean \code{is_trial_low_data} column added.
 }
 \description{
-Trials are considered to be "low-data" if less than one third of the window of interest contains fixations on either area of interest. Bins that won't count toward that one third are:
-}
-\details{
+Trials are considered to be "low-data" if less than \code{min_fraction} (1/3 by default) of the window of interest contains fixations on either area of interest.
+Time points that  count are the ones for which:
 \itemize{
-\item Bins that don't have a fixation due to being in a saccade or in a period with lost track. We are assuming that bins in \code{gazeData} were created by \code{binifyFixation} which skips such bins completely - there won't be rows with them.
-\item Bins with fixations outside of the areas of interest, including off-screen fixations. We will identify such fixations by NA values in the \code{propt} column.
-}
-
-Or looking at it from the opposite perspective, bins that do count toward the one third are bins in \code{gazeData} that:
-\itemize{
-\item Are present in \code{gazeData}.
-\item Are in the window of interest ("Y" in the column specified by \code{subsetWin}).
-\item Have fixations on either are of interest (non-NA values in the \code{propt} column).
+\item \code{is_good_timepoint} is TRUE. Typically, created with something like \verb{mutate(is_good_timepoint = aoi \%in\% c('TARGET', 'DISTRACTROR')}.
+The definition can differ between studies.
+\item Column specified in \code{window_column} is 'Y'.
 }
 }

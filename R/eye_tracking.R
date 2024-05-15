@@ -741,15 +741,11 @@ assign_time_windows <- function(
 
 #' Mark "low-data" trials
 #'
-#' Trials are considered to be "low-data" if less than one third of the window of interest contains fixations on either area of interest. Bins that won't count toward that one third are:
-#'
-#' - Bins that don't have a fixation due to being in a saccade or in a period with lost track. We are assuming that bins in `gazeData` were created by `binifyFixation` which skips such bins completely - there won't be rows with them.
-#' - Bins with fixations outside of the areas of interest, including off-screen fixations. We will identify such fixations by NA values in the `propt` column.
-#'
-#' Or looking at it from the opposite perspective, bins that do count toward the one third are bins in `gazeData` that:
-#' - Are present in `gazeData`.
-#' - Are in the window of interest ("Y" in the column specified by `subsetWin`).
-#' - Have fixations on either are of interest (non-NA values in the `propt` column).
+#' Trials are considered to be "low-data" if less than `min_fraction` (1/3 by default) of the window of interest contains fixations on either area of interest.
+#' Time points that  count are the ones for which:
+#' - `is_good_timepoint` is TRUE. Typically, created with something like `mutate(is_good_timepoint = aoi %in% c('TARGET', 'DISTRACTROR')`.
+#'   The definition can differ between studies.
+#' - Column specified in `window_column` is 'Y'.
 #'
 #' @param fixation_timeseries  A fixations dataframe that is required to minimally contain these columns:
 #' - `recording_id` and `trial_index` to uniquely trials.
@@ -758,6 +754,7 @@ assign_time_windows <- function(
 #' @param window_column Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.
 #' @param t_start Lower bound of the window of interest in milliseconds from the target onset.
 #' @param t_end Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the `get_windows` call, then that value MUST be supplied here. If NULL (default), the default corresponding to the `subsetWin` will be used.
+#' @param min_fraction Minimum fraction of the window that must contain fixations on either area of interest for the trial to be considered "high-data". Default is 1/3.
 #' @inheritParams assign_time_windows
 #'
 #' @return The input dataframe with boolean `is_trial_low_data` column added.
