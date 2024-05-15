@@ -27,3 +27,9 @@
         cmd <- glue::glue('tag {version} && git push --tags')
         system2('git', glue::glue('tag {version}'))
         system2('git', 'push --tags')
+
+## Deprecating functions
+
+When renaming or removing functions, we hard-deprecate them - make them defunct.
+Create a section for the next `blabr` version in `R/defunct.R` and move the old function there.
+See that file for examples.
