@@ -24,6 +24,9 @@ not work in the current version because no value are interpreted as NA.}
 
 \item{remove_practice}{Only keeps rows where the \code{practice} column is "n".}
 }
+\value{
+A dataframe with the report data.
+}
 \description{
 Read EyeLink fixation/message report file
 }

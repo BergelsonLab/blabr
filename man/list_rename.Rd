@@ -8,6 +8,8 @@ list_rename(.x, ..., .strict = TRUE)
 }
 \arguments{
 \item{.x}{A list.}
+
+\item{...}{Any number of \code{new_name = old_name} pairs.}
 }
 \description{
 \code{dplyr::rename} for lists

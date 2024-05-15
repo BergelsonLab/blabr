@@ -7,7 +7,7 @@
 split_report(report, drop_empty_columns = TRUE)
 }
 \arguments{
-\item{drop_empty_columns}{Logical. If TRUE, columns that are all '.' will be
+\item{drop_empty_columns}{Logical. If TRUE, columns that are all NA will be
 dropped.}
 }
 \description{

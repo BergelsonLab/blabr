@@ -337,7 +337,7 @@ merge_split_reports <- function(fix_rep_data, mes_rep_data) {
 #'   not work in the current version because no value are interpreted as NA.
 #' @param remove_practice Only keeps rows where the `practice` column is "n".
 #'
-#' @return
+#' @return A dataframe with the report data.
 #' @keywords internal
 read_report <- function(report_path,
                         guess_max = 100000,

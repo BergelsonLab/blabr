@@ -33,7 +33,7 @@ parse_version <- function(version) {
 #' `dplyr::rename` for lists
 #'
 #' @param .x A list.
-#' @parem ... Any number of `new_name = old_name` pairs.
+#' @param ... Any number of `new_name = old_name` pairs.
 #'
 #' @export
 list_rename <- function(.x, ..., .strict = TRUE) {
