@@ -501,9 +501,9 @@ fixations_to_timeseries <- function(
                     ~ ceiling(.x / t_step) * t_step,
                     .names = '{.col}_rounded')) %>%
     dplyr::inner_join(
-      tibble(time = seq(min(.$t_start_rounded),
-                        max(.$t_end_rounded),
-                        by = t_step)),
+      dplyr::tibble(time = seq(min(.$t_start_rounded),
+                               max(.$t_end_rounded),
+                               by = t_step)),
       by = dplyr::join_by(between(y$time,
                                   x$t_start_rounded, x$t_end_rounded))) %>%
     dplyr::select(-t_start_rounded, -t_end_rounded) %>%
