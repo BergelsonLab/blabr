@@ -33,7 +33,10 @@ Imports:
     ggplot2,
     semver,
     processx,
-    lifecycle
+    lifecycle,
+    assertr,
+    digest,
+    tidyselect
 Remotes:
   HomeBankCode/rlena
 RoxygenNote: 7.2.3
