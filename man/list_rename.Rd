@@ -10,6 +10,9 @@ list_rename(.x, ..., .strict = TRUE)
 \item{.x}{A list.}
 
 \item{...}{Any number of \code{new_name = old_name} pairs.}
+
+\item{.strict}{If \code{TRUE}, the function will throw an error if any of the
+new names do not exist in the list.}
 }
 \description{
 \code{dplyr::rename} for lists

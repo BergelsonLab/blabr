@@ -34,6 +34,8 @@ parse_version <- function(version) {
 #'
 #' @param .x A list.
 #' @param ... Any number of `new_name = old_name` pairs.
+#' @param .strict If `TRUE`, the function will throw an error if any of the
+#'  new names do not exist in the list.
 #'
 #' @export
 list_rename <- function(.x, ..., .strict = TRUE) {
