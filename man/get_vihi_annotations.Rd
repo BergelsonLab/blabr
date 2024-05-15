@@ -73,12 +73,10 @@ annotation will be ''.
 }
 }
 \examples{
-vihi_annotaitons <- get_vihi_annotations(version='0.0.0.9006-dev.2')
-
-vitd_annotations <- get_vihi_annotations(version='0.0.0.9006-dev.2',
+vitd_annotations <- get_vihi_annotations(version='0.0.0.9006-dev.5',
                                          subset='VI+TD-VI')
 
-vitd <- get_vihi_annotations(version='0.0.0.9006-dev.2', subset='VI+TD-VI',
+vitd <- get_vihi_annotations(version='0.0.0.9006-dev.5', subset='VI+TD-VI',
                              table='all')
 vitd$annotations \%>\% head()
 vitd$intervals \%>\% head()
