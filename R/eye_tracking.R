@@ -117,8 +117,8 @@ split_report <- function(report,
 #' Split a fixation report into a list of hierarchical dataframes
 #'
 #' @param report Fixation report dataframe as created by `read_fixation_report`.
-#' @inheritParams read_report
-#' @param drop_saccades, drop_prev_and_next Logical. If TRUE, columns related to
+#' @inheritParams split_report
+#' @param drop_saccades,drop_prev_and_next Logical. If TRUE, columns related to
 #'   saccades and previous/next fixations/saccades will be dropped.
 #'
 #' @export
@@ -170,7 +170,7 @@ split_fixation_report <- function(report,
 #' Split a message report into a list of hierarchical dataframes
 #'
 #' @param report Message report dataframe as created by `read_message_report`.
-#' @inheritParams read_report
+#' @inheritParams split_report
 #'
 #' @export
 split_message_report <- function(report,

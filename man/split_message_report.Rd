@@ -8,6 +8,9 @@ split_message_report(report, drop_empty_columns = TRUE)
 }
 \arguments{
 \item{report}{Message report dataframe as created by \code{read_message_report}.}
+
+\item{drop_empty_columns}{Logical. If TRUE, columns that are all NA will be
+dropped.}
 }
 \description{
 Split a message report into a list of hierarchical dataframes

@@ -14,7 +14,10 @@ split_fixation_report(
 \arguments{
 \item{report}{Fixation report dataframe as created by \code{read_fixation_report}.}
 
-\item{drop_saccades, }{drop_prev_and_next Logical. If TRUE, columns related to
+\item{drop_empty_columns}{Logical. If TRUE, columns that are all NA will be
+dropped.}
+
+\item{drop_saccades, drop_prev_and_next}{Logical. If TRUE, columns related to
 saccades and previous/next fixations/saccades will be dropped.}
 }
 \description{
