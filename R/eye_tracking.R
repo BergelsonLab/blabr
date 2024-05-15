@@ -422,7 +422,7 @@ verify_no_overlapping_fixations <- function(fixations_df) {
                      " You'll need to drop the extra ones.",
                      " Search on gitbook for more info."))
 
-  fixations_df %>% dplyr::select(-data$overlapping)
+  fixations_df %>% dplyr::select(-.data$overlapping)
 }
 
 #' Convert a dataframe of fixation intervals to an evenly spaced timeseries

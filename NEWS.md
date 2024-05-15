@@ -1,3 +1,9 @@
+# blabr 0.22.1
+
+## Fixed
+
+- A bug in `verify_no_overlapping_fixations` which is internally used by `fixations_to_timeseries`.
+
 # blabr 0.22.0
 
 ## Added
