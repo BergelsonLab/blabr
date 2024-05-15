@@ -806,80 +806,6 @@ tag_low_data_trials <- function(
 }
 
 
-# Zhenya: issue: Deprecate this function, tell to use tag_low_data_trials
-RemoveLowData <- function(gazeData,
-                        subsetWin,
-                        # maxBins = NULL,
-                        # maxMissing = NULL,
-                        window_size = NULL,
-                        nb_2 = 0,
-                        binSize = 20,
-                        propt = "propt",
-                        timeBin = "timeBin",
-                        Trial = "Trial",
-                        SubjectNumber = "SubjectNumber") {
-  # this function is for making sure there's at least X amount of data in a trial; there are two potential sources of missing data: 1) off screen 2) elsewhere, not in an interest area
-  #gazeData is the dataset, subsetWin is the column name that contains "Y" indicating that's the part in which we are making sure there's enough data,
-  #maxBins is how many bins there could have been in the trial,
-  #minLength is how much data is the minimum to keep the trial, (not arg)
-  #maxMissing= in real time, how many ms of data need to be there
-
-  #binSize is what size of bins the fixations were turned into, this will usually be 20ms,
-  #propt is proportion of target looking,
-
-  #timeBin is the (20 ms) bin the trial that each line is
-
-  if (is.null(window_size)){
-    if (subsetWin=="longwin"){
-      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$long
-    } else if (subsetWin=="medwin"){
-      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$med
-    } else if (subsetWin=="shortwin"){
-      window_size <- DEFAULT_WINDOWS_UPPER_BOUNDS$short
-    }
-  }
-
-  maxBins <- as.integer((window_size - nb_2)/binSize)
-  maxMissing <- as.integer((window_size - nb_2) - ((window_size - nb_2)/3))
-
-  gazeData2 <- gazeData %>%
-    dplyr::filter(gazeData[,subsetWin] == "Y")
-
-  print(dim(gazeData2))
-  #1) offscreen: those timebins don't exist with my version of binifyFixations so how many timebins
-  # are there in relation to the maximum given the trial length?
-
-  number_timebins <- gazeData2 %>%
-    group_by(Trial, SubjectNumber) %>%
-    tally() %>%
-    mutate(bins = n) %>%
-    dplyr::select(-n)%>%
-    mutate(missing_bins = maxBins - bins)
-
-  #2)elsewhere: let's see how many NAs we have for propt, our proportion of target looking
-
-  elsewhere_bins <- gazeData2 %>%
-    group_by(Trial, SubjectNumber) %>%
-    tally(is.na(propt)) %>%
-    mutate(elsewhere_bins = n) %>%
-    dplyr::select(-n)
-
-  # This is all the low data from either source
-
-  lowdata_bins <- left_join(number_timebins, elsewhere_bins) %>%
-    mutate(lowdata = missing_bins + elsewhere_bins) %>%
-    mutate(missing_TF = lowdata >floor(maxMissing/binSize)) %>%
-    dplyr::select(Trial, SubjectNumber, missing_TF)
-
-  gazeData <- left_join(gazeData, lowdata_bins) %>%
-    dplyr::filter(missing_TF == F) %>%
-    dplyr::select(-missing_TF)
-
-  message("Low data rows have been removed. To identify them in a new column without removing them, use blabr::FindLowData.")
-  return(gazeData)
-}
-
-
 get_pairs <- function(data, study = "eye_tracking", output_dir = '../data/', out_csv = FALSE){
   res <- data %>%
     group_by(SubjectNumber) %>%
@@ -914,21 +840,4 @@ FindFrozenTrials <- function(gazeData,
 
  message("Column added identifying trials where gaze stayed in one interest area for whole trial (frozen = T).")
  return(gazeData)
-}
-
-
-# Zhenya: issue: Deprecate this functions, tell users to use FindFrozenTrials
-RemoveFrozenTrials <- function(gazeData,
-                             Trial,
-                             SubjectNumber,
-                             gaze) {
-
-  gazeData <-  gazeData %>%
-    group_by(SubjectNumber, Trial) %>%
-    mutate(frozen = ifelse(length(levels(fct_explicit_na(gaze, na_level = "NA"))) == 1, T, F)) %>%
-    dplyr::filter(frozen == F) %>%
-    dplyr::select(-frozen)
-
-  message("frozen trials have been removed. To identify them in a new column without removing them, use blabr::FindFrozenTrials.")
-  return(gazeData)
 }

@@ -66,3 +66,31 @@ FindLowData <- function(gazeData,
                             "tag_low_data_trials()")
 }
 
+
+#' @export
+#' @rdname defunct
+RemoveLowData <- function(gazeData,
+                          subsetWin,
+                          # maxBins = NULL,
+                          # maxMissing = NULL,
+                          window_size = NULL,
+                          nb_2 = 0,
+                          binSize = 20,
+                          propt = "propt",
+                          timeBin = "timeBin",
+                          Trial = "Trial",
+                          SubjectNumber = "SubjectNumber") {
+  lifecycle::deprecate_stop("0.22.0", "RemoveLowData()",
+                            "tag_low_data_trials()")
+}
+
+
+#' @export
+#' @rdname defunct
+RemoveFrozenTrials <- function(gazeData,
+                               Trial,
+                               SubjectNumber,
+                               gaze) {
+  lifecycle::deprecate_stop("0.22.0", "RemoveFrozenTrials()",
+                            "FindFrozenTrials()")
+}

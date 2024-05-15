@@ -7,6 +7,8 @@
 \alias{binifyFixations}
 \alias{get_windows}
 \alias{FindLowData}
+\alias{RemoveLowData}
+\alias{RemoveFrozenTrials}
 \title{Defunct functions}
 \usage{
 # Deprecated in 0.22.0 -------------------------------------
@@ -37,6 +39,20 @@ get_windows(
 )
 
 FindLowData(gazeData, subsetWin, window_size = NULL, nb_2 = 0, binSize = 20)
+
+RemoveLowData(
+  gazeData,
+  subsetWin,
+  window_size = NULL,
+  nb_2 = 0,
+  binSize = 20,
+  propt = "propt",
+  timeBin = "timeBin",
+  Trial = "Trial",
+  SubjectNumber = "SubjectNumber"
+)
+
+RemoveFrozenTrials(gazeData, Trial, SubjectNumber, gaze)
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#defunct}{\figure{lifecycle-defunct.svg}{options: alt='[Defunct]'}}}{\strong{[Defunct]}}

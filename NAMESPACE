@@ -2,6 +2,8 @@
 
 export("%>%")
 export(FindLowData)
+export(RemoveFrozenTrials)
+export(RemoveLowData)
 export(add_lena_stats)
 export(add_vtc_stats)
 export(assign_time_windows)
