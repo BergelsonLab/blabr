@@ -44,7 +44,7 @@ split_report <- function(report,
   trial_key <- 'trial_index'
   rename_map[recording_key] <- 'RECORDING_SESSION_LABEL'
   rename_map[trial_key] <- 'TRIAL_INDEX'
-  report <- report %>% dplyr::rename(all_of(rename_map))
+  report <- report %>% dplyr::rename(dplyr::all_of(rename_map))
 
 
   if (isTRUE(drop_empty_columns)) {
@@ -504,8 +504,9 @@ fixations_to_timeseries <- function(
       dplyr::tibble(time = seq(min(.$t_start_rounded),
                                max(.$t_end_rounded),
                                by = t_step)),
-      by = dplyr::join_by(between(y$time,
-                                  x$t_start_rounded, x$t_end_rounded))) %>%
+      by = dplyr::join_by(dplyr::between(
+        y$time,
+        x$t_start_rounded, x$t_end_rounded))) %>%
     dplyr::select(-t_start_rounded, -t_end_rounded) %>%
     dplyr::rename(
       fixation_start = t_start,
@@ -546,10 +547,13 @@ fixations_to_timeseries <- function(
 keypress_issues <- function(data, study = "eye_tracking_study", practice_trials = c("p1", "p2", "p3", "p4"), output_dir = "../data/", out_csv = FALSE){ # or study = NULL and take data[:-4]
   keypress_issues <- data %>%
     dplyr::filter(RT == -1 & !Trial %in% practice_trials) %>%
-    group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)%>%
-    distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, RT, AudioTarget)
+    dplyr::group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)%>%
+    dplyr::distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, RT, AudioTarget)
   if (out_csv){
-    write_csv(keypress_issues, paste(output_dir, "keypress_issues_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
+    readr::write_csv(
+      keypress_issues,
+      paste(output_dir, "keypress_issues_", study, "_",
+            stringr::str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
   }
   keypress_issues
 }
@@ -569,8 +573,8 @@ keypress_issues <- function(data, study = "eye_tracking_study", practice_trials 
 #'
 #' @examples
 keypress_retrieved <- function(filename, drop_list = c("video_pop_time", "video_targetonset", "notes")){
-  retrieved_kp <- read_excel(filename) %>%
-    dplyr::select(-one_of(drop_list))
+  retrieved_kp <- readxl::read_excel(filename) %>%
+    dplyr::select(-dplyr::one_of(drop_list))
   retrieved_kp #return?
 }
 
@@ -588,23 +592,23 @@ keypress_retrieved <- function(filename, drop_list = c("video_pop_time", "video_
 get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSION_LABEL", "CURRENT_MSG_TIME", "TRIAL_INDEX", "AudioTarget", "Trial")){
 
   mesrep_temp <- mesrep_all %>% #subset of mesrep_all
-    dplyr::select(one_of(final_columns, "CURRENT_MSG_TEXT", "RT")) %>%
-    mutate(RT = as.numeric(as.character(RT)),
+    dplyr::select(dplyr::one_of(final_columns, "CURRENT_MSG_TEXT", "RT")) %>%
+    dplyr::mutate(RT = as.numeric(as.character(RT)),
            Trial=as.numeric(Trial))
 
   good_kp_mesrep <- mesrep_temp %>% # message reports corresponding to good key presses
     dplyr::filter(CURRENT_MSG_TEXT == "EL_BUTTON_CRIT_WORD") %>%
-    dplyr::select(one_of(final_columns))
+    dplyr::select(dplyr::one_of(final_columns))
 
   fixed_kp_mesrep <- mesrep_temp %>% # message reports corresponding to fixed key presses
     dplyr::filter(CURRENT_MSG_TEXT=="PLAY_POP" & RT=="-1") %>%
-    left_join(fixed_kp %>% dplyr::filter(outcome=="FIX")) %>%
+    dplyr::left_join(fixed_kp %>% dplyr::filter(outcome=="FIX")) %>%
     dplyr::rename(PLAY_POP=CURRENT_MSG_TIME) %>%
-    mutate(CURRENT_MSG_TIME = PLAY_POP+ms_diff) %>%
-    dplyr::select(one_of(final_columns))
+    dplyr::mutate(CURRENT_MSG_TIME = PLAY_POP+ms_diff) %>%
+    dplyr::select(dplyr::one_of(final_columns))
 
   mesrep <- fixed_kp_mesrep %>% # merge both reports
-    bind_rows(good_kp_mesrep)
+    dplyr::bind_rows(good_kp_mesrep)
 
   mesrep # return?
 }
@@ -624,10 +628,13 @@ get_mesrep <- function(mesrep_all, fixed_kp, final_columns = c("RECORDING_SESSIO
 get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_study", output_dir = "../data/", out_csv = FALSE){
   late_target_onset <- data %>%
     dplyr::filter(CURRENT_MSG_TIME>max_time) %>%
-    group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget) %>%
-    distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)
+    dplyr::group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget) %>%
+    dplyr::distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)
   if(out_csv){
-    write_csv(late_target_onset, paste(output_dir, "late_target_onset_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
+    dplyr::write_csv(
+      late_target_onset,
+      paste(output_dir, "late_target_onset_", study, "_",
+            stringr::str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
   }
   late_target_onset
 }
@@ -645,8 +652,8 @@ get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_s
 #'
 #' @examples
 late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "video_targetonset", "notes")){
-  retrieved_late_target <- read_excel(filename) %>%
-    dplyr::select(-one_of(drop_list))
+  retrieved_late_target <- readxl::read_excel(filename) %>%
+    dplyr::select(-dplyr::one_of(drop_list))
   retrieved_late_target #return?
 }
 
@@ -789,10 +796,10 @@ tag_low_data_trials <- function(
   min_points_with_data <- floor((t_end - t_start) / t_step * min_fraction)
 
   tagged <- fixation_timeseries %>%
-    assertr::verify(!!sym(window_column) %in% c('Y', 'N')) %>%
+    assertr::verify(!!rlang::sym(window_column) %in% c('Y', 'N')) %>%
     dplyr::mutate(
       # issue: check that `window_column` only takes "Y" or "N" values
-      in_time_window = !!sym(window_column) == "Y",
+      in_time_window = !!rlang::sym(window_column) == "Y",
       has_data = in_time_window & is_good_timepoint) %>%
     dplyr::group_by(recording_id, trial_index) %>%
     dplyr::mutate(
@@ -808,12 +815,12 @@ tag_low_data_trials <- function(
 
 get_pairs <- function(data, study = "eye_tracking", output_dir = '../data/', out_csv = FALSE){
   res <- data %>%
-    group_by(SubjectNumber) %>%
-    distinct(Pair)
+    dplyr::group_by(SubjectNumber) %>%
+    dplyr::distinct(Pair)
   if (out_csv){
-    name <- paste(output_dir, "pairs_", study, "_", str_replace_all(Sys.time(), ' ', '_'), ".csv", sep='')
+    name <- paste(output_dir, "pairs_", study, "_", stringr::str_replace_all(Sys.time(), ' ', '_'), ".csv", sep='')
     print(name)
-    write_csv(res, name)
+    readr::write_csv(res, name)
   }
   res
 }
@@ -834,9 +841,13 @@ FindFrozenTrials <- function(gazeData,
                              SubjectNumber,
                              gaze) {
 
- gazeData <-  gazeData %>%
-    group_by(SubjectNumber, Trial) %>%
-    mutate(frozen = ifelse(length(levels(fct_explicit_na(gaze, na_level = "NA"))) == 1, T, F))
+  gazeData <-  gazeData %>%
+    dplyr::group_by(SubjectNumber, Trial) %>%
+    dplyr::mutate(
+      frozen = ifelse(
+        length(levels(forcats::fct_explicit_na(gaze, na_level = "NA"))) == 1,
+        T,
+        F))
 
  message("Column added identifying trials where gaze stayed in one interest area for whole trial (frozen = T).")
  return(gazeData)
