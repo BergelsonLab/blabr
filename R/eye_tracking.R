@@ -144,7 +144,7 @@ split_fixation_report <- function(report,
 
   data <- split_report(report,
                        drop_empty_columns = drop_empty_columns) %>%
-    list_rename(fixations = the_rest)
+    list_rename(fixations = "the_rest")
 
   # Rename a few columns
   data$fixations <- data$fixations %>%
@@ -155,13 +155,13 @@ split_fixation_report <- function(report,
         'CURRENT_FIX_X',
         'CURRENT_FIX_Y')) %>%
     dplyr::rename(
-      t_start = CURRENT_FIX_START,
-      t_end = CURRENT_FIX_END,
-      x = CURRENT_FIX_X,
-      y = CURRENT_FIX_Y) %>%
+      t_start = .data$CURRENT_FIX_START,
+      t_end = .data$CURRENT_FIX_END,
+      x = .data$CURRENT_FIX_X,
+      y = .data$CURRENT_FIX_Y) %>%
     dplyr::select(
-      recording_id, trial_index,
-      t_start, t_end, x, y,
+      dplyr::all_of(c('recording_id', 'trial_index',
+                      't_start', 't_end', 'x', 'y')),
       dplyr::everything())
 
   return(data)
@@ -180,7 +180,7 @@ split_message_report <- function(report,
 ) {
   data <- split_report(report,
                        drop_empty_columns = drop_empty_columns) %>%
-    list_rename(messages = the_rest)
+    list_rename(messages = "the_rest")
 
   return(data)
 }
@@ -355,14 +355,14 @@ read_report <- function(report_path,
   #   change things for existing analyses.
   if (remove_unfinished){
     report <- report %>%
-      dplyr::filter(!is.na(order))
+      dplyr::filter(!is.na(.data$order))
   }
 
   # remove practice rows
   # issue: Assert that practice is "y", "n" or NA.
   if (remove_practice){
     report <- report %>%
-      dplyr::filter(practice == "n")
+      dplyr::filter(.data$practice == "n")
   }
 
   return(report)
@@ -407,14 +407,14 @@ verify_no_overlapping_fixations <- function(fixations_df) {
     # I don't want to sort the table because of this so I am going to restore
     # the original order at the end
     dplyr::mutate(row_number = dplyr::row_number()) %>%
-    dplyr::group_by(recording_id, trial_index) %>%
-    dplyr::arrange(t_start, t_end, .by_group = TRUE) %>%
+    dplyr::group_by(.data$recording_id, .data$trial_index) %>%
+    dplyr::arrange(.data$t_start, .data$t_end, .by_group = TRUE) %>%
     dplyr::mutate(overlapping =
-                    t_start <= dplyr::lag(t_end, default = -Inf)) %>%
+                  .data$t_start <= dplyr::lag(.data$t_end, default = -Inf)) %>%
     dplyr::ungroup() %>%
     # Restore original row order
-    dplyr::arrange(row_number) %>%
-    dplyr::select(-row_number)
+    dplyr::arrange(.data$row_number) %>%
+    dplyr::select(-.data$row_number)
 
   assertthat::assert_that(
     !any(fixations_df$overlapping),
@@ -422,7 +422,7 @@ verify_no_overlapping_fixations <- function(fixations_df) {
                      " You'll need to drop the extra ones.",
                      " Search on gitbook for more info."))
 
-  fixations_df %>% dplyr::select(-overlapping)
+  fixations_df %>% dplyr::select(-data$overlapping)
 }
 
 #' Convert a dataframe of fixation intervals to an evenly spaced timeseries
@@ -488,7 +488,7 @@ fixations_to_timeseries <- function(
 
   if (!is.null(t_max)) {
     # Drop all fixations that start after the t_max
-    fixations <- subset(fixations, t_start < t_max)
+    fixations <- fixations[fixations$t_start < t_max, ]
     # Trim fixation end times to be less than t_max
     fixations$t_end[fixations$t_end > t_max] <- t_max
   }
@@ -497,8 +497,8 @@ fixations_to_timeseries <- function(
   # earliest fixation to the end of the latest fixation
   fixation_timeseries <- fixations %>%
     dplyr::mutate(
-      dplyr::across(c(t_start, t_end),
-                    ~ ceiling(.x / t_step) * t_step,
+      dplyr::across(c(.data$t_start, .data$t_end),
+                    ~ ceiling(.x / .env$t_step) * .env$t_step,
                     .names = '{.col}_rounded')) %>%
     dplyr::inner_join(
       dplyr::tibble(time = seq(min(.$t_start_rounded),
@@ -507,10 +507,10 @@ fixations_to_timeseries <- function(
       by = dplyr::join_by(dplyr::between(
         y$time,
         x$t_start_rounded, x$t_end_rounded))) %>%
-    dplyr::select(-t_start_rounded, -t_end_rounded) %>%
+    dplyr::select(-.data$t_start_rounded, -.data$t_end_rounded) %>%
     dplyr::rename(
-      fixation_start = t_start,
-      fixation_end = t_end)
+      fixation_start = .data$t_start,
+      fixation_end = .data$t_end)
 
   # There is a border case in which two fixations share a time point resulting
   # in two rows with the same `time`. Ex.:
@@ -800,13 +800,14 @@ tag_low_data_trials <- function(
     dplyr::mutate(
       # issue: check that `window_column` only takes "Y" or "N" values
       in_time_window = !!rlang::sym(window_column) == "Y",
-      has_data = in_time_window & is_good_timepoint) %>%
-    dplyr::group_by(recording_id, trial_index) %>%
+      has_data = .data$in_time_window & .data$is_good_timepoint) %>%
+    dplyr::group_by(.data$recording_id, .data$trial_index) %>%
     dplyr::mutate(
-      bins_with_data_count = sum(has_data),
-      is_trial_low_data = bins_with_data_count < min_points_with_data) %>%
+      bins_with_data_count = sum(.data$has_data),
+      is_trial_low_data =
+        .data$bins_with_data_count < .env$min_points_with_data) %>%
     dplyr::ungroup() %>%
-    dplyr::select(dplyr::all_of(original_columns), is_trial_low_data)
+    dplyr::select(dplyr::all_of(original_columns), .data$is_trial_low_data)
 
   return(tagged)
 
