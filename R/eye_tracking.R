@@ -403,24 +403,26 @@ read_message_report <- function(report_path,
 
 #' @noRd
 verify_no_overlapping_fixations <- function(fixations_df) {
-  fixations_df %>%
+  fixations_df <- fixations_df %>%
     # I don't want to sort the table because of this so I am going to restore
     # the original order at the end
     dplyr::mutate(row_number = dplyr::row_number()) %>%
     dplyr::group_by(recording_id, trial_index) %>%
     dplyr::arrange(t_start, t_end, .by_group = TRUE) %>%
-    dplyr::mutate(overlapping = t_start <= lag(t_end, default = -Inf)) %>%
+    dplyr::mutate(overlapping =
+                    t_start <= dplyr::lag(t_end, default = -Inf)) %>%
     dplyr::ungroup() %>%
     # Restore original row order
     dplyr::arrange(row_number) %>%
-    dplyr::select(-row_number) %>%
-    # Verify
-    {assertthat::assert_that(
-      !any(.$overlapping),
-      msg = glue::glue("Overlapping fixations found in the data.",
-                       " You'll need to drop the extra ones.",
-                       " Search on gitbook for more info."))} %>%
-    dplyr::select(-overlapping)
+    dplyr::select(-row_number)
+
+  assertthat::assert_that(
+    !any(fixations_df$overlapping),
+    msg = glue::glue("Overlapping fixations found in the data.",
+                     " You'll need to drop the extra ones.",
+                     " Search on gitbook for more info."))
+
+  fixations_df %>% dplyr::select(-overlapping)
 }
 
 #' Convert a dataframe of fixation intervals to an evenly spaced timeseries
