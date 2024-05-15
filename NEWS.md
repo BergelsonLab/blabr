@@ -1,3 +1,56 @@
+# blabr 0.22.0
+
+## Added
+
+- `read_message_report` function.
+- `split_fixation_repor`, `split_message_report`, and `merge_split_reports` functions
+  that together transform the data from a fixation and a message report into a
+  list of these tables: `experiment`, `recordings`, `trials`,
+  `fixations`, `messages`. Use them as the first step in eyetracking processing.
+
+## Changed
+
+- Most of the eyetracking functions have been renamed and updated.
+  One notable difference is that they expect input dataframe to contain columns `recording_id` and `trial_index` and do not allow to choose a column as a parameter.
+  Instead, use `dplyr::rename` if necessary or, better yet, keep these two column names and don't rename them.
+  Functions `split_fixation_report` and `split_message_report` will create these columns for you by renaming `RECORDING_SESSION_LABEL` and `TRIAL_INDEX` from the original report tables.
+- `binifyFixations` is now `fixations_to_timeseries`. What's chcanged:
+  - It is now a lot faster. As an example, the processing time went from 1+ min to 1-3 s on the "ht_seedlings" dataset.
+  - `keepCols` parameter was dropped, use `dplyr::select` instead.
+  - `gaze`, `binSize`, and `maxTime` parameters are now `fixations`, `t_step`, and `t_max`.
+    Otherwise, they didn't change.
+  - It expects the fixation boundaries to be in the `t_start` and `t_end` columns.
+    If you used `split_fixation_report`, they will be named like that already, otherwise use `dplyr::rename`.
+  - The function will throw an error if the fixations overlap which has happened to some datasets in the past.
+  - The output no longer has the `timeBin` column (it was redundant and easily confusable with `time`), `Nonset` is `t_onset` - time since the target onset rounded up to the nearest multiple of `t_step`.
+- `fixations_report` is now `read_fixation_report`, parameter `val_guess_max` is just `guess_max` now.
+- `get_windows` is now `assign_time_windows`. 
+  - It now takes the following parameters: `fixation_timeseries`, `t_step` (previously `bin_size`, `t_start`, `short_window_time`, `med_window_time`, `long_window_time`.
+  - The input dataframe must contain the `target_onset` column.
+  - `nb_1` that used to take the number of time steps (bins) since the target onset until the common window start was replaced with `t_start` which takes the time in ms between those two events.
+  - There will be more changes to this function in the future mainly aimed at making it harder to use one set of window boundaries in this function and then a different one in `tag_low_data_trials` (previously `FindLowData`).
+- `FindLowData` is now `tag_low_data_trials`.
+  - It now takes the following parameters: `fixation_timeseries`,  `window_column`,  `t_start`, `t_end`, `t_step`, `min_fraction` (defaults to 1/3).
+  - `min_fraction` makes the minimum amount of data more explicit.
+  - The `nb_2` parameter was replaced with `t_start` which has the same meaning as in `assign_time_windows`.
+    If you are converting from older code, `nb_2` used to be in ms, unlike `nb_1` in `get_windows` which was in bins so there is nothing to convert.
+  - There is no check that `t_start` and `t_end` correpond to those used in `assign_time_windows` so be careful to make sure they match.
+  - The output column is now called `is_low_data_trial` and is always TRUE or FALSE (it used to be NA for some trials).
+  
+## Fixed
+
+- Example for `get_vihi_annotations` uses data version that doesn't lead to errors.
+- `whichwinmed` and `whichwinshort` columns in the output of `assign_time_windows` (previously, `get_windows`) are now calculated correctly.
+  They used to be identical to `whichwinlong` because of a bug.
+
+## Removed
+
+- Many eyetracking functions were hard-deprecated in favor of their renamed and updated versions.
+  Some of them are described above under "Changed".
+  See `help(blabr::defunct)` for the full list.
+  You can also run any of them to get a replacement suggestion.
+- Removed `RemoveLowData` and `RemoveFrozenTrials`. Use `tag_low_data_trials` and `FindFrozenTrials` followed by `dplyr::filter()` instead.
+
 # blabr 0.21.0
 
 ## Changed
@@ -11,7 +64,7 @@
   
 ## Fixed
 
-- Lots in tests. They are still faling though.
+- Lots in tests. They are still failing though.
 
 # blabr 0.20.1
 
@@ -35,7 +88,7 @@
 
 - The help page of `get_seedlings_nouns` has been updated.
 - Check that the requested dataset versions are present in the GitHub repo.
-  Supplying non-exitent versions to `get_*` functions (`get_seedlings_nouns`, `get_vihi_annotaitons`, etc.) used to lead to loading of the version that was currently in `BLAB_DATA`.
+  Supplying non-existent versions to `get_*` functions (`get_seedlings_nouns`, `get_vihi_annotaitons`, etc.) used to lead to loading of the version that was currently in `BLAB_DATA`.
 - Enforce column specification in `get_*` functions: throw an error if it doesn't match the data.
   Previously, if I messed up and didn't add new columns to the code at all or didn't use them for specific dataset versions, there was no indication of that.
 - Fix column misspecification of seedlings-nouns tables revealed by enforcing column specifications.
