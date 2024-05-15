@@ -1,7 +1,7 @@
 Package: blabr
 Type: Package
 Title: a toolbox for working in the BLAB
-Version: 0.21.0
+Version: 0.22.0
 Author: Bergelson Lab
 Maintainer: Andrei Amatuni <andrei.amatuni@gmail.com>
 Description: More about what it does (maybe more than one line)
@@ -32,7 +32,11 @@ Imports:
     forcats,
     ggplot2,
     semver,
-    processx
+    processx,
+    lifecycle,
+    assertr,
+    digest,
+    tidyselect
 Remotes:
   HomeBankCode/rlena
 RoxygenNote: 7.2.3

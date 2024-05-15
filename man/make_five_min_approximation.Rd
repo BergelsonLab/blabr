@@ -18,7 +18,8 @@ Approximate LENA's 5min.csv output
 }
 \examples{
 # Download the example ITS file (code from rlena's README)
-url <- "https://cdn.rawgit.com/HomeBankCode/lena-its-tools/master/Example/e20160420_165405_010572.its"
+url <- paste0("https://cdn.rawgit.com/HomeBankCode/lena-its-tools/",
+              "master/Example/e20160420_165405_010572.its")
 tmp <- tempfile()
 download.file(url, tmp)
 its <- rlena::read_its_file(tmp)

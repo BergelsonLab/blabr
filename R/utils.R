@@ -1,3 +1,5 @@
+# issue: Split internal fuctnions into dev.R
+
 #' Extracts a subset of column specification created with readr::cols()
 #' @noRd
 subset_col_types <- function(col_types, subset_cols) {
@@ -26,4 +28,19 @@ parse_version <- function(version) {
     version <- paste0('0.0.0-', substr(version, 7, nchar(version)))
   }
   semver::parse_version(version)
+}
+
+#' `dplyr::rename` for lists
+#'
+#' @param .x A list.
+#' @param ... Any number of `new_name = old_name` pairs.
+#' @param .strict If `TRUE`, the function will throw an error if any of the
+#'  new names do not exist in the list.
+#'
+#' @export
+list_rename <- function(.x, ..., .strict = TRUE) {
+  # From https://github.com/tidyverse/purrr/issues/804#issuecomment-729070112
+  pos <- tidyselect::eval_rename(quote(c(...)), .x, strict = .strict)
+  names(.x)[pos] <- names(pos)
+  .x
 }
