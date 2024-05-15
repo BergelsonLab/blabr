@@ -29,6 +29,298 @@ DEFAULT_WINDOWS_UPPER_BOUNDS <- list(short = 2000,
                                      long = 5000)
 
 
+#' Split a fixation or message report into hierarchical dataframes
+#'
+#' @param drop_empty_columns Logical. If TRUE, columns that are all '.' will be
+#'   dropped.
+#'
+#' @keywords internal
+split_report <- function(report,
+                         drop_empty_columns = TRUE) {
+
+  # Rename the key columns
+  rename_map <- c()
+  recording_key <- 'recording_id'
+  trial_key <- 'trial_index'
+  rename_map[recording_key] <- 'RECORDING_SESSION_LABEL'
+  rename_map[trial_key] <- 'TRIAL_INDEX'
+  report <- report %>% dplyr::rename(all_of(rename_map))
+
+
+  if (isTRUE(drop_empty_columns)) {
+    report <- report %>%
+      dplyr::select_if(~ !all(.x == '.'))
+  }
+
+  find_constant_columns <- function(df, .by = NULL) {
+    constant_columns <- df %>%
+      dplyr::summarise(dplyr::across(dplyr::everything(),
+                                     ~ all(.x == .x[1])),
+                       .by = .by) %>%
+      dplyr::select(-dplyr::all_of(.by)) %>%
+      dplyr::select(dplyr::where(~ all(.x))) %>%
+      colnames
+
+    return(constant_columns)
+  }
+
+  # Experiment-level data
+  experiment_data_columns <- report %>%
+    find_constant_columns()
+
+  experiment_data <- report %>%
+    dplyr::select(dplyr::all_of(experiment_data_columns)) %>%
+    dplyr::distinct()
+
+  report <- report %>%
+    dplyr::select(-dplyr::all_of(colnames(experiment_data)))
+
+  # Recording-level data
+  recording_data_columns <- report %>%
+    find_constant_columns(.by = recording_key)
+
+  recording_data <- report %>%
+    dplyr::select(dplyr::all_of(c(recording_key,
+                                  recording_data_columns))) %>%
+    dplyr::distinct()
+
+  report <- report %>%
+    dplyr::select(-dplyr::all_of(recording_data_columns))
+
+  # Trial-level data
+  trial_keys <- c(recording_key, trial_key)
+
+  trial_data_columns <- report %>%
+    find_constant_columns(.by = trial_keys)
+
+  trial_data <- report %>%
+    dplyr::select(dplyr::all_of(c(trial_keys,
+                                  trial_data_columns))) %>%
+    dplyr::distinct()
+
+  # The rest
+  report <- report %>%
+    dplyr::select(-dplyr::all_of(trial_data_columns)) %>%
+    dplyr::select(dplyr::all_of(trial_keys),
+                  dplyr::everything())
+
+  return(list(experiment = experiment_data,
+              recordings = recording_data,
+              trials = trial_data,
+              the_rest = report))
+
+}
+
+
+
+#' Split a fixation report into a list of hierarchical dataframes
+#'
+#' @param report Fixation report dataframe as created by `read_fixation_report`.
+#' @inheritParams read_report
+#' @param drop_saccades, drop_prev_and_next Logical. If TRUE, columns related to
+#'   saccades and previous/next fixations/saccades will be dropped.
+#'
+#' @export
+split_fixation_report <- function(report,
+                                  drop_empty_columns = TRUE,
+                                  drop_saccades = TRUE,
+                                  drop_prev_and_next = TRUE) {
+
+  if (isTRUE(drop_saccades)) {
+    report <- report %>%
+      # ignore.case is TRUE by default, added here for transparency
+      dplyr::select(
+        -dplyr::starts_with('previous_sac_', ignore.case = TRUE),
+        # there are no current saccades in fixation reports
+        -dplyr::starts_with('next_sac_', ignore.case = TRUE))
+  }
+
+  if (isTRUE(drop_prev_and_next)) {
+    report <- report %>%
+      dplyr::select(-dplyr::starts_with('previous_', ignore.case = TRUE),
+                    -dplyr::starts_with('next_', ignore.case = TRUE))
+  }
+
+  data <- split_report(report,
+                       drop_empty_columns = drop_empty_columns) %>%
+    list_rename(fixations = the_rest)
+
+  # Rename a few columns
+  data$fixations <- data$fixations %>%
+    assertr::verify(
+      assertr::has_all_names(
+        'CURRENT_FIX_START',
+        'CURRENT_FIX_END',
+        'CURRENT_FIX_X',
+        'CURRENT_FIX_Y')) %>%
+    dplyr::rename(
+      t_start = CURRENT_FIX_START,
+      t_end = CURRENT_FIX_END,
+      x = CURRENT_FIX_X,
+      y = CURRENT_FIX_Y) %>%
+    dplyr::select(
+      recording_id, trial_index,
+      t_start, t_end, x, y,
+      dplyr::everything())
+
+  return(data)
+}
+
+#' Split a message report into a list of hierarchical dataframes
+#'
+#' @param report Message report dataframe as created by `read_message_report`.
+#' @inheritParams read_report
+#'
+#' @export
+split_message_report <- function(report,
+                                 drop_empty_columns = TRUE
+                                 # ek2ek: implement for videos, like in VNA
+                                 # compress_repeating = TRUE
+) {
+  data <- split_report(report,
+                       drop_empty_columns = drop_empty_columns) %>%
+    list_rename(messages = the_rest)
+
+  return(data)
+}
+
+#' Checks that common columns in tables derived from the message report are
+#' identical (experiment and recording tables) or a subset of (trials table)
+#' to the ones derived from the fixations report.
+#'
+#' @noRd
+check_split_data_consistency <- function(mes_rep_data, fix_rep_data) {
+
+  convert_all_to_character <- function(df) {
+    df %>%
+      dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
+  }
+
+  assert_common_cols_identical <- function(df1, df2, msg) {
+    common_cols <- intersect(colnames(df1), colnames(df2))
+    assertthat::assert_that(
+      assertthat::are_equal(
+        df1[, common_cols] %>% convert_all_to_character,
+        df2[, common_cols] %>% convert_all_to_character),
+      msg = msg)
+  }
+
+  assert_common_cols_is_subset <- function(df1, df2, msg) {
+    common_cols <- intersect(colnames(df1), colnames(df2))
+    assertthat::assert_that(assertthat::are_equal(
+      dplyr::anti_join(
+        df1[, common_cols] %>% convert_all_to_character,
+        df2[, common_cols] %>% convert_all_to_character,
+        by = common_cols
+      ) %>%
+        nrow,
+      0),
+      msg = msg)
+  }
+
+  non_identical_error_msg <- glue::glue("
+      The {{level}}-level info differs between the fixation and message \\
+      reports. Update the `${{level}}` table in the split version of either \\
+      or both so that the information in the common columns is identical \\
+      between the two if as.character is applied -- then try merging again.")
+
+  assert_common_cols_identical(
+    fix_rep_data$experiment,
+    mes_rep_data$experiment,
+    msg = glue::glue(non_identical_error_msg, level = "experiment"))
+
+  assert_common_cols_identical(
+    fix_rep_data$recordings,
+    mes_rep_data$recordings,
+    glue::glue(non_identical_error_msg, level = "recordings"))
+
+  not_subset_error_msg <- glue::glue("
+      The trial-level info in the fixation report is not a subset of that in \\
+      the message report. Update the `trials` table in the split version of \\
+      either or both so that the information in the common columns is a \\
+      subset of the other if as.character is applied -- then try merging again.")
+
+  assert_common_cols_is_subset(
+    fix_rep_data$trials,
+    mes_rep_data$trials,
+    msg = not_subset_error_msg)
+
+}
+
+
+#' Merge tables from split fixation and message reports
+#'
+#' The main point of merging is to have one list and no repeating data. For
+#' example, we don't have two "trials" tables in memory where the one coming
+#' from the message report has more trials - we want them merged.
+#'
+#' @param fix_rep_data List of tables as returned by `split_fixation_report`.
+#' @param mes_rep_data List of tables as returned by `split_message_report`.
+#'
+#' @export
+#'
+merge_split_reports <- function(fix_rep_data, mes_rep_data) {
+
+  check_split_data_consistency(mes_rep_data, fix_rep_data)
+
+  join_tables <- function(df1, df2, how, key_columns) {
+    # Joins tables, first removing redundant columns from the second table.
+    # We a
+
+    redundant_cols <- setdiff(intersect(colnames(df1),
+                                        colnames(df2)),
+                              key_columns)
+    df2 <- df2 %>%
+      dplyr::select(-dplyr::all_of(redundant_cols))
+
+    how <- match.arg(how, c('cross', 'inner', 'left'))
+
+    if (how == 'cross') {
+      assertthat::assert_that(assertthat::are_equal(key_columns, c()))
+      return(dplyr::cross_join(df1, df2))
+    }
+
+    join_fun <- switch(how,
+                       "inner" = dplyr::inner_join,
+                       "left" = dplyr::left_join
+    )
+
+    joined <- join_fun(
+      df1,
+      df2,
+      by = key_columns,
+      relationship = 'one-to-one',
+      unmatched = 'error')
+
+    return(joined)
+  }
+
+  recording_key <- 'recording_id'
+  trial_key <- 'trial_index'
+
+  merged <- list(
+    experiment = join_tables(
+      mes_rep_data$experiment,
+      fix_rep_data$experiment,
+      how = "cross",
+      key_columns = c()),
+    recordings = join_tables(
+      mes_rep_data$recordings,
+      fix_rep_data$recordings,
+      how = "inner",
+      key_columns = recording_key),
+    trials = join_tables(
+      mes_rep_data$trials,
+      fix_rep_data$trials,
+      how = "left",
+      key_columns = c(recording_key, trial_key)),
+    fixations = fix_rep_data$fixations,
+    messages = mes_rep_data$messages)
+
+  return(merged)
+
+}
+
 #' Read EyeLink fixation/message report file
 #'
 #' @param report_path Report file path.
@@ -46,7 +338,6 @@ DEFAULT_WINDOWS_UPPER_BOUNDS <- list(short = 2000,
 #'
 #' @return
 #' @keywords internal
-# @noRd
 read_report <- function(report_path,
                         guess_max = 100000,
                         remove_unfinished = TRUE,
