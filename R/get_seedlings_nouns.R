@@ -69,8 +69,9 @@ seedlings_nouns_col_types <- list(
   ),
   recordings = readr::cols(
     recording_id = readr::col_character(),
-    total_recorded_time_ms = readr::col_integer(),
-    total_listened_time_ms = readr::col_integer()
+    duration_ms = readr::col_integer(),
+    listened_ms = readr::col_integer(),
+    surplus_ms = readr::col_integer()
   ),
   `sub-recordings` = readr::cols(
     recording_id = readr::col_character(),
