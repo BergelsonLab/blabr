@@ -75,9 +75,10 @@ seedlings_nouns_col_types <- list(
   ),
   `sub-recordings` = readr::cols(
     recording_id = readr::col_character(),
-    start = readr::col_datetime(format = ""),
-    end = readr::col_datetime(format = ""),
-    start_position_ms = readr::col_integer()
+    start_dt = readr::col_datetime(format = ""),
+    end_dt = readr::col_datetime(format = ""),
+    start_ms = readr::col_integer(),
+    end_ms = readr::col_integer()
   ),
   codebook = readr::cols(
     column = readr::col_character(),
