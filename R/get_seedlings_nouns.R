@@ -120,13 +120,13 @@ build_v2_extra_col_types <- function() {
 
 
 is_public_version <- function(version) {
-  if (startsWith(version, '0') | endsWith(version, '-dev')) {
-    return(FALSE)
-  } else if (grepl('v?\\d+\\.\\d+\\.\\d+', version)) {
-    return(TRUE)
-  } else {
-    stop(glue::glue('Unrecognized version {version}'))
-  }
+  # We use two different version styles for dev versions:
+  #  - tidyverse unreleased package versions: 0.0.0.9000, 0.0.0.9001, ...
+  #  - semantic versions with a pre-release identifier and a "v" prefix: v2.0.0-dev, v2.0.0-dev.1, ...
+  # The public versions are v1.0.0, v2.0.0, v2.0.1, etc.
+  # blabr:::parse_version converts the ".9000" part to a pre-release identifier so we can diffetentiate between the two
+  # public and dev version by checking whethere there is a pre-release identifier.
+  return(parse_version(version)[[1]]$pre == "")
 }
 
 build_seedlings_nouns_col_types <- function(table, get_codebook, version) {
