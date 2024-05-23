@@ -33,8 +33,8 @@ seedlings_nouns_col_types <- list(
     audio_video =
       readr::col_factor(levels = sn_factor_levels$audio_video),
     recording_id = readr::col_character(),
-    child = readr::col_factor(levels = sn_factor_levels$children),
-    month = readr::col_factor(levels = sn_factor_levels$months),
+    subject = readr::col_character(),
+    month = readr::col_character(),
     subject_month = readr::col_character(),
     onset = readr::col_integer(),
     offset = readr::col_integer(),
@@ -49,12 +49,9 @@ seedlings_nouns_col_types <- list(
       readr::col_factor(levels = sn_factor_levels$utterance_types),
     object_present =
       readr::col_factor(levels = sn_factor_levels$object_present_values),
-    is_subregion = readr::col_logical(),
     is_top_3_hours = readr::col_logical(),
-    is_top_4_hours = readr::col_logical(),
-    is_surplus = readr::col_logical(),
-    position = readr::col_integer(),
-    subregion_rank = readr::col_integer(),
+    region_id = readr::col_character(),
+    sub_recording_id = readr::col_character()
   ),
   regions = readr::cols(
     recording_id = readr::col_character(),
@@ -65,10 +62,14 @@ seedlings_nouns_col_types <- list(
     is_top_4_hours = readr::col_logical(),
     is_surplus = readr::col_logical(),
     position = readr::col_integer(),
-    subregion_rank = readr::col_integer()
+    subregion_rank = readr::col_integer(),
+    duration = readr::col_character()
   ),
   recordings = readr::cols(
     recording_id = readr::col_character(),
+    duration_time = readr::col_character(),
+    listened_time = readr::col_character(),
+    surplus_time = readr::col_character(),
     duration_ms = readr::col_integer(),
     listened_ms = readr::col_integer(),
     surplus_ms = readr::col_integer()
@@ -96,14 +97,14 @@ seedlings_nouns_col_types <- list(
 
 version_2_dev <- 'v2.0.0-dev'
 
-#' Starting with v2.0.0-dev, all extra tables got audio_video, child, and month
+#' Starting with v2.0.0-dev, all extra tables got audio_video, subject, and month
 #' columns added. Regions additionally received region_id, sub-recordings -
 #' sub_recording_id.
 #' @noRd
 build_v2_extra_col_types <- function() {
   composite_key_col_types <- subset_col_types(
     seedlings_nouns_col_types[['seedlings-nouns']],
-    c('audio_video', 'child', 'month'))
+    c('audio_video', 'subject', 'month'))
 
   # List added columns for each table.
   v2_extra_col_types <-
