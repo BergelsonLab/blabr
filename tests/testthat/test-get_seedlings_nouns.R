@@ -7,7 +7,7 @@ test_that("the main table loads at all", {
 test_that("get_seedlings_nouns and friends work", {
   versions_to_test <- c('0.0.0.9016',  # a dev version
                         'v1.0.0',  # a public version
-                        'v2.0.0-dev')  # a version with extra columns added
+                        'v2.0.0-dev.3')  # a version with extra columns added
   for (version in versions_to_test) {
     for (table in c('seedlings-nouns', 'regions', 'recordings',
                     'sub-recordings')) {
