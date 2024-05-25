@@ -5,7 +5,7 @@ library(blabr)
 test_that(
   "dataset versions before and after formatting changes can be loaded",
   {
-    suppressWarnings({
+    without_warning_or_messages({
       for (version in c('0.3.3',
                         '0.4.0',  # only single csv left
                         '0.5.0')  # global_bl column added
@@ -17,7 +17,7 @@ test_that(
 
 
 # get_functions issue a warning when called without version specified
-suppressWarnings({
+without_warning_or_messages({
   gbl <- get_global_bl_mappings()
   datasets <- list(
     all_basiclevel = get_all_basiclevel(),
@@ -37,7 +37,7 @@ test_that("all datasets can be downloaded", {
 
 
 # laod the csv versions
-suppressWarnings({datasets_csv <- list(
+without_warning_or_messages({datasets_csv <- list(
   cdi = get_cdi_spreadsheet(type = 'csv'),
   motor = get_motor_spreadsheet(type = 'csv')
   # reliability and seedlings_nouns does only have a csv version so there is no

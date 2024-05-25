@@ -3,31 +3,34 @@ version <- '0.0.0.9006-dev.5'
 
 test_that("get_vihi_annotations works if errors are allowed", {
   for (table in c('annotations', 'intervals', 'merged')) {
-    expect_non_empty_dataframe(
+    expect_non_empty_dataframe(suppressWarnings(
       get_vihi_annotations(version = version,
                            table = table,
-                           allow_annotation_errors = TRUE))
+                           allow_annotation_errors = TRUE)))
   }
 
-  tables <- get_vihi_annotations(version = version, table = 'all',
-                                 allow_annotation_errors = TRUE)
+  tables <- suppressWarnings(
+    get_vihi_annotations(version = version, table = 'all',
+                         allow_annotation_errors = TRUE))
   for (table in tables) {
     expect_non_empty_dataframe(table)
   }
 
-  expect_non_empty_dataframe(
+  expect_non_empty_dataframe(suppressWarnings(
     get_vihi_annotations(version = version,
                          subset = 'everything',
                          table = 'merged',
+                         allow_annotation_errors = TRUE)))
+
+  annotations <- suppressWarnings(
+    get_vihi_annotations(version = version,
                          allow_annotation_errors = TRUE))
 
-  annotations <- get_vihi_annotations(version = version,
-                                      allow_annotation_errors = TRUE)
-
   annotations_with_all_tier_types <-
-    get_vihi_annotations(version = version,
-                         include_all_tier_types = TRUE,
-                         allow_annotation_errors = TRUE)
+    suppressWarnings(
+      get_vihi_annotations(version = version,
+                           include_all_tier_types = TRUE,
+                           allow_annotation_errors = TRUE))
   expect_equal(annotations_with_all_tier_types %>%
                  dplyr::select(dplyr::all_of(colnames(annotations))),
                annotations)
