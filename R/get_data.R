@@ -290,8 +290,11 @@ get_df_file <- function(repo, filename, version = NULL, col_types = NULL,
                                       tags_already_updated = FALSE,
                                       check_for_updates = TRUE)}
 
-  # Download the file
-  checkout_tag(repo, tag = version)
+  # Check out the version tag if it's not the current one
+  # note:
+  if (get_current_tag(repo) != version) {
+    checkout_tag(repo, version)
+  }
 
   # Load the file
   file_path <- file.path(blab_data, repo, filename)

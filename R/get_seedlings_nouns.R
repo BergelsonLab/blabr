@@ -28,7 +28,7 @@ sn_factor_levels <- list(
   data_types = c('integer', 'boolean', 'categorical', 'string', 'datetime')
 )
 
-seedlings_nouns_col_types <- list(
+seedlings_nouns_v1_col_types <- list(
   `seedlings-nouns` = readr::cols(
     audio_video =
       readr::col_factor(levels = sn_factor_levels$audio_video),
@@ -54,7 +54,7 @@ seedlings_nouns_col_types <- list(
     is_top_4_hours = readr::col_logical(),
     is_surplus = readr::col_logical(),
     position = readr::col_integer(),
-    subregion_rank = readr::col_integer(),
+    subregion_rank = readr::col_integer()
   ),
   regions = readr::cols(
     recording_id = readr::col_character(),
@@ -92,59 +92,114 @@ seedlings_nouns_col_types <- list(
   )
 )
 
-version_2_dev <- 'v2.0.0-dev'
-
-#' Starting with v2.0.0-dev, all extra tables got audio_video, child, and month
-#' columns added. Regions additionally received region_id, sub-recordings -
-#' sub_recording_id.
 #' @noRd
-build_v2_extra_col_types <- function() {
-  composite_key_col_types <- subset_col_types(
-    seedlings_nouns_col_types[['seedlings-nouns']],
-    c('audio_video', 'child', 'month'))
+build_v2_col_types <- function(table) {
+  # In v2, `child` became `subject`, both `subject` and `month` became character
+  # vectors, and all tables got `audio_video`, `child`, and `subject` columns.
+  recording_id_split_col_types <- readr::cols(
+    audio_video
+    = seedlings_nouns_v1_col_types[['seedlings-nouns']]$cols$audio_video,
+    subject = readr::col_character(),
+    month = readr::col_character(),
+  )
 
-  # List added columns for each table.
-  v2_extra_col_types <-
-    list(
-      `regions` = composite_key_col_types %>%
-        add_col_types(readr::cols(region_id = readr::col_character())),
-      `recordings` = composite_key_col_types,
-      `sub-recordings` = composite_key_col_types %>%
-        add_col_types(readr::cols(sub_recording_id = readr::col_character()))
-    )
+  v1_col_types <- seedlings_nouns_v1_col_types[[table]]
 
-  return(v2_extra_col_types)
+  if (table == 'seedlings-nouns') {
+    v2_col_types <-
+      v1_col_types %>%
+      remove_col_types(c(
+        # Replaced with `subject` and a character `month`
+        'child', 'month',
+        # We've dropped all region columns except is_top_3_hours
+        'is_subregion',
+        'is_top_4_hours',
+        'is_surplus',
+        'position',
+        'subregion_rank')) %>%
+      add_col_types(recording_id_split_col_types) %>%
+      add_col_types(readr::cols(
+        region_id = readr::col_character(),
+        sub_recording_id = readr::col_character()
+      ))
+  } else if (table == 'regions') {
+    v2_col_types <-
+      v1_col_types %>%
+      add_col_types(recording_id_split_col_types) %>%
+      add_col_types(readr::cols(
+        region_id = readr::col_character(),
+        duration = readr::col_character()
+      ))
+  } else if (table == 'recordings') {
+    v2_col_types <-
+      v1_col_types %>%
+      remove_col_types(c(
+        'total_recorded_time_ms',  # now duration_ms
+        'total_listened_time_ms')) %>%  # now listened_ms
+      add_col_types(recording_id_split_col_types) %>%
+      add_col_types(readr::cols(
+        duration_time = readr::col_character(),
+        listened_time = readr::col_character(),
+        surplus_time = readr::col_character(),
+        duration_ms = readr::col_integer(),
+        listened_ms = readr::col_integer(),
+        surplus_ms = readr::col_integer()
+      ))
+  } else if (table == 'sub-recordings') {
+    v2_col_types <-
+      v1_col_types %>%
+      remove_col_types(c(
+        'start',  # now start_dt
+        'end',  # now end_dt
+        'start_position_ms')) %>%  # now start_ms
+      add_col_types(recording_id_split_col_types) %>%
+      add_col_types(readr::cols(
+        start_dt = readr::col_datetime(format = ""),
+        end_dt = readr::col_datetime(format = ""),
+        start_ms = readr::col_integer(),
+        end_ms = readr::col_integer(),
+        sub_recording_id = readr::col_character()
+      ))
+  } else {
+    stop("Unknown table: ", table)
+  }
+
+  return(v2_col_types)
 }
 
 
+#' Determine whether a version is a public version or a development version
+#'
+#' We use two different version styles for dev versions:
+#'  - tidyverse unreleased package versions: 0.0.0.9000, 0.0.0.9001, ...
+#'  - semantic versions with a pre-release identifier and a "v" prefix: v2.0.0-dev, v2.0.0-dev.1, ...
+#' The public versions are v1.0.0, v2.0.0, v2.0.1, etc. blabr:::parse_version
+#' converts the ".9000" part to a pre-release identifier so we can differentiate
+#' between the public and dev versions by checking whether there is a
+#' pre-release identifier.
+#'
+#' @noRd
 is_public_version <- function(version) {
-  if (startsWith(version, '0') | endsWith(version, '-dev')) {
-    return(FALSE)
-  } else if (grepl('v?\\d+\\.\\d+\\.\\d+', version)) {
-    return(TRUE)
-  } else {
-    stop(glue::glue('Unrecognized version {version}'))
-  }
+  return(parse_version(version)[[1]]$pre == "")
 }
 
 build_seedlings_nouns_col_types <- function(table, get_codebook, version) {
   if (isTRUE(get_codebook)) {
-    col_types <- seedlings_nouns_col_types$codebook
+    col_types <- seedlings_nouns_v1_col_types$codebook
     if (table == 'seedlings-nouns') {
       # The codebook for seedlings-nouns has two extra columns
       col_types <- add_col_types(
         col_types,
-        seedlings_nouns_col_types[['seedlings-nouns-codebook-extra']])
+        seedlings_nouns_v1_col_types[['seedlings-nouns-codebook-extra']])
     }
   } else {
-    col_types <- seedlings_nouns_col_types[[table]]
 
-    if (parse_version(version) >= parse_version(version_2_dev)) {
-      v2_extra_col_types <- build_v2_extra_col_types()
-      if (table %in% names(v2_extra_col_types)) {
-        col_types <- add_col_types(col_types,
-                                   v2_extra_col_types[[table]])
-      }}
+    # The columns are different in v1 vs. v2 of seedlings-nouns
+    if (parse_version(version) < parse_version('v2.0.0-dev')) {
+      col_types <- seedlings_nouns_v1_col_types[[table]]
+    } else {
+      col_types <- build_v2_col_types(table)
+    }
   }
 
   return(col_types)

@@ -1,3 +1,13 @@
+# blabr 0.23.0
+
+## Changed
+
+- Update `get_seedlings_nouns` and friends to work with the v2.0.0-dev.3 version of the dataset:
+  - Update column names and types.
+  - Teach to treat v2.0.0-dev.3 as a development version.
+- `get_*` functions that read data from `~/BLAB_DATA` will no longer make the corresponding repos headless when the version commit is already checked out as a branch. 
+
+
 # blabr 0.22.1
 
 ## Fixed
