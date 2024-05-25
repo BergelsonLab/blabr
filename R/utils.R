@@ -1,12 +1,17 @@
-# issue: Split internal fuctnions into dev.R
+# issue: Split internal functions into dev.R
 
-#' Extracts a subset of column specification created with readr::cols()
+
+#' Removes a subset of column specification created with readr::cols()
 #' @noRd
-subset_col_types <- function(col_types, subset_cols) {
-  col_types_subset <- readr::cols()
-  col_types_subset$cols <- col_types$cols[subset_cols]
-  return(col_types_subset)
+#' @param col_types A column specification created with readr::cols()
+#' @param cols_to_remove A vector of column names to remove
+#' @return A column specification with the columns in `cols_to_remove` removed
+#' from `col_types`
+remove_col_types <- function(col_types, cols_to_remove) {
+  col_types$cols <- col_types$cols[!names(col_types$cols) %in% cols_to_remove]
+  return(col_types)
 }
+
 
 #' Combines two column specifications created with readr::cols()
 #' @noRd
