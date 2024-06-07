@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_data.R
 \name{get_all_basiclevel}
 \alias{get_all_basiclevel}
-\title{Get the all_basiclevel data}
+\title{Get the all_basiclevel data from the all_basiclevel repo}
 \usage{
 get_all_basiclevel(version = NULL, drop_basic_level_na = TRUE)
 }
@@ -18,7 +18,7 @@ them.}
 a dataframe containing the all_basiclevel data
 }
 \description{
-Get the all_basiclevel data
+Get the all_basiclevel data from the all_basiclevel repo
 }
 \examples{
 

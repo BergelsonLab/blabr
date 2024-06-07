@@ -2,13 +2,13 @@
 % Please edit documentation in R/get_data.R
 \name{get_df_file}
 \alias{get_df_file}
-\title{Downloads and then loads a csv/feather file from a specified version of a
-dataset}
+\title{Downloads and optionally loads a csv/feather file from a specified version of a dataset}
 \usage{
 get_df_file(
   repo,
   filename,
   version = NULL,
+  read = TRUE,
   col_types = NULL,
   version_already_handled = FALSE
 )
@@ -20,18 +20,19 @@ get_df_file(
 
 \item{version}{version tag to checkout}
 
+\item{read}{If TRUE (default), loads the file. Otherwise, returns the path.}
+
 \item{col_types}{Passed to \code{readr::read_csv} when filename ends with ".csv".}
 }
 \value{
 tibble for feather files, data.frame for csv files
 }
 \description{
-Downloads and then loads a csv/feather file from a specified version of a
-dataset
+Downloads and optionally loads a csv/feather file from a specified version of a dataset
 }
 \examples{
 
 \dontrun{
-get_df_file('all_basiclevel', 'all_basiclevel.csv', version = '0.1.0')
+get_df_file('all_basiclevel', 'all_basiclevel_NA.csv', version = '0.6.4')
 }
 }

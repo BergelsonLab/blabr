@@ -395,12 +395,13 @@ assign_global_basic_level <- function(all_basiclevel_na,
 
 #' Updates global basic levels in all_basiclevel_na
 #'
-#' @param version Version tag of the `all_basiclevel` repository.
+#' @param all_basic_level_na_path Path to the all_basiclevel_na.csv file created
+#'  using `blabpy.seedlings.pipeline.make_updated_all_basic_level_here`
 #'
-#' Loads from the "all_basiclevel" repository:
-#' - all_basiclevel_na.csv,
+#' Loads
+#' - the temporary all_basiclevel_na.csv
 #' - object_dict and annotid_disambiguation used for mapping objects/tokens to
-#'   their global basic level.
+#'   their global basic level - from the all_basiclevel repo.
 #'
 #' Then adds a global_bl column to all_basiclevel_na if it can.
 #'
@@ -411,15 +412,17 @@ assign_global_basic_level <- function(all_basiclevel_na,
 #'
 #' @export
 update_global_basic_levels <- function(
-  version = NULL
+  all_basic_level_na_path
 ) {
   # Load the data and the mappings
+  all_basiclevel_na <- read_all_basiclevel_na(all_basic_level_na_path,
+                                              has_global_bl = FALSE)
+  assertthat::assert_that(sum(is.na(all_basiclevel_na$basic_level)) > 0)
+
   suppressWarnings({
-    all_basiclevel_na <- get_all_basiclevel(drop_basic_level_na = FALSE,
-                                            version = version)
-    assertthat::assert_that(sum(is.na(all_basiclevel_na$basic_level)) > 0)
+    latest_version <- get_latest_version('all_basiclevel')
     global_bl_mappings <- get_global_bl_mappings(
-      version = version)
+      version = latest_version)
     object_dict <- global_bl_mappings$object_dict
     annotid_disambiguation <- global_bl_mappings$annotid_disambiguation
   })

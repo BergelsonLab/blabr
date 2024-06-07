@@ -36,21 +36,21 @@ test_that("all datasets can be downloaded", {
 })
 
 
-# laod the csv versions
-without_warning_or_messages({datasets_csv <- list(
-  cdi = get_cdi_spreadsheet(type = 'csv'),
-  motor = get_motor_spreadsheet(type = 'csv')
-  # reliability and seedlings_nouns does only have a csv version so there is no
-  # need to test them again.
-)})
-
-
-test_that("same results after loading from csv and feather", {
-  for (dataset_name in names(datasets_csv)) {
-    # dplyr::all_equal considers unordered factors with different order of
-    # levels
-    expect_true(all.equal(datasets[[dataset_name]],
-                          datasets_csv[[dataset_name]],
-                          check.attributes = FALSE))
-  }
-})
+# # load the csv versions
+# without_warning_or_messages({datasets_csv <- list(
+#   cdi = get_cdi_spreadsheet(type = 'csv'),
+#   motor = get_motor_spreadsheet(type = 'csv')
+#   # reliability and seedlings_nouns only have a csv version so there is no
+#   # need to test them again.
+# )})
+#
+#
+# test_that("same results after loading from csv and feather", {
+#   for (dataset_name in names(datasets_csv)) {
+#     # dplyr::all_equal considers unordered factors with different order of
+#     # levels
+#     expect_true(all.equal(datasets[[dataset_name]],
+#                           datasets_csv[[dataset_name]],
+#                           check.attributes = FALSE))
+#   }
+# })

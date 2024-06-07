@@ -4,16 +4,17 @@
 \alias{update_global_basic_levels}
 \title{Updates global basic levels in all_basiclevel_na}
 \usage{
-update_global_basic_levels(version = NULL)
+update_global_basic_levels(all_basic_level_na_path)
 }
 \arguments{
-\item{version}{Version tag of the \code{all_basiclevel} repository.
+\item{all_basic_level_na_path}{Path to the all_basiclevel_na.csv file created
+using \code{blabpy.seedlings.pipeline.make_updated_all_basic_level_here}
 
-Loads from the "all_basiclevel" repository:
+Loads
 \itemize{
-\item all_basiclevel_na.csv,
+\item the temporary all_basiclevel_na.csv
 \item object_dict and annotid_disambiguation used for mapping objects/tokens to
-their global basic level.
+their global basic level - from the all_basiclevel repo.
 }
 
 Then adds a global_bl column to all_basiclevel_na if it can.
