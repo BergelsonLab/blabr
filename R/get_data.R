@@ -1,23 +1,37 @@
+#' Read a csv file enforcing col_types if provided
+#' @noRd
+read_csv_strict <- function(file_path, col_types = NULL,
+                            show_col_types = FALSE) {
 
-#' Get the all_basiclevel data
-#'
-#' @param version version tag to checkout
-#' @param drop_basic_level_na whether to use the "*_NA" version that has all the
-#' nouns, including those whose "basic_level" is set to "NA"
-#' (drop_basic_level_na = FALSE) or the standard version that does not include
-#' them.
-#'
-#' @return a dataframe containing the all_basiclevel data
-#' @export
-#'
-#' @examples
-#'
-#' # get version with a specific version tag
-#' all_bl <- get_all_basiclevel(version='0.3.2')
-get_all_basiclevel <- function(version = NULL,
-                               drop_basic_level_na = TRUE) {
-  filename <- "all_basiclevel_na.csv"
+  if (is.null(col_types)) {
+    warning(glue::glue(
+      "No column types specified for {file_path} when blabr loaded it.",
+      " This might lead to unexpected behavior so please check that",
+      " the column types match your expectations."))
+  }
 
+  result <- readr::read_csv(file_path, col_types = col_types,
+                            show_col_types = FALSE)
+
+  # Ensure that column in the file fully match col_types
+  if (!is.null(col_types)) {
+    tryCatch({
+      assert_df_matches_col_types(result, col_types)},
+      error = function(e) {
+        message <- paste0(
+          "The file ", file_path, " does not match the expected column types. ",
+          "This could be due to a change in the dataset or a bug in blabr. ",
+          "Please report this issue to the lab staff.\n\n",
+          e$message)
+        stop(message)})
+  }
+
+  return(result)
+}
+
+#' Read all_basiclevel_NA.csv
+#' @noRd
+read_all_basiclevel_na <- function(file_path, has_global_bl = TRUE) {
   # The reason there are so many factors is for backwards compatibility with the
   # .feather versions of all_basiclevel which we used to keep. They were loaded
   # by default so some scripts might expect factors and they should get them.
@@ -45,18 +59,42 @@ get_all_basiclevel <- function(version = NULL,
   )
 
   # global_bl column wasn't there until version 0.5.0
-  if (is.null(version) || (compareVersion(version, '0.5.0') >= 0)) {
+  if (isTRUE(has_global_bl)) {
     col_types$cols[['global_bl']] = readr::col_factor()
   }
 
-  all_bl <- get_df_file(repo = 'all_basiclevel', filename = filename,
-                        version = version, col_types = col_types)
+  read_csv_strict(file_path, col_types = col_types, show_col_types = FALSE) %>%
+    # Drop the "NA" level, converting the corresponding values to NA. Done for
+    # the sake of consistency with the older versions of all_basiclevel when
+    # we had feather files in the repo.
+    dplyr::mutate(tier = dplyr::recode_factor(.data$tier,
+                                              "NA" = NA_character_))
+}
 
-  # Drop the "NA" level, converting the corresponding values to NA. Done for
-  # the sake of consistency with the older versions of all_basiclevel when
-  # we had feather files too there.
-  all_bl <- all_bl %>%
-    dplyr::mutate(tier = dplyr::recode_factor(all_bl$tier, "NA" = NA_character_))
+#' Get the all_basiclevel data from the all_basiclevel repo
+#'
+#' @param version version tag to checkout
+#' @param drop_basic_level_na whether to use the "*_NA" version that has all the
+#' nouns, including those whose "basic_level" is set to "NA"
+#' (drop_basic_level_na = FALSE) or the standard version that does not include
+#' them.
+#'
+#' @return a dataframe containing the all_basiclevel data
+#' @export
+#'
+#' @examples
+#'
+#' # get version with a specific version tag
+#' all_bl <- get_all_basiclevel(version='0.3.2')
+get_all_basiclevel <- function(version = NULL,
+                               drop_basic_level_na = TRUE) {
+  filename <- "all_basiclevel_na.csv"
+
+  all_bl_path <- get_df_file(repo = 'all_basiclevel', filename = filename,
+                             version = version, read = FALSE)
+
+  has_global_bl <- is.null(version) || (compareVersion(version, '0.5.0') >= 0)
+  all_bl <- read_all_basiclevel_na(all_bl_path, has_global_bl)
 
   # There should only be one csv file now - the one that has rows where
   # basic_level is NA - that is the full file. Let's check that that we are
@@ -268,12 +306,12 @@ handle_dataset_version <- function(repo, version = NULL,
 }
 
 
-#' Downloads and then loads a csv/feather file from a specified version of a
-#' dataset
+#' Downloads and optionally loads a csv/feather file from a specified version of a dataset
 #'
 #' @inheritParams get_all_basiclevel
 #' @inheritParams get_latest_tag
 #' @param filename name of a csv/feather file
+#' @param read If TRUE (default), loads the file. Otherwise, returns the path.
 #' @param col_types Passed to `readr::read_csv` when filename ends with ".csv".
 #'
 #' @return tibble for feather files, data.frame for csv files
@@ -281,10 +319,10 @@ handle_dataset_version <- function(repo, version = NULL,
 #' @examples
 #'
 #' \dontrun{
-#' get_df_file('all_basiclevel', 'all_basiclevel.csv', version = '0.1.0')
+#' get_df_file('all_basiclevel', 'all_basiclevel_NA.csv', version = '0.6.4')
 #' }
-get_df_file <- function(repo, filename, version = NULL, col_types = NULL,
-                        version_already_handled = FALSE) {
+get_df_file <- function(repo, filename, version = NULL, read = TRUE,
+                        col_types = NULL, version_already_handled = FALSE) {
   if (!version_already_handled) {
     version <- handle_dataset_version(repo = repo, version = version,
                                       tags_already_updated = FALSE,
@@ -296,37 +334,23 @@ get_df_file <- function(repo, filename, version = NULL, col_types = NULL,
     checkout_tag(repo, version)
   }
 
-  # Load the file
+
   file_path <- file.path(blab_data, repo, filename)
+
+  if (!isTRUE(read)) {
+    return(file_path)
+  }
+
+  # Load the file
   if (endsWith(file_path, ".csv")) {
-
-    if (is.null(col_types)) {
-      warning(glue::glue(
-        "No column types specified for {filename} when blabr loaded.",
-        " This might lead to unexpected behavior so please check that",
-        " the column types match your expectations."))
-    }
-
-    result <- readr::read_csv(file_path, col_types = col_types,
+    result <- read_csv_strict(file_path, col_types = col_types,
                               show_col_types = FALSE)
-
-    # Ensure that column in the file fully match col_types
-    if (!is.null(col_types)) {
-      tryCatch({
-        assert_df_matches_col_types(result, col_types)},
-        error = function(e) {
-          message <- paste0(
-            "The file ", file_path, " does not match the expected column types. ",
-            "This could be due to a change in the dataset or a bug in blabr. ",
-            "Please report this issue to the lab staff.\n\n",
-            e$message)
-          stop(message)})
-    }
-
   } else if (endsWith(file_path, ".feather")) {
     result <- arrow::read_feather(file_path)
   }
+
   message("reading file: ", file_path)
+
   return(result)
 }
 
