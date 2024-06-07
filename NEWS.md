@@ -1,3 +1,10 @@
+# blabr 0.24.0
+
+## Changed
+
+- Streamlined update_global_basic_levels.
+  It now loads all_basiclevel_NA.csv from a local file, not from BLAB_DATA. This way, there is no need to create a tagged commit in the all_basiclevel repo with the updated all_basiclevel_NA.csv that doesn't yet have global basic levels. You still need to commit and tag global basic level mapping dictionaries in the same repo though.
+
 # blabr 0.23.0
 
 ## Changed
