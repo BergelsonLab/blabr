@@ -1,3 +1,9 @@
+# blabr 0.24.1
+
+## Fixed
+
+- Update `get_reliability` for the `0.0.4` version of the dataset.
+
 # blabr 0.24.0
 
 ## Changed

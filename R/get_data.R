@@ -182,7 +182,20 @@ get_motor_spreadsheet <- function(version = NULL, type="feather") {
 #' @examples
 #' audio_06_rel <- get_reliability("audio", "06")
 get_reliability <- function(av, month, version = NULL) {
-  fname <- paste0(av, "_", month, ".csv")
+  # todo:
+  # - check that month is one of '06', '07', ..., '17' for versions starting
+  #   from 0.0.4
+  # - check that av is in c('audio', 'video')
+  # - for version prior to 0.0.4, check for specific av-month combinations that
+  #   were present there
+  # - add col_types (might be version-dependent)
+
+  if (is.null(version) || (compareVersion(version, '0.0.4') >= 0)) {
+    fname <- glue::glue('{month}_{av}_reliability.csv')
+  } else {
+    fname <- paste0(av, "_", month, ".csv")
+  }
+
   get_df_file('reliability', fname, version)
 }
 
