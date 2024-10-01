@@ -773,7 +773,7 @@ tag_low_data_trials <- function(
     t_start,
     t_end = NULL,
     t_step = 20,
-    min_fraction = 1/3) {
+    min_fraction) {
 
   assertthat::assert_that(has_columns(
     fixation_timeseries,
@@ -791,6 +791,11 @@ tag_low_data_trials <- function(
     # Look up t_end for short/med/long window
     window_size_label <- stringr::str_remove(window_column, "win$")
     t_end <- DEFAULT_WINDOWS_UPPER_BOUNDS[[window_size_label]]
+  }
+
+  # Check that min_fraction is set
+  if (missing(min_fraction)) {
+    stop("min_fraction must be set. The often-used value is 1/3.")
   }
 
   min_points_with_data <- floor((t_end - t_start) / t_step * min_fraction)
