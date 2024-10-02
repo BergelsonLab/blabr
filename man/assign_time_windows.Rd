@@ -46,4 +46,6 @@ Time bins located exactly at \code{t_starts[i]} or \code{t_ends[i]} are included
 The function also adds a \code{prewin} column indicating whether the time bin comes before the target onset.
 
 The \code{t_onset} column is computed as the time from the target onset, rounded up to the nearest multiple of \code{t_step}.
+
+If you want to use the default BLab time windows, set \code{t_starts} to \code{360} and \code{t_ends} to \code{DEFAULT_WINDOWS_UPPER_BOUNDS}.
 }
