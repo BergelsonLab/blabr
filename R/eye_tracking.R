@@ -24,6 +24,7 @@ characters_to_factors <- function(df){
 }
 
 
+#' @export
 DEFAULT_WINDOWS_UPPER_BOUNDS <- list(short = 2000,
                                      med = 3500,
                                      long = 5000)
