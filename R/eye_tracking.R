@@ -632,7 +632,7 @@ get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_s
     dplyr::group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget) %>%
     dplyr::distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)
   if(out_csv){
-    dplyr::write_csv(
+    readr::write_csv(
       late_target_onset,
       paste(output_dir, "late_target_onset_", study, "_",
             stringr::str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
