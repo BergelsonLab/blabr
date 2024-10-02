@@ -764,27 +764,34 @@ assign_time_windows <- function(
 }
 
 
-#' Mark "low-data" trials
+#' Tag low-data trials based on fixation timeseries
 #'
-#' Trials are considered to be "low-data" if less than `min_fraction` (1/3 by default) of the window of interest contains fixations on either area of interest.
-#' Time points that  count are the ones for which:
-#' - `is_good_timepoint` is TRUE. Typically, created with something like `mutate(is_good_timepoint = aoi %in% c('TARGET', 'DISTRACTROR')`.
-#'   The definition can differ between studies.
-#' - Column specified in `window_column` is 'Y'.
+#' Identifies and marks trials with insufficient data based on the proportion of time points within a window of interest.
+#' A trial is considered "low-data" if less than `min_fraction` of the maximum potential number of time bins from t_start till the end of the window.
 #'
-#' @param fixation_timeseries  A fixations dataframe that is required to minimally contain these columns:
-#' - `recording_id` and `trial_index` to uniquely trials.
-#' - `is_good_timepoint` - only rows with TRUE in this column will be counted as having data.
-#' - Column specified by `window_column`.
-#' @param window_column Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.
-#' @param t_start Lower bound of the window of interest in milliseconds from the target onset.
-#' @param t_end Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the `get_windows` call, then that value MUST be supplied here. If NULL (default), the default corresponding to the `subsetWin` will be used.
-#' @param min_fraction Minimum fraction of the window that must contain fixations on either area of interest for the trial to be considered "high-data". Default is 1/3.
-#' @inheritParams assign_time_windows
+#' Time points counted as having data meet both of the following criteria:
+#' - `is_good_timepoint` is `TRUE`. This column is typically created with a condition like `mutate(is_good_timepoint = some_condition)`. The definition can vary between studies.
+#' - The column specified in `window_column` has the value `"Y"`, indicating the time bin is within the window of interest.
 #'
-#' @return The input dataframe with boolean `is_trial_low_data` column added.
+#' @param fixation_timeseries A dataframe containing fixation timeseries data. It must minimally contain the following columns:
+#'   - `recording_id`: Identifier for the recording session.
+#'   - `trial_index`: Index or identifier for the trial.
+#'   - `is_good_timepoint`: Logical vector indicating valid time points (`TRUE` or `FALSE`).
+#'   - `window_column`: A column specified by the `window_column` parameter, indicating time bins within the window of interest. Values should be `"Y"` or `"N"`.
+#' @param window_column A string specifying the name of the column that indicates (using the factor label `"Y"`) the time bins that belong to the window being tested for insufficient data.
+#' @param t_start Numeric value specifying the lower bound of the window of interest in milliseconds from the target onset.
+#' @param t_end Numeric value specifying the upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows (e.g., in a previous `assign_time_windows` call), that value must be supplied here. If `NULL` (default), the function will attempt to infer it from `window_column`.
+#' @param t_step The time step in milliseconds. Must match the one used in `fixations_to_timeseries`.
+#' @param min_fraction Numeric value between `0` and `1` indicating the minimum fraction of the window that must contain valid data for the trial to be considered "high-data". For example, `min_fraction = 1/3` requires at least one-third of the window to have valid data. **This parameter must be specified.**
+#'
+#' @details
+#' The function calculates the minimum number of time points with valid data required for a trial to be considered "high-data", based on the `min_fraction` and the duration of the time window (`t_end - t_start`). It then tags each trial by adding a new column `is_trial_low_data`, which is `TRUE` for low-data trials and `FALSE` otherwise.
+#'
+#' **Note:** If `t_end` is `NULL`, the function will attempt to infer `t_start` and `t_end` from the `window_column` name. The `window_column` name must follow the format `"window_N_Mms"`, where `N` and `M` are numeric values representing the start and end times in milliseconds.
+#'
+#' @return The input dataframe with an additional logical column `is_trial_low_data`, indicating whether each trial is considered low-data (`TRUE`) or not (`FALSE`).
+#'
 #' @export
-
 tag_low_data_trials <- function(
     fixation_timeseries,
     window_column,
@@ -810,7 +817,7 @@ tag_low_data_trials <- function(
     )
 
     # Check that window_column is in the correct format
-    window_pattern <- 'window_(\\d+)_(\\d+)ms'
+    window_pattern <- '^window_(\\d+)_(\\d+)ms$'
     assertthat::assert_that(
       stringr::str_detect(window_column, window_pattern),
       msg = "window_column does not match the required format 'window_N_Mms'"

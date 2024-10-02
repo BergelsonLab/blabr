@@ -2,7 +2,7 @@
 % Please edit documentation in R/eye_tracking.R
 \name{tag_low_data_trials}
 \alias{tag_low_data_trials}
-\title{Mark "low-data" trials}
+\title{Tag low-data trials based on fixation timeseries}
 \usage{
 tag_low_data_trials(
   fixation_timeseries,
@@ -10,36 +10,43 @@ tag_low_data_trials(
   t_start,
   t_end = NULL,
   t_step = 20,
-  min_fraction = 1/3
+  min_fraction
 )
 }
 \arguments{
-\item{fixation_timeseries}{A fixations dataframe that is required to minimally contain these columns:
+\item{fixation_timeseries}{A dataframe containing fixation timeseries data. It must minimally contain the following columns:
 \itemize{
-\item \code{recording_id} and \code{trial_index} to uniquely trials.
-\item \code{is_good_timepoint} - only rows with TRUE in this column will be counted as having data.
-\item Column specified by \code{window_column}.
+\item \code{recording_id}: Identifier for the recording session.
+\item \code{trial_index}: Index or identifier for the trial.
+\item \code{is_good_timepoint}: Logical vector indicating valid time points (\code{TRUE} or \code{FALSE}).
+\item \code{window_column}: A column specified by the \code{window_column} parameter, indicating time bins within the window of interest. Values should be \code{"Y"} or \code{"N"}.
 }}
 
-\item{window_column}{Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.}
+\item{window_column}{A string specifying the name of the column that indicates (using the factor label \code{"Y"}) the time bins that belong to the window being tested for insufficient data.}
 
-\item{t_start}{Lower bound of the window of interest in milliseconds from the target onset.}
+\item{t_start}{Numeric value specifying the lower bound of the window of interest in milliseconds from the target onset.}
 
-\item{t_end}{Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the \code{get_windows} call, then that value MUST be supplied here. If NULL (default), the default corresponding to the \code{subsetWin} will be used.}
+\item{t_end}{Numeric value specifying the upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows (e.g., in a previous \code{assign_time_windows} call), that value must be supplied here. If \code{NULL} (default), the function will attempt to infer it from \code{window_column}.}
 
-\item{t_step}{The time step in ms. MUST match the one used in \code{fixations_to_timeseries}.}
+\item{t_step}{The time step in milliseconds. Must match the one used in \code{fixations_to_timeseries}.}
 
-\item{min_fraction}{Minimum fraction of the window that must contain fixations on either area of interest for the trial to be considered "high-data". Default is 1/3.}
+\item{min_fraction}{Numeric value between \code{0} and \code{1} indicating the minimum fraction of the window that must contain valid data for the trial to be considered "high-data". For example, \code{min_fraction = 1/3} requires at least one-third of the window to have valid data. \strong{This parameter must be specified.}}
 }
 \value{
-The input dataframe with boolean \code{is_trial_low_data} column added.
+The input dataframe with an additional logical column \code{is_trial_low_data}, indicating whether each trial is considered low-data (\code{TRUE}) or not (\code{FALSE}).
 }
 \description{
-Trials are considered to be "low-data" if less than \code{min_fraction} (1/3 by default) of the window of interest contains fixations on either area of interest.
-Time points that  count are the ones for which:
-\itemize{
-\item \code{is_good_timepoint} is TRUE. Typically, created with something like \verb{mutate(is_good_timepoint = aoi \%in\% c('TARGET', 'DISTRACTROR')}.
-The definition can differ between studies.
-\item Column specified in \code{window_column} is 'Y'.
+Identifies and marks trials with insufficient data based on the proportion of time points within a window of interest.
+A trial is considered "low-data" if less than \code{min_fraction} of the maximum potential number of time bins from t_start till the end of the window.
 }
+\details{
+Time points counted as having data meet both of the following criteria:
+\itemize{
+\item \code{is_good_timepoint} is \code{TRUE}. This column is typically created with a condition like \code{mutate(is_good_timepoint = some_condition)}. The definition can vary between studies.
+\item The column specified in \code{window_column} has the value \code{"Y"}, indicating the time bin is within the window of interest.
+}
+
+The function calculates the minimum number of time points with valid data required for a trial to be considered "high-data", based on the \code{min_fraction} and the duration of the time window (\code{t_end - t_start}). It then tags each trial by adding a new column \code{is_trial_low_data}, which is \code{TRUE} for low-data trials and \code{FALSE} otherwise.
+
+\strong{Note:} If \code{t_end} is \code{NULL}, the function will attempt to infer \code{t_start} and \code{t_end} from the \code{window_column} name. The \code{window_column} name must follow the format \code{"window_N_Mms"}, where \code{N} and \code{M} are numeric values representing the start and end times in milliseconds.
 }
