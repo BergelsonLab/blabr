@@ -685,24 +685,27 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 assign_time_windows <- function(
   fixation_timeseries,
   t_step = 20,
-  t_start = 360,  # floor(367 / 20)
-  short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short,
-  med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med,
-  long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long) {
+  t_starts, t_ends) {
 
-    original_columns <- colnames(fixation_timeseries)
+    # Assert that t_starts and t_ends are multiples of bin_size
+    check_bounds <- function(bounds, var_name) {
+      assertthat::assert_that(
+        is.numeric(t_starts),
+        all(t_starts %% t_step == 0),
+        msg = glue::glue("{var_name} must be a multiple of bin_size"))
+    }
+    check_bounds(t_starts, "t_starts")
+    check_bounds(t_ends, "t_ends")
 
-    # Assert that t_start is a multiple of bin_size
-    assertthat::assert_that(
-      t_start %% t_step == 0,
-      msg = "t_start must be a multiple of bin_size")
 
     # Check that the time and target_onset columns are present and are numeric
     assertthat::assert_that(
       all(c("time", "target_onset") %in% colnames(fixation_timeseries)),
       msg = "fixation_timeseries must contain columns 'time' and 'target_onset'")
 
-    assertr::assert(fixation_timeseries, is.numeric, time, target_onset)
+    with(fixation_timeseries,
+         assert_that(is.numeric(time), is.numeric(target_onset)),
+         msg = "time and target_onset must be numeric")
 
     # Check that target_onset is not NA and is a positive number
     assertthat::assert_that(
@@ -710,40 +713,52 @@ assign_time_windows <- function(
       all(fixation_timeseries$target_onset > 0),
       msg = "target_onset must be a non-empty positive number")
 
-    # Adds '{size}win' and 'whichwin_{size}' columns where size is "short",
-    # "med", or "long"
-    add_window_columns <- function(df, size, window_end_ms) {
+
+    # Keep the list of columns so that we can drop any temporary columns later
+    original_columns <- colnames(fixation_timeseries)
+
+    # Recycle t_starts/t_ends so that the user can do smth like (t_start = 360,
+    # t_end = c(5000, 10000))
+    t_bounds <- data.frame(start = unlist(t_starts),
+                           end = unlist(t_ends))
+
+    # Adds 'window_<start>_<end>ms' and 'which_window_<start>_<end>ms'
+    add_one_window_columns <- function(df, start_ms, end_ms) {
+      # as.character is needed to avoid which_window having the "glue" class
+      start_end_ms <- as.character(glue::glue('{start_ms}_{end_ms}ms'))
       df %>%
         dplyr::mutate(
-          sizewin = dplyr::between(.data$time_shifted_ms,
-                                   .env$t_start, .env$window_end_ms),
-          whichwin_size = dplyr::case_when(
-            # Both prewin and sizewin are boolean at this point
+          window = dplyr::between(.data$time_shifted_ms,
+                                   .env$start_ms, .env$end_ms),
+          which_window = dplyr::case_when(
+            # Both prewin and window are boolean at this point
             .data$prewin ~ "pre",
-            .data$sizewin ~ .env$size,  # e.g., "short"
+            .data$window ~ start_end_ms,
             TRUE ~ "neither")) %>%
         dplyr::rename(
-          '{size}win' := .data$sizewin,
-          'whichwin_{size}' := .data$whichwin_size)
+          'window_{start_end_ms}' := "window",
+          'which_window_{start_end_ms}' := "which_window")
     }
 
     fixation_timeseries %>%
       dplyr::mutate(
         time_shifted_ms = time - target_onset,
         prewin = time_shifted_ms <= 0) %>%
-      add_window_columns("short", short_window_time) %>%
-      add_window_columns("med", med_window_time) %>%
-      add_window_columns("long", long_window_time) %>%
+      {purrr::reduce2(
+        t_bounds$start, t_bounds$end,
+        \(df, t_start, t_end) add_one_window_columns(df, t_start, t_end),
+        .init = .)} %>%
       dplyr::mutate(
         dplyr::across(
-          c(prewin, shortwin, medwin, longwin),
+          c(prewin, starts_with('window_')),
           ~ as.factor(ifelse(.x, "Y", "N")))) %>%
       dplyr::mutate(t_onset = ceiling(time_shifted_ms / t_step) * t_step) %>%
       dplyr::select(dplyr::all_of(original_columns),
                     prewin,
-                    shortwin, medwin, longwin,
-                    whichwin_short, whichwin_med, whichwin_long,
-                    t_onset)}
+                    starts_with('window_'),
+                    starts_with('which_window_'),
+                    t_onset)
+    }
 
 
 #' Mark "low-data" trials
@@ -770,6 +785,8 @@ assign_time_windows <- function(
 tag_low_data_trials <- function(
     fixation_timeseries,
     window_column,
+    # ek: issue: it should be either window_column or t_start AND t_end. I don't
+    #   care if it's not back-compatible.
     t_start,
     t_end = NULL,
     t_step = 20,
@@ -781,16 +798,27 @@ tag_low_data_trials <- function(
 
   original_columns <- colnames(fixation_timeseries)
 
-  # If the window size is not provided, use the default for the window indicator column
+  # If t_end is not provided, infer from window_column
   if (is.null(t_end)) {
-    assertthat::assert_that(
-      window_column %in% c("shortwin", "medwin", "longwin"),
-      msg = glue::glue("If `t_end` is NULL, `window_column` must be one of",
-                       " 'shortwin', 'medwin', or 'longwin'."))
+    # Check that window_column is present in the data
+    assert_that(
+      window_column %in% colnames(fixation_timeseries),
+      msg = glue("{window_column} not found in fixation_timeseries")
+    )
 
-    # Look up t_end for short/med/long window
-    window_size_label <- stringr::str_remove(window_column, "win$")
-    t_end <- DEFAULT_WINDOWS_UPPER_BOUNDS[[window_size_label]]
+    # Check that window_column is in the correct format
+    window_pattern <- 'window_(\\d+)_(\\d+)ms'
+    assertthat::assert_that(
+      stringr::str_detect(window_column, window_pattern),
+      msg = "window_column does not match the required format 'window_N_Mms'"
+    )
+
+    # Extract start and end from window_column
+    matches <- stringr::str_match(window_column, window_pattern)
+    t_start_inferred <- as.integer(matches[, 2])
+    t_end_inferred <- as.integer(matches[, 3])
+
+    t_end <- t_end_inferred
   }
 
   # Check that min_fraction is set
