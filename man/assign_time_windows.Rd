@@ -2,49 +2,48 @@
 % Please edit documentation in R/eye_tracking.R
 \name{assign_time_windows}
 \alias{assign_time_windows}
-\title{Assigns binned fixations to a short, medium, and long time windows}
+\title{Assigns binned fixations to specified time windows}
 \usage{
-assign_time_windows(
-  fixation_timeseries,
-  t_step = 20,
-  t_start = 360,
-  short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short,
-  med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med,
-  long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long
-)
+assign_time_windows(fixation_timeseries, t_step = 20, t_starts, t_ends)
 }
 \arguments{
-\item{fixation_timeseries}{A fixation timeseries dataframe that is required to minimally contain these columns:
+\item{fixation_timeseries}{A fixation timeseries dataframe that must contain at least the following columns:
 \itemize{
 \item \code{target_onset} (numeric): Time of target onset in milliseconds.
-\item \code{time} (numeric): Time in ms from the start of the trial.
+\item \code{time} (numeric): Time in milliseconds from the start of the trial.
 }}
 
-\item{t_step}{The time step in ms. MUST match the one used in \code{fixations_to_timeseries}.}
+\item{t_step}{The time step in milliseconds. Must match the one used in \code{fixations_to_timeseries}.}
 
-\item{t_start}{Time when the windows starts, defaults to 360. Must be a multiple of \code{bin_size}.}
+\item{t_starts}{A numeric vector of start times (in milliseconds) for the time windows, relative to the target onset. Each value must be a multiple of \code{t_step}. If of length 1, it will be recycled to match the length of \code{t_ends}.}
 
-\item{short_window_time, med_window_time, long_window_time}{End timepoints of the short, medium, and long windows in milliseconds from the target word onset. Default to 2000, 3500, and 5000, respectively.}
+\item{t_ends}{A numeric vector of end times (in milliseconds) for the time windows, relative to the target onset. Each value must be a multiple of \code{t_step}. If of length 1, it will be recycled to match the length of \code{t_starts}.}
 }
 \value{
 The input dataframe with the following columns added:
 \itemize{
-\item \code{prewin} (factor): Whether a time bin comes before the target onset. Level labels are "Y" and "N".
-\item \code{shortwin}, \code{medwin}, \code{longwin} (factor): Whether a time bin is in the short, medium, or long window, respectively. Level labels are "Y" and "N".
-\item \code{whichwin_short}, \code{whichwin_med}, \code{whichwin_long} (factor): Whether a time bin
+\item \code{prewin} (factor): Whether a time bin comes before the target onset. Values are "Y" and "N".
+\item For each window defined by \code{t_starts[i]} and \code{t_ends[i]}, the following columns are added:
 \itemize{
-\item is in the short, medium, or long window (level label "short", "medium", or "long", respectively),
-\item comes before the target onset (level "pre"), or
-\item neither (level "neither").
+\item \verb{window_\{t_starts[i]\}_\{t_ends[i]\}ms} (factor): Whether a time bin is in the window from \code{t_starts[i]} to \code{t_ends[i]} milliseconds after target onset. Values are "Y" and "N".
+\item \verb{which_window_\{t_starts[i]\}_\{t_ends[i]\}ms} (factor): Indicates whether the time bin is in the window (labeled as "{t_starts\link{i}}_{t_ends\link{i}}ms"), comes before the target onset ("pre"), or neither ("neither").
 }
-\item \code{t_onset} (numeric): Time (in ms) from the target onset rounded up to the nearest multiple of \code{bin_size}.
+\item \code{t_onset} (numeric): Time (in milliseconds) from the target onset rounded up to the nearest multiple of \code{t_step}.
 }
 }
 \description{
-Assigns binned fixations to a short, medium, and long time windows
+Assigns binned fixations to specified time windows
 }
 \details{
-Parameter \code{t_start} defaults to 360, because it is the closest bin to 367 ms, which is the magic window onset from Fernald et al. (2008).
+The function assigns each time bin in \code{fixation_timeseries} to specified time windows defined by \code{t_starts} and \code{t_ends} relative to the target onset. For each window, it creates two new columns:
+\itemize{
+\item \verb{window_\{start\}_\{end\}ms}: Indicates whether the time bin falls within the window from \code{start} to \code{end} milliseconds after target onset. Values are "Y" or "N".
+\item \verb{which_window_\{start\}_\{end\}ms}: Indicates whether the time bin is in the window (labeled as "{start}_{end}ms"), comes before the target onset ("pre"), or neither ("neither").
+}
 
-A note on the window and bin boundaries. Let's use \code{nb_1 = 18} and the long window as an example. Both bins located exactly 360 ms and 5000 ms after the target onset will be counted as belonging to the long window (\code{longwin == "Y"}). In the case of the lower bound, this creates a slight inconsistency with the \code{Nonset} column: in most cases, the bin with \code{Nonset} equal to 360 ms will not belong to any windows, but in ~1/20 of the cases where the bin is exactly at 360 ms from the target onset, it will belong to all windows.
+Time bins located exactly at \code{t_starts[i]} or \code{t_ends[i]} are included in the corresponding window (i.e., the intervals are inclusive of the endpoints).
+
+The function also adds a \code{prewin} column indicating whether the time bin comes before the target onset.
+
+The \code{t_onset} column is computed as the time from the target onset, rounded up to the nearest multiple of \code{t_step}.
 }
