@@ -679,6 +679,8 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #'
 #' The `t_onset` column is computed as the time from the target onset, rounded up to the nearest multiple of `t_step`.
 #'
+#' If you want to use the default BLab time windows, set `t_starts` to `360` and `t_ends` to `DEFAULT_WINDOWS_UPPER_BOUNDS`.
+#'
 #' @return The input dataframe with the following columns added:
 #' - `prewin` (factor): Whether a time bin comes before the target onset. Values are "Y" and "N".
 #' - For each window defined by `t_starts[i]` and `t_ends[i]`, the following columns are added:
@@ -694,6 +696,8 @@ assign_time_windows <- function(
 
   # Assert that t_starts and t_ends are multiples of t_step
   check_bounds <- function(bounds, var_name) {
+    bounds <- unlist(bounds)
+
     assertthat::assert_that(
       is.numeric(bounds),
       all(bounds %% t_step == 0),
@@ -720,10 +724,10 @@ assign_time_windows <- function(
   # Keep the list of original columns
   original_columns <- colnames(fixation_timeseries)
 
-    # Recycle t_starts/t_ends so that the user can do smth like (t_start = 360,
-    # t_end = c(5000, 10000))
-    t_bounds <- data.frame(start = unlist(t_starts),
-                           end = unlist(t_ends))
+  # Recycle t_starts/t_ends so that the user can do smth like (t_start = 360,
+  # t_end = c(5000, 10000))
+  t_bounds <- data.frame(start = unlist(t_starts),
+                         end = unlist(t_ends))
 
   add_one_window_columns <- function(df, start_ms, end_ms) {
     # as.character is needed to avoid which_window having the "glue" class
