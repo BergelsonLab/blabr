@@ -14,7 +14,7 @@ write_seedlings_audio_annotations(annotations, file_path)
 \value{
 Input \code{annotations} with any extra columns removed and the "pho"
 column having NA filled with empty strings - the tibble that is fed to
-\code{dplyr::write_csv}.
+\code{readr::write_csv}.
 }
 \description{
 Write the seedlings audio annotation tibble back to the csv file

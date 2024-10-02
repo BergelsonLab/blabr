@@ -47,7 +47,7 @@ read_seedlings_audio_annotations <- function(file_path,
 #'
 #' @return Input `annotations` with any extra columns removed and the "pho"
 #'   column having NA filled with empty strings - the tibble that is fed to
-#'   `dplyr::write_csv`.
+#'   `readr::write_csv`.
 #' @export
 write_seedlings_audio_annotations <- function(annotations, file_path) {
   annotations %>%

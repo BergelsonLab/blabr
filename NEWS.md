@@ -1,3 +1,17 @@
+# blabr 0.25.0
+
+## Changed
+
+- `assign_time_windows`:
+  - The window boundaries are now specified with two arguments: `t_starts`, `t_ends` instead of `t_start`, `short_window_time`, `med_window_time`, and `long_window_time`. `DEFAULT_WINDOWS_UPPER_BOUNDS` can be used as `t_ends`.
+  - The windows columns are now called "window_<t_start>_<t_end>ms" and "which_window_<t_start>_<t_end>ms" instead of, e.g., "shortwin" and "whichwin_short". 
+  - The window boundaries have to be specifed explicitly, no default values will be used.
+  - The `which_window_<t_start>_<t_end>ms` columns now have the following values: "pre", "neither", and "<t_start>_<t_end>ms" (the latter used to be "short"/"med"/"long")
+- `tag_low_data_trials`:
+  - `min_fraction` must be specified explicitly, the default value of 1/3 was removed but will be suggested in the error message.
+  - You can now either specify the `window_column` to be used or `t_start` and `t_end` removing the confusing option where an existing window column was used but its end and `t_start` were used in the calculation of the maximum number of bins in the window.
+  - When you specify a window column, the boundaries will be inferred from the column name (see `assign_time_windows`).
+
 # blabr 0.24.1
 
 ## Fixed

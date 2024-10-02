@@ -24,6 +24,7 @@ characters_to_factors <- function(df){
 }
 
 
+#' @export
 DEFAULT_WINDOWS_UPPER_BOUNDS <- list(short = 2000,
                                      med = 3500,
                                      long = 5000)
@@ -631,7 +632,7 @@ get_late_target_onset <- function(data, max_time = 6000, study = "eye_tracking_s
     dplyr::group_by(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget) %>%
     dplyr::distinct(RECORDING_SESSION_LABEL, TRIAL_INDEX, Trial, AudioTarget)
   if(out_csv){
-    dplyr::write_csv(
+    readr::write_csv(
       late_target_onset,
       paste(output_dir, "late_target_onset_", study, "_",
             stringr::str_replace_all(Sys.time(), ' ', '_'), ".csv", sep=''))
@@ -658,159 +659,237 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 }
 
 
-#' Assigns binned fixations to a short, medium, and long time windows
+#' Assigns binned fixations to specified time windows
 #'
-#' @param fixation_timeseries A fixation timeseries dataframe that is required to minimally contain these columns:
-#'  - `target_onset` (numeric): Time of target onset in milliseconds.
-#'  - `time` (numeric): Time in ms from the start of the trial.
-#' @param t_step The time step in ms. MUST match the one used in `fixations_to_timeseries`.
-#' @param t_start Time when the windows starts, defaults to 360. Must be a multiple of `bin_size`.
-#' @param short_window_time,med_window_time,long_window_time End timepoints of the short, medium, and long windows in milliseconds from the target word onset. Default to `r DEFAULT_WINDOWS_UPPER_BOUNDS$short`, `r DEFAULT_WINDOWS_UPPER_BOUNDS$med`, and `r DEFAULT_WINDOWS_UPPER_BOUNDS$long`, respectively.
+#' @param fixation_timeseries A fixation timeseries dataframe that must contain at least the following columns:
+#'   - `target_onset` (numeric): Time of target onset in milliseconds.
+#'   - `time` (numeric): Time in milliseconds from the start of the trial.
+#' @param t_step The time step in milliseconds. Must match the one used in `fixations_to_timeseries`.
+#' @param t_starts A numeric vector of start times (in milliseconds) for the time windows, relative to the target onset. Each value must be a multiple of `t_step`. If of length 1, it will be recycled to match the length of `t_ends`.
+#' @param t_ends A numeric vector of end times (in milliseconds) for the time windows, relative to the target onset. Each value must be a multiple of `t_step`. If of length 1, it will be recycled to match the length of `t_starts`.
 #'
 #' @details
-#' Parameter `t_start` defaults to 360, because it is the closest bin to 367 ms, which is the magic window onset from Fernald et al. (2008).
+#' The function assigns each time bin in `fixation_timeseries` to specified time windows defined by `t_starts` and `t_ends` relative to the target onset. For each window, it creates two new columns:
+#' - `window_{start}_{end}ms`: Indicates whether the time bin falls within the window from `start` to `end` milliseconds after target onset. Values are "Y" or "N".
+#' - `which_window_{start}_{end}ms`: Indicates whether the time bin is in the window (labeled as "{start}_{end}ms"), comes before the target onset ("pre"), or neither ("neither").
 #'
-#' A note on the window and bin boundaries. Let's use `nb_1 = 18` and the long window as an example. Both bins located exactly 360 ms and 5000 ms after the target onset will be counted as belonging to the long window (`longwin == "Y"`). In the case of the lower bound, this creates a slight inconsistency with the `Nonset` column: in most cases, the bin with `Nonset` equal to 360 ms will not belong to any windows, but in ~1/20 of the cases where the bin is exactly at 360 ms from the target onset, it will belong to all windows.
+#' Time bins located exactly at `t_starts[i]` or `t_ends[i]` are included in the corresponding window (i.e., the intervals are inclusive of the endpoints).
+#'
+#' The function also adds a `prewin` column indicating whether the time bin comes before the target onset.
+#'
+#' The `t_onset` column is computed as the time from the target onset, rounded up to the nearest multiple of `t_step`.
+#'
+#' If you want to use the default BLab time windows, set `t_starts` to `360` and `t_ends` to `DEFAULT_WINDOWS_UPPER_BOUNDS`.
 #'
 #' @return The input dataframe with the following columns added:
-#' - `prewin` (factor): Whether a time bin comes before the target onset. Level labels are "Y" and "N".
-#' - `shortwin`, `medwin`, `longwin` (factor): Whether a time bin is in the short, medium, or long window, respectively. Level labels are "Y" and "N".
-#' - `whichwin_short`, `whichwin_med`, `whichwin_long` (factor): Whether a time bin
-#'   - is in the short, medium, or long window (level label "short", "medium", or "long", respectively),
-#'   - comes before the target onset (level "pre"), or
-#'   - neither (level "neither").
-#' - `t_onset` (numeric): Time (in ms) from the target onset rounded up to the nearest multiple of `bin_size`.
+#' - `prewin` (factor): Whether a time bin comes before the target onset. Values are "Y" and "N".
+#' - For each window defined by `t_starts[i]` and `t_ends[i]`, the following columns are added:
+#'   - `window_{t_starts[i]}_{t_ends[i]}ms` (factor): Whether a time bin is in the window from `t_starts[i]` to `t_ends[i]` milliseconds after target onset. Values are "Y" and "N".
+#'   - `which_window_{t_starts[i]}_{t_ends[i]}ms` (factor): Indicates whether the time bin is in the window (labeled as "{t_starts[i]}_{t_ends[i]}ms"), comes before the target onset ("pre"), or neither ("neither").
+#' - `t_onset` (numeric): Time (in milliseconds) from the target onset rounded up to the nearest multiple of `t_step`.
 #'
 #' @export
 assign_time_windows <- function(
   fixation_timeseries,
   t_step = 20,
-  t_start = 360,  # floor(367 / 20)
-  short_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$short,
-  med_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$med,
-  long_window_time = DEFAULT_WINDOWS_UPPER_BOUNDS$long) {
+  t_starts, t_ends) {
 
-    original_columns <- colnames(fixation_timeseries)
+  # Assert that t_starts and t_ends are multiples of t_step
+  check_bounds <- function(bounds, var_name) {
+    bounds <- unlist(bounds)
 
-    # Assert that t_start is a multiple of bin_size
     assertthat::assert_that(
-      t_start %% t_step == 0,
-      msg = "t_start must be a multiple of bin_size")
+      is.numeric(bounds),
+      all(bounds %% t_step == 0),
+      msg = glue::glue("{var_name} must be numeric and multiples of t_step"))
+  }
+  check_bounds(t_starts, "t_starts")
+  check_bounds(t_ends, "t_ends")
 
-    # Check that the time and target_onset columns are present and are numeric
-    assertthat::assert_that(
-      all(c("time", "target_onset") %in% colnames(fixation_timeseries)),
-      msg = "fixation_timeseries must contain columns 'time' and 'target_onset'")
+  # Check that the required columns are present and numeric
+  assertthat::assert_that(
+    all(c("time", "target_onset") %in% colnames(fixation_timeseries)),
+    msg = "fixation_timeseries must contain columns 'time' and 'target_onset'")
 
-    assertr::assert(fixation_timeseries, is.numeric, time, target_onset)
+  with(fixation_timeseries,
+       assert_that(is.numeric(time), is.numeric(target_onset)),
+       msg = "Columns 'time' and 'target_onset' must be numeric")
 
-    # Check that target_onset is not NA and is a positive number
-    assertthat::assert_that(
-      !any(is.na(fixation_timeseries$target_onset)) &&
-      all(fixation_timeseries$target_onset > 0),
-      msg = "target_onset must be a non-empty positive number")
+  # Check that target_onset is not NA and is positive
+  assertthat::assert_that(
+    !any(is.na(fixation_timeseries$target_onset)),
+    all(fixation_timeseries$target_onset > 0),
+    msg = "Column 'target_onset' must contain non-NA positive values")
 
-    # Adds '{size}win' and 'whichwin_{size}' columns where size is "short",
-    # "med", or "long"
-    add_window_columns <- function(df, size, window_end_ms) {
-      df %>%
-        dplyr::mutate(
-          sizewin = dplyr::between(.data$time_shifted_ms,
-                                   .env$t_start, .env$window_end_ms),
-          whichwin_size = dplyr::case_when(
-            # Both prewin and sizewin are boolean at this point
-            .data$prewin ~ "pre",
-            .data$sizewin ~ .env$size,  # e.g., "short"
-            TRUE ~ "neither")) %>%
-        dplyr::rename(
-          '{size}win' := .data$sizewin,
-          'whichwin_{size}' := .data$whichwin_size)
-    }
+  # Keep the list of original columns
+  original_columns <- colnames(fixation_timeseries)
 
-    fixation_timeseries %>%
+  # Recycle t_starts/t_ends so that the user can do smth like (t_start = 360,
+  # t_end = c(5000, 10000))
+  t_bounds <- data.frame(start = unlist(t_starts),
+                         end = unlist(t_ends))
+
+  add_one_window_columns <- function(df, start_ms, end_ms) {
+    # as.character is needed to avoid which_window having the "glue" class
+    start_end_ms <- as.character(glue::glue('{start_ms}_{end_ms}ms'))
+    df %>%
       dplyr::mutate(
-        time_shifted_ms = time - target_onset,
-        prewin = time_shifted_ms <= 0) %>%
-      add_window_columns("short", short_window_time) %>%
-      add_window_columns("med", med_window_time) %>%
-      add_window_columns("long", long_window_time) %>%
-      dplyr::mutate(
-        dplyr::across(
-          c(prewin, shortwin, medwin, longwin),
-          ~ as.factor(ifelse(.x, "Y", "N")))) %>%
-      dplyr::mutate(t_onset = ceiling(time_shifted_ms / t_step) * t_step) %>%
-      dplyr::select(dplyr::all_of(original_columns),
-                    prewin,
-                    shortwin, medwin, longwin,
-                    whichwin_short, whichwin_med, whichwin_long,
-                    t_onset)}
+        window = dplyr::between(.data$time_shifted_ms,
+                                .env$start_ms, .env$end_ms),
+        which_window = dplyr::case_when(
+          # Both prewin and window are boolean at this point
+          .data$prewin ~ "pre",
+          .data$window ~ start_end_ms,
+          TRUE ~ "neither")) %>%
+      dplyr::rename(
+        'window_{start_end_ms}' := "window",
+        'which_window_{start_end_ms}' := "which_window")
+  }
+
+  fixation_timeseries %>%
+    dplyr::mutate(
+      time_shifted_ms = time - target_onset,
+      prewin = time_shifted_ms <= 0) %>%
+    {
+      purrr::reduce2(
+        t_bounds$start, t_bounds$end,
+        \(df, t_start, t_end) add_one_window_columns(df, t_start, t_end),
+        .init = .)
+    } %>%
+    dplyr::mutate(
+      dplyr::across(
+        c(prewin, starts_with('window_')),
+        ~ as.factor(ifelse(.x, "Y", "N")))) %>%
+    dplyr::mutate(t_onset = ceiling(time_shifted_ms / t_step) * t_step) %>%
+    dplyr::select(dplyr::all_of(original_columns),
+                  prewin,
+                  starts_with('window_'),
+                  starts_with('which_window_'),
+                  t_onset)
+}
 
 
-#' Mark "low-data" trials
+#' Tag low-data trials based on fixation timeseries
 #'
-#' Trials are considered to be "low-data" if less than `min_fraction` (1/3 by default) of the window of interest contains fixations on either area of interest.
-#' Time points that  count are the ones for which:
-#' - `is_good_timepoint` is TRUE. Typically, created with something like `mutate(is_good_timepoint = aoi %in% c('TARGET', 'DISTRACTROR')`.
-#'   The definition can differ between studies.
-#' - Column specified in `window_column` is 'Y'.
+#' Identifies and marks trials with insufficient data based on the proportion of time points within a specified time window that contain valid data. A trial is considered "low-data" if less than `min_fraction` of the time window contains valid data.
 #'
-#' @param fixation_timeseries  A fixations dataframe that is required to minimally contain these columns:
-#' - `recording_id` and `trial_index` to uniquely trials.
-#' - `is_good_timepoint` - only rows with TRUE in this column will be counted as having data.
-#' - Column specified by `window_column`.
-#' @param window_column Name of the column that indicates (using factor label "Y") bins that belong to the window which will be tested for insufficient data.
-#' @param t_start Lower bound of the window of interest in milliseconds from the target onset.
-#' @param t_end Upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows in the `get_windows` call, then that value MUST be supplied here. If NULL (default), the default corresponding to the `subsetWin` will be used.
-#' @param min_fraction Minimum fraction of the window that must contain fixations on either area of interest for the trial to be considered "high-data". Default is 1/3.
-#' @inheritParams assign_time_windows
+#' Time points counted as having data meet both of the following criteria:
+#' - `is_good_timepoint` is `TRUE`. This column is typically created with a condition like `mutate(is_good_timepoint = some_condition)`. The definition can vary between studies.
+#' - The time bin is within the window of interest, indicated by the `window_column` or specified by `t_start` and `t_end`.
 #'
-#' @return The input dataframe with boolean `is_trial_low_data` column added.
+#' @param fixation_timeseries A dataframe containing fixation timeseries data. It must minimally contain the following columns:
+#'   - `recording_id`: Identifier for the recording session.
+#'   - `trial_index`: Index or identifier for the trial.
+#'   - `is_good_timepoint`: Logical vector indicating valid time points (`TRUE` or `FALSE`).
+#'   - If `window_column` is provided: a column with that name indicating time bins within the window of interest. Values should be `"Y"` or `"N"`.
+#' @param window_column (Optional) A string specifying the name of the column that indicates (using the factor label `"Y"`) the time bins that belong to the window being tested for insufficient data. Either `window_column` or both `t_start` and `t_end` must be supplied.
+#' @param t_start (Optional) Numeric value specifying the lower bound of the window of interest in milliseconds from the target onset. Must be provided along with `t_end` if `window_column` is not supplied.
+#' @param t_end (Optional) Numeric value specifying the upper bound of the window of interest in milliseconds from the target onset. Must be provided along with `t_start` if `window_column` is not supplied.
+#' @param t_step The time step in milliseconds. Must match the one used in `fixations_to_timeseries`.
+#' @param min_fraction Numeric value between `0` and `1` indicating the minimum fraction of the window that must contain valid data for the trial to be considered "high-data". For example, `min_fraction = 1/3` requires at least one-third of the window to have valid data. **This parameter must be specified.**
+#'
+#' @details
+#' **Usage Requirements:**
+#' - **Either** `window_column` **or both** `t_start` **and** `t_end` **must be supplied.**
+#'   - If `window_column` is provided, the function uses it to identify time bins within the window of interest.
+#'   - If `t_start` and `t_end` are provided:
+#'     - The function checks if a column named `window_{t_start}_{t_end}ms` exists in `fixation_timeseries`.
+#'       - If it exists, the function stops and suggests using `window_column = "window_{t_start}_{t_end}ms"` instead.
+#'       - If it does not exist, the function calls `assign_time_windows()` to create the required window column and proceeds.
+#'     - The temporary `which_window_{t_start}_{t_end}ms` column created by `assign_time_windows()` is dropped after use.
+#'
+#' The function calculates the minimum number of time points with valid data required for a trial to be considered "high-data", based on the `min_fraction` and the duration of the time window (`t_end - t_start`). It then tags each trial by adding a new column `is_trial_low_data`, which is `TRUE` for low-data trials and `FALSE` otherwise.
+#'
+#' @return The input dataframe with an additional logical column `is_trial_low_data`, indicating whether each trial is considered low-data (`TRUE`) or not (`FALSE`).
+#'
 #' @export
-
 tag_low_data_trials <- function(
     fixation_timeseries,
-    window_column,
-    t_start,
+    window_column = NULL,
+    t_start = NULL,
     t_end = NULL,
     t_step = 20,
-    min_fraction = 1/3) {
-
-  assertthat::assert_that(has_columns(
-    fixation_timeseries,
-    c("recording_id", "trial_index", "is_good_timepoint", window_column)))
+    min_fraction) {
 
   original_columns <- colnames(fixation_timeseries)
 
-  # If the window size is not provided, use the default for the window indicator column
-  if (is.null(t_end)) {
-    assertthat::assert_that(
-      window_column %in% c("shortwin", "medwin", "longwin"),
-      msg = glue::glue("If `t_end` is NULL, `window_column` must be one of",
-                       " 'shortwin', 'medwin', or 'longwin'."))
+  # Ensure that either window_column is supplied, or both t_start and t_end are supplied
+  if (is.null(window_column)) {
+    if (is.null(t_start) || is.null(t_end)) {
+      stop("Either window_column or both t_start and t_end must be supplied.")
+    }
+    # Create window_column name
+    window_column <- glue::glue('window_{t_start}_{t_end}ms')
 
-    # Look up t_end for short/med/long window
-    window_size_label <- stringr::str_remove(window_column, "win$")
-    t_end <- DEFAULT_WINDOWS_UPPER_BOUNDS[[window_size_label]]
+    # Check if window_column exists in the input dataframe
+    if (window_column %in% colnames(fixation_timeseries)) {
+      stop(glue::glue("{window_column} is already present in the data. Please use that column instead of supplying t_start and t_end."))
+    } else {
+      # Apply assign_time_windows to create the window_column
+      fixation_timeseries <- assign_time_windows(
+        fixation_timeseries,
+        t_step = t_step,
+        t_starts = t_start,
+        t_ends = t_end
+      )
+      # Remove which_window_ column(s)
+      which_window_column <- glue::glue('which_window_{t_start}_{t_end}ms')
+      fixation_timeseries <- fixation_timeseries %>%
+        dplyr::select(-dplyr::all_of(which_window_column))
+    }
+  } else {
+    if (!is.null(t_start) || !is.null(t_end)) {
+      stop("Specify either window_column or both t_start and t_end, not both.")
+    }
+
+    # Check that window_column is present in the data
+    assertthat::assert_that(
+      window_column %in% colnames(fixation_timeseries),
+      msg = glue("{window_column} not found in fixation_timeseries")
+    )
+
+    # Check that window_column is in the correct format
+    window_pattern <- '^window_(\\d+)_(-?\\d+)ms$'
+    assertthat::assert_that(
+      stringr::str_detect(window_column, window_pattern),
+      msg = "window_column does not match the required format 'window_N_Mms'"
+    )
+
+    # Extract start and end from window_column
+    matches <- stringr::str_match(window_column, window_pattern)
+    t_start <- as.integer(matches[, 2])
+    t_end <- as.integer(matches[, 3])
+  }
+
+  # Check that min_fraction is set
+  if (missing(min_fraction)) {
+    stop("min_fraction must be set. The often-used value is 1/3.")
   }
 
   min_points_with_data <- floor((t_end - t_start) / t_step * min_fraction)
 
+  # Check required columns
+  required_columns <- c("recording_id", "trial_index", "is_good_timepoint", window_column)
+  assertthat::assert_that(
+    all(required_columns %in% colnames(fixation_timeseries)),
+    msg = glue("fixation_timeseries must contain columns: {paste(required_columns, collapse = ', ')}")
+  )
+
   tagged <- fixation_timeseries %>%
     assertr::verify(!!rlang::sym(window_column) %in% c('Y', 'N')) %>%
     dplyr::mutate(
-      # issue: check that `window_column` only takes "Y" or "N" values
       in_time_window = !!rlang::sym(window_column) == "Y",
-      has_data = .data$in_time_window & .data$is_good_timepoint) %>%
+      has_data = .data$in_time_window & .data$is_good_timepoint
+    ) %>%
     dplyr::group_by(.data$recording_id, .data$trial_index) %>%
     dplyr::mutate(
       bins_with_data_count = sum(.data$has_data),
-      is_trial_low_data =
-        .data$bins_with_data_count < .env$min_points_with_data) %>%
+      is_trial_low_data = .data$bins_with_data_count < .env$min_points_with_data
+    ) %>%
     dplyr::ungroup() %>%
     dplyr::select(dplyr::all_of(original_columns), .data$is_trial_low_data)
 
   return(tagged)
-
 }
 
 
