@@ -771,58 +771,85 @@ assign_time_windows <- function(
 
 #' Tag low-data trials based on fixation timeseries
 #'
-#' Identifies and marks trials with insufficient data based on the proportion of time points within a window of interest.
-#' A trial is considered "low-data" if less than `min_fraction` of the maximum potential number of time bins from t_start till the end of the window.
+#' Identifies and marks trials with insufficient data based on the proportion of time points within a specified time window that contain valid data. A trial is considered "low-data" if less than `min_fraction` of the time window contains valid data.
 #'
 #' Time points counted as having data meet both of the following criteria:
 #' - `is_good_timepoint` is `TRUE`. This column is typically created with a condition like `mutate(is_good_timepoint = some_condition)`. The definition can vary between studies.
-#' - The column specified in `window_column` has the value `"Y"`, indicating the time bin is within the window of interest.
+#' - The time bin is within the window of interest, indicated by the `window_column` or specified by `t_start` and `t_end`.
 #'
 #' @param fixation_timeseries A dataframe containing fixation timeseries data. It must minimally contain the following columns:
 #'   - `recording_id`: Identifier for the recording session.
 #'   - `trial_index`: Index or identifier for the trial.
 #'   - `is_good_timepoint`: Logical vector indicating valid time points (`TRUE` or `FALSE`).
-#'   - `window_column`: A column specified by the `window_column` parameter, indicating time bins within the window of interest. Values should be `"Y"` or `"N"`.
-#' @param window_column A string specifying the name of the column that indicates (using the factor label `"Y"`) the time bins that belong to the window being tested for insufficient data.
-#' @param t_start Numeric value specifying the lower bound of the window of interest in milliseconds from the target onset.
-#' @param t_end Numeric value specifying the upper bound of the window of interest in milliseconds from the target onset. If a non-default upper bound was used during the assignment of bins to windows (e.g., in a previous `assign_time_windows` call), that value must be supplied here. If `NULL` (default), the function will attempt to infer it from `window_column`.
+#'   - If `window_column` is provided: a column with that name indicating time bins within the window of interest. Values should be `"Y"` or `"N"`.
+#' @param window_column (Optional) A string specifying the name of the column that indicates (using the factor label `"Y"`) the time bins that belong to the window being tested for insufficient data. Either `window_column` or both `t_start` and `t_end` must be supplied.
+#' @param t_start (Optional) Numeric value specifying the lower bound of the window of interest in milliseconds from the target onset. Must be provided along with `t_end` if `window_column` is not supplied.
+#' @param t_end (Optional) Numeric value specifying the upper bound of the window of interest in milliseconds from the target onset. Must be provided along with `t_start` if `window_column` is not supplied.
 #' @param t_step The time step in milliseconds. Must match the one used in `fixations_to_timeseries`.
 #' @param min_fraction Numeric value between `0` and `1` indicating the minimum fraction of the window that must contain valid data for the trial to be considered "high-data". For example, `min_fraction = 1/3` requires at least one-third of the window to have valid data. **This parameter must be specified.**
 #'
 #' @details
-#' The function calculates the minimum number of time points with valid data required for a trial to be considered "high-data", based on the `min_fraction` and the duration of the time window (`t_end - t_start`). It then tags each trial by adding a new column `is_trial_low_data`, which is `TRUE` for low-data trials and `FALSE` otherwise.
+#' **Usage Requirements:**
+#' - **Either** `window_column` **or both** `t_start` **and** `t_end` **must be supplied.**
+#'   - If `window_column` is provided, the function uses it to identify time bins within the window of interest.
+#'   - If `t_start` and `t_end` are provided:
+#'     - The function checks if a column named `window_{t_start}_{t_end}ms` exists in `fixation_timeseries`.
+#'       - If it exists, the function stops and suggests using `window_column = "window_{t_start}_{t_end}ms"` instead.
+#'       - If it does not exist, the function calls `assign_time_windows()` to create the required window column and proceeds.
+#'     - The temporary `which_window_{t_start}_{t_end}ms` column created by `assign_time_windows()` is dropped after use.
 #'
-#' **Note:** If `t_end` is `NULL`, the function will attempt to infer `t_start` and `t_end` from the `window_column` name. The `window_column` name must follow the format `"window_N_Mms"`, where `N` and `M` are numeric values representing the start and end times in milliseconds.
+#' The function calculates the minimum number of time points with valid data required for a trial to be considered "high-data", based on the `min_fraction` and the duration of the time window (`t_end - t_start`). It then tags each trial by adding a new column `is_trial_low_data`, which is `TRUE` for low-data trials and `FALSE` otherwise.
 #'
 #' @return The input dataframe with an additional logical column `is_trial_low_data`, indicating whether each trial is considered low-data (`TRUE`) or not (`FALSE`).
 #'
 #' @export
 tag_low_data_trials <- function(
     fixation_timeseries,
-    window_column,
-    # ek: issue: it should be either window_column or t_start AND t_end. I don't
-    #   care if it's not back-compatible.
-    t_start,
+    window_column = NULL,
+    t_start = NULL,
     t_end = NULL,
     t_step = 20,
     min_fraction) {
 
-  assertthat::assert_that(has_columns(
-    fixation_timeseries,
-    c("recording_id", "trial_index", "is_good_timepoint", window_column)))
-
   original_columns <- colnames(fixation_timeseries)
 
-  # If t_end is not provided, infer from window_column
-  if (is.null(t_end)) {
+  # Ensure that either window_column is supplied, or both t_start and t_end are supplied
+  if (is.null(window_column)) {
+    if (is.null(t_start) || is.null(t_end)) {
+      stop("Either window_column or both t_start and t_end must be supplied.")
+    }
+    # Create window_column name
+    window_column <- glue::glue('window_{t_start}_{t_end}ms')
+
+    # Check if window_column exists in the input dataframe
+    if (window_column %in% colnames(fixation_timeseries)) {
+      stop(glue::glue("{window_column} is already present in the data. Please use that column instead of supplying t_start and t_end."))
+    } else {
+      # Apply assign_time_windows to create the window_column
+      fixation_timeseries <- assign_time_windows(
+        fixation_timeseries,
+        t_step = t_step,
+        t_starts = t_start,
+        t_ends = t_end
+      )
+      # Remove which_window_ column(s)
+      which_window_column <- glue::glue('which_window_{t_start}_{t_end}ms')
+      fixation_timeseries <- fixation_timeseries %>%
+        dplyr::select(-dplyr::all_of(which_window_column))
+    }
+  } else {
+    if (!is.null(t_start) || !is.null(t_end)) {
+      stop("Specify either window_column or both t_start and t_end, not both.")
+    }
+
     # Check that window_column is present in the data
-    assert_that(
+    assertthat::assert_that(
       window_column %in% colnames(fixation_timeseries),
       msg = glue("{window_column} not found in fixation_timeseries")
     )
 
     # Check that window_column is in the correct format
-    window_pattern <- '^window_(\\d+)_(\\d+)ms$'
+    window_pattern <- '^window_(\\d+)_(-?\\d+)ms$'
     assertthat::assert_that(
       stringr::str_detect(window_column, window_pattern),
       msg = "window_column does not match the required format 'window_N_Mms'"
@@ -830,10 +857,8 @@ tag_low_data_trials <- function(
 
     # Extract start and end from window_column
     matches <- stringr::str_match(window_column, window_pattern)
-    t_start_inferred <- as.integer(matches[, 2])
-    t_end_inferred <- as.integer(matches[, 3])
-
-    t_end <- t_end_inferred
+    t_start <- as.integer(matches[, 2])
+    t_end <- as.integer(matches[, 3])
   }
 
   # Check that min_fraction is set
@@ -843,22 +868,28 @@ tag_low_data_trials <- function(
 
   min_points_with_data <- floor((t_end - t_start) / t_step * min_fraction)
 
+  # Check required columns
+  required_columns <- c("recording_id", "trial_index", "is_good_timepoint", window_column)
+  assertthat::assert_that(
+    all(required_columns %in% colnames(fixation_timeseries)),
+    msg = glue("fixation_timeseries must contain columns: {paste(required_columns, collapse = ', ')}")
+  )
+
   tagged <- fixation_timeseries %>%
     assertr::verify(!!rlang::sym(window_column) %in% c('Y', 'N')) %>%
     dplyr::mutate(
-      # issue: check that `window_column` only takes "Y" or "N" values
       in_time_window = !!rlang::sym(window_column) == "Y",
-      has_data = .data$in_time_window & .data$is_good_timepoint) %>%
+      has_data = .data$in_time_window & .data$is_good_timepoint
+    ) %>%
     dplyr::group_by(.data$recording_id, .data$trial_index) %>%
     dplyr::mutate(
       bins_with_data_count = sum(.data$has_data),
-      is_trial_low_data =
-        .data$bins_with_data_count < .env$min_points_with_data) %>%
+      is_trial_low_data = .data$bins_with_data_count < .env$min_points_with_data
+    ) %>%
     dplyr::ungroup() %>%
     dplyr::select(dplyr::all_of(original_columns), .data$is_trial_low_data)
 
   return(tagged)
-
 }
 
 
