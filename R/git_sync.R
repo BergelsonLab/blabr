@@ -1,10 +1,3 @@
-#this is the script that syncs data, or something.
-git_bin <- Sys.which("git")
-
-home_dir <- fs::path_home()
-blab_data <- file.path(home_dir, "BLAB_DATA")
-
-
 #' Absolute path to a dataset folder
 #'
 #' @param repo dataset name: 'all_basiclevel', 'reliability', etc.
@@ -16,7 +9,7 @@ blab_data <- file.path(home_dir, "BLAB_DATA")
 #' get_repo_path('all_basiclevel')
 #' }
 get_repo_path <- function(repo) {
-  file.path(blab_data, repo)
+  fs::path_home() / "BLAB_DATA" / repo
 }
 
 
@@ -44,6 +37,7 @@ run_git_command <- function(repo, command, return_output = FALSE) {
   process <- processx::process
 
   cmd_args <- strsplit(command, '\\s+')[[1]]
+  git_bin <- Sys.which('git')
   process <- process$new(git_bin, c('-C', repo_root, cmd_args),
                          stdout = "|", stderr = "|")
   process$wait()

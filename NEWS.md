@@ -1,3 +1,10 @@
+# blabr 0.25.1
+
+## Fixed
+
+- Make `blabr` look for git in the current `PATH`.
+  Previously, the path to `git` was only looked up once during the package installation leading to changes to `PATH` having no effect at all.
+
 # blabr 0.25.0
 
 ## Changed

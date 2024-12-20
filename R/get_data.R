@@ -348,7 +348,7 @@ get_df_file <- function(repo, filename, version = NULL, read = TRUE,
   }
 
 
-  file_path <- file.path(blab_data, repo, filename)
+  file_path <- get_repo_path(repo) / filename
 
   if (!isTRUE(read)) {
     return(file_path)
