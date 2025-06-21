@@ -140,7 +140,7 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
         vcm != 'C' & is_not_empty(lex) ~ 'vcm is not C but lex is filled',
         lex == 'W' & is_empty(mwu) ~ 'lex is W but mwu is empty',
         lex != 'W' & is_not_empty(mwu) ~ 'lex is not W but mwu is filled',
-        TRUE ~ NA
+        TRUE ~ NA_character_
       )) %>%
       dplyr::filter(!is.na(error)),
     # vcm, lex, mwu, xds only take expected values
