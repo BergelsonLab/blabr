@@ -94,7 +94,7 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 #' @param time_type Either `wall` or `wav`. If `wall` (default), expects columns
 #' `interval_start`, `interval_end` (POSIXct timestamps), and `interval_start_wav`
 #' (milliseconds since wav start). Will calculate `interval_end_wav` dynamically
-#' and drop it from output. If `wav`, expects `interval_start_wav` and 
+#' and drop it from output. If `wav`, expects `interval_start_wav` and
 #' `interval_end_wav` (both in milliseconds since wav start).
 #' @param intervals A tibble with columns depending on `time_type`:
 #' - For `wall`: `interval_start`, `interval_end` (POSIXct), `interval_start_wav` (ms)
@@ -116,7 +116,7 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 #' @export
 add_lena_stats <- function(its_xml, intervals, time_type = c('wall', 'wav')) {
   time_type <- match.arg(time_type)
-  
+
   segments <- rlena::gather_segments(its_xml) %>%
     dplyr::select(endTime, startTime, convTurnCount, childUttCnt, maleAdultWordCnt,
            femaleAdultWordCnt) %>%
@@ -172,7 +172,7 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wall', 'wav')) {
                      by = c('interval_start_wav', 'interval_end_wav')) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(new_columns),
                                 ~ tidyr::replace_na(.x, 0)))
-  
+
   # Only drop interval_end_wav if time_type is 'wall' (since it was dynamically calculated)
   if (time_type == 'wall') {
     intervals_with_stats <- intervals_with_stats %>%
@@ -202,18 +202,25 @@ make_five_min_approximation <- function(its_xml) {
 
 #' Calculate per-speaker statistics based on the .its file
 #'
+#' Only analyzes conversation blocks (blkType == 'Conversation'). Uses point-in-time
+#' matching where segment start time must fall within interval boundaries (unlike
+#' add_lena_stats which uses overlap-based proportional allocation).
+#'
 #' @inheritParams add_lena_stats
 #'
 #' @return a tibble with the following columns:
-#' - interval_start, interval_end: same as in the intervals input tibble,
-#' - adult_word_count: non-zero for MAN and FAN only
+#' - interval columns: same as in the intervals input tibble,
+#' - spkr: speaker identifier from LENA
+#' - adult_word_count: non-zero for FA* and MA* speakers only
 #' - utterance_count: for CH* - the sum of childUttCnt, for everyone else - the
 #'   number of conversation segments
+#' - segment_duration: total duration of segments for this speaker in this interval
 #' @export
-get_lena_speaker_stats <- function(its_xml, intervals) {
-  # Extract several segment stats (a single utterance or a CHN/CHF
-  # multi-utterance)
-  segment_stats <- rlena::gather_segments(its_xml) %>%
+get_lena_speaker_stats <- function(its_xml, intervals, time_type = c('wall', 'wav')) {
+  time_type <- match.arg(time_type)
+
+  # Extract segment stats with consistent time handling
+  segments <- rlena::gather_segments(its_xml) %>%
     filter(blkType == 'Conversation') %>%
     mutate(
       adult_word_count = case_when(
@@ -226,22 +233,43 @@ get_lena_speaker_stats <- function(its_xml, intervals) {
         TRUE ~ 1
       ),
       segment_duration = endTime - startTime) %>%
-    dplyr::select(startClockTimeLocal, spkr, adult_word_count, utterance_count,
-           segment_duration)
+    # Convert segment times to milliseconds for consistent matching
+    dplyr::mutate(dplyr::across(c(startTime, endTime), ~ as.integer(.x * 1000))) %>%
+    dplyr::select(startTime, endTime, spkr, adult_word_count, utterance_count, segment_duration)
 
-  # Match intervals to segments and summarize the stats from above
-  intervals <- intervals %>% dplyr::select(interval_start, interval_end)
-  intervals %>%
-    # start: conditional left join: startClockTimeLocal within interval
-    dplyr::cross_join(segment_stats) %>%
-    dplyr::filter(interval_start <= startClockTimeLocal
-                  & startClockTimeLocal < interval_end) %>%
-    dplyr::right_join(intervals, by = c('interval_start', 'interval_end')) %>%
-    # end: conditional left join
-    group_by(interval_start, interval_end, spkr) %>%
-    summarise(across(c(adult_word_count, utterance_count, segment_duration),
-                     sum),
-              .groups = 'drop')
+  if (time_type == 'wall') {
+    # For wall time, calculate interval_end_wav dynamically
+    intervals <- intervals %>% add_interval_end_wav
+  }
+  # For wav time, expect interval_start_wav and interval_end_wav to already exist
+
+  # Use point-in-time matching with WAV coordinates
+  interval_stats <- intervals %>%
+    dplyr::cross_join(segments) %>%
+    dplyr::filter(interval_start_wav <= startTime
+                  & startTime < interval_end_wav) %>%
+    # Aggregate by interval and speaker
+    dplyr::group_by(interval_start_wav, interval_end_wav, spkr) %>%
+    dplyr::summarise(
+      across(c(adult_word_count, utterance_count, segment_duration), sum),
+      .groups = 'drop'
+    )
+
+  # Match intervals to stats, substituting NAs for zero for intervals without segments
+  new_columns <- setdiff(names(interval_stats), c(names(intervals), 'spkr'))
+  intervals_with_stats <- intervals %>%
+    dplyr::left_join(interval_stats,
+                     by = c('interval_start_wav', 'interval_end_wav')) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(new_columns),
+                                ~ tidyr::replace_na(.x, 0)))
+
+  # Only drop interval_end_wav if time_type is 'wall' (since it was dynamically calculated)
+  if (time_type == 'wall') {
+    intervals_with_stats <- intervals_with_stats %>%
+      dplyr::select(-interval_end_wav)
+  }
+
+  return(intervals_with_stats)
 }
 
 
