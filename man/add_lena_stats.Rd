@@ -9,25 +9,30 @@ add_lena_stats(its_xml, intervals, time_type = c("wav", "wall"))
 \arguments{
 \item{its_xml}{XML object created by \code{rlena::read_its_file}.}
 
-\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
-\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
-Can contain other columns.}
+\item{intervals}{A tibble with required columns \code{interval_start}, \code{interval_end},
+and \code{interval_start_wav}. The function expects:
+\itemize{
+\item \code{interval_start}, \code{interval_end}: POSIXct timestamps with local time
+\item \code{interval_start_wav}: Milliseconds since the beginning of the wav file
+The function will calculate \code{interval_end_wav} from the timestamp duration.
+Can contain other columns.
+}}
 
-\item{time_type}{Either \code{wall} or \code{wav}. If \code{wall}, \code{start} and \code{end} must
-contain timestamps with local time. If \code{wav}, \code{start} and \code{end} must contain
-the number of milliseconds since the beginning of the wav file. \code{wall} is not
-yet implemented.}
+\item{time_type}{Currently not implemented. Defaults to \code{wav} which is ignored.
+Any other value will raise an error. The function always expects the mixed
+format described in the intervals parameter.}
 }
 \value{
 Same as \code{intervals} but with three new columns: \code{cvc}, \code{ctc}, and
-\code{awc}.
+\code{awc}. Missing values are replaced with 0 for intervals without segments.
 }
 \description{
 Add LENA stats to each interval in a dataframe
 }
 \note{
-Any its segment overlapping with multiple intervals will count fully
-towards all of them.
+ITS segments overlapping with intervals are allocated proportionally
+based on the overlap duration. If a segment overlaps multiple intervals,
+it contributes proportionally to each based on overlap length.
 
 The difference between this function and \code{calculate_lena_like_stats}
 is that the latter calculates exactly the same stats but does it for every

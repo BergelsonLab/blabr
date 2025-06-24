@@ -91,16 +91,19 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 #' Add LENA stats to each interval in a dataframe
 #'
 #' @inheritParams prepare_intervals
-#' @param time_type Either `wall` or `wav`. If `wall`, `start` and `end` must
-#' contain timestamps with local time. If `wav`, `start` and `end` must contain
-#' the number of milliseconds since the beginning of the wav file. `wall` is not
-#' yet implemented.
-#' @param intervals A tibble with columns `interval_start`, `interval_end`,
-#' `interval_start_wav`, and `recording_id` as output by `prepare_intervals`.
+#' @param time_type Currently not implemented. Defaults to `wav` which is ignored.
+#' Any other value will raise an error. The function always expects the mixed
+#' format described in the intervals parameter.
+#' @param intervals A tibble with required columns `interval_start`, `interval_end`,
+#' and `interval_start_wav`. The function expects:
+#' - `interval_start`, `interval_end`: POSIXct timestamps with local time
+#' - `interval_start_wav`: Milliseconds since the beginning of the wav file
+#' The function will calculate `interval_end_wav` from the timestamp duration.
 #' Can contain other columns.
 #'
-#' @note Any its segment overlapping with multiple intervals will count fully
-#' towards all of them.
+#' @note ITS segments overlapping with intervals are allocated proportionally
+#' based on the overlap duration. If a segment overlaps multiple intervals,
+#' it contributes proportionally to each based on overlap length.
 #'
 #' @note The difference between this function and `calculate_lena_like_stats`
 #' is that the latter calculates exactly the same stats but does it for every
@@ -109,7 +112,7 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 #' repetition (see issue #).
 #'
 #' @return Same as `intervals` but with three new columns: `cvc`, `ctc`, and
-#' `awc`.
+#' `awc`. Missing values are replaced with 0 for intervals without segments.
 #' @export
 add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
   time_type <- match.arg(time_type)

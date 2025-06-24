@@ -9,9 +9,14 @@ get_lena_speaker_stats(its_xml, intervals)
 \arguments{
 \item{its_xml}{XML object created by \code{rlena::read_its_file}.}
 
-\item{intervals}{A tibble with columns \code{interval_start}, \code{interval_end},
-\code{interval_start_wav}, and \code{recording_id} as output by \code{prepare_intervals}.
-Can contain other columns.}
+\item{intervals}{A tibble with required columns \code{interval_start}, \code{interval_end},
+and \code{interval_start_wav}. The function expects:
+\itemize{
+\item \code{interval_start}, \code{interval_end}: POSIXct timestamps with local time
+\item \code{interval_start_wav}: Milliseconds since the beginning of the wav file
+The function will calculate \code{interval_end_wav} from the timestamp duration.
+Can contain other columns.
+}}
 }
 \value{
 a tibble with the following columns:
