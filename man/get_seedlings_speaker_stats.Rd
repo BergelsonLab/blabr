@@ -7,12 +7,10 @@
 get_seedlings_speaker_stats(intervals, annotations)
 }
 \arguments{
-\item{intervals}{A tibble with required columns \code{interval_start}, \code{interval_end},
-and \code{interval_start_wav}. The function expects:
+\item{intervals}{A tibble with columns depending on \code{time_type}:
 \itemize{
-\item \code{interval_start}, \code{interval_end}: POSIXct timestamps with local time
-\item \code{interval_start_wav}: Milliseconds since the beginning of the wav file
-The function will calculate \code{interval_end_wav} from the timestamp duration.
+\item For \code{wall}: \code{interval_start}, \code{interval_end} (POSIXct), \code{interval_start_wav} (ms)
+\item For \code{wav}: \code{interval_start_wav}, \code{interval_end_wav} (both in ms since wav start)
 Can contain other columns.
 }}
 

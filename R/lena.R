@@ -91,14 +91,14 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 #' Add LENA stats to each interval in a dataframe
 #'
 #' @inheritParams prepare_intervals
-#' @param time_type Currently not implemented. Defaults to `wav` which is ignored.
-#' Any other value will raise an error. The function always expects the mixed
-#' format described in the intervals parameter.
-#' @param intervals A tibble with required columns `interval_start`, `interval_end`,
-#' and `interval_start_wav`. The function expects:
-#' - `interval_start`, `interval_end`: POSIXct timestamps with local time
-#' - `interval_start_wav`: Milliseconds since the beginning of the wav file
-#' The function will calculate `interval_end_wav` from the timestamp duration.
+#' @param time_type Either `wall` or `wav`. If `wall` (default), expects columns
+#' `interval_start`, `interval_end` (POSIXct timestamps), and `interval_start_wav`
+#' (milliseconds since wav start). Will calculate `interval_end_wav` dynamically
+#' and drop it from output. If `wav`, expects `interval_start_wav` and 
+#' `interval_end_wav` (both in milliseconds since wav start).
+#' @param intervals A tibble with columns depending on `time_type`:
+#' - For `wall`: `interval_start`, `interval_end` (POSIXct), `interval_start_wav` (ms)
+#' - For `wav`: `interval_start_wav`, `interval_end_wav` (both in ms since wav start)
 #' Can contain other columns.
 #'
 #' @note ITS segments overlapping with intervals are allocated proportionally
@@ -114,19 +114,20 @@ calculate_lena_like_stats <- function(its_xml, duration) {
 #' @return Same as `intervals` but with three new columns: `cvc`, `ctc`, and
 #' `awc`. Missing values are replaced with 0 for intervals without segments.
 #' @export
-add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
+add_lena_stats <- function(its_xml, intervals, time_type = c('wall', 'wav')) {
   time_type <- match.arg(time_type)
-  if (time_type == 'wall') {
-    stop('Using wall time has not been implemented.')
-  }
-
+  
   segments <- rlena::gather_segments(its_xml) %>%
     dplyr::select(endTime, startTime, convTurnCount, childUttCnt, maleAdultWordCnt,
            femaleAdultWordCnt) %>%
     # convert time to milliseconds
     dplyr::mutate(dplyr::across(c(startTime, endTime), ~ as.integer(.x * 1000)))
 
-  intervals <- intervals %>% add_interval_end_wav
+  if (time_type == 'wall') {
+    # For wall time, calculate interval_end_wav dynamically
+    intervals <- intervals %>% add_interval_end_wav
+  }
+  # For wav time, expect interval_start_wav and interval_end_wav to already exist
 
   interval_stats <- intervals %>%
     dplyr::cross_join(segments) %>%
@@ -170,8 +171,13 @@ add_lena_stats <- function(its_xml, intervals, time_type = c('wav', 'wall')) {
     dplyr::left_join(interval_stats,
                      by = c('interval_start_wav', 'interval_end_wav')) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(new_columns),
-                                ~ tidyr::replace_na(.x, 0))) %>%
-    dplyr::select(-interval_end_wav)
+                                ~ tidyr::replace_na(.x, 0)))
+  
+  # Only drop interval_end_wav if time_type is 'wall' (since it was dynamically calculated)
+  if (time_type == 'wall') {
+    intervals_with_stats <- intervals_with_stats %>%
+      dplyr::select(-interval_end_wav)
+  }
 
   return(intervals_with_stats)
 }

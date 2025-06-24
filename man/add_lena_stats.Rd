@@ -4,23 +4,23 @@
 \alias{add_lena_stats}
 \title{Add LENA stats to each interval in a dataframe}
 \usage{
-add_lena_stats(its_xml, intervals, time_type = c("wav", "wall"))
+add_lena_stats(its_xml, intervals, time_type = c("wall", "wav"))
 }
 \arguments{
 \item{its_xml}{XML object created by \code{rlena::read_its_file}.}
 
-\item{intervals}{A tibble with required columns \code{interval_start}, \code{interval_end},
-and \code{interval_start_wav}. The function expects:
+\item{intervals}{A tibble with columns depending on \code{time_type}:
 \itemize{
-\item \code{interval_start}, \code{interval_end}: POSIXct timestamps with local time
-\item \code{interval_start_wav}: Milliseconds since the beginning of the wav file
-The function will calculate \code{interval_end_wav} from the timestamp duration.
+\item For \code{wall}: \code{interval_start}, \code{interval_end} (POSIXct), \code{interval_start_wav} (ms)
+\item For \code{wav}: \code{interval_start_wav}, \code{interval_end_wav} (both in ms since wav start)
 Can contain other columns.
 }}
 
-\item{time_type}{Currently not implemented. Defaults to \code{wav} which is ignored.
-Any other value will raise an error. The function always expects the mixed
-format described in the intervals parameter.}
+\item{time_type}{Either \code{wall} or \code{wav}. If \code{wall} (default), expects columns
+\code{interval_start}, \code{interval_end} (POSIXct timestamps), and \code{interval_start_wav}
+(milliseconds since wav start). Will calculate \code{interval_end_wav} dynamically
+and drop it from output. If \code{wav}, expects \code{interval_start_wav} and
+\code{interval_end_wav} (both in milliseconds since wav start).}
 }
 \value{
 Same as \code{intervals} but with three new columns: \code{cvc}, \code{ctc}, and
