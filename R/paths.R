@@ -11,9 +11,10 @@
 #' blab_share <- get_blab_share_path()
 #' }
 get_blab_share_path <- function(check_exists = TRUE) {
+  paste0("DEBUG MODE")
   blab_share_path <- Sys.getenv('BLAB_SHARE_PATH')
   if (is.null(blab_share_path)) {
-    blab_share_path <- '/Volumes/Fas-Phys-PEB-Lab'
+    blab_share_path <- '/Volumes/Fas-Phyc-PEB-Lab'
   }
   if (check_exists & !dir.exists(blab_share_path)) {
     stop(glue::glue('VPN connected? Location other than {blab_share_path}?'))
