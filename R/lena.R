@@ -380,8 +380,7 @@ add_vtc_stats <- function(intervals, all_rttm) {
 }
 
 
-#' Calculate per-speaker statistics based on the VTC output. This function does
-#' not keep all of the original columns, check `add_vtc_speaker_stats` for that.
+#' Calculate per-speaker statistics based on the VTC output
 #'
 #' @inheritParams add_lena_stats
 #' @inheritParams add_vtc_stats
@@ -394,30 +393,11 @@ get_vtc_speaker_stats <- function(intervals, all_rttm) {
   match_intervals_to_vtc_annotations(intervals = intervals,
                                      all_rttm = all_rttm) %>%
     group_by(interval_start, interval_end, voice_type) %>%
-    summarize(duration = sum(overlap_duration),
+    summarise(duration = sum(overlap_duration),
               count = n(),
               .groups = 'drop')
 }
 
-#' Calculate per-speaker statistics based on the VTC output and add it to the
-#' original tibble. Do the same calculation as `get_vtc_speaker_stats` but keep
-#' all the original columns.
-#'
-#' @inheritParams add_lena_stats
-#' @inheritParams add_vtc_stats
-#' @inheritParams get_vtc_speaker_stats
-#'
-#' Same as `intervals` but with three new columns: `voice_type` and `duration`
-#' and `count` of VTC annotations. The `duration` is in seconds.
-#' @export
-add_vtc_speaker_stats <- function(intervals, all_rttm) {
-  match_intervals_to_vtc_annotations(intervals = intervals,
-                                     all_rttm = all_rttm) %>%
-    group_by(across(c(colnames(intervals), "voice_type"))) %>%
-    summarize(duration = sum(overlap_duration),
-              count = n(),
-              .groups = 'drop')
-}
 
 #' Calculates the number of Seedlings annotations in each interval (by speaker)
 #'
