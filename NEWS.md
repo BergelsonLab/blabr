@@ -1,5 +1,14 @@
 # blabr 0.25.2
 
+## Fixed
+
+- Fixes default folder name typo in `get_blab_share_path`
+- Changes `get_blab_share_path` to check for empty strings and not just NULL
+
+## Changes
+
+- Added `add_vtc_speaker_stats` function, which does the same thing as `get_vtc_speaker_stats` but keep all the original columns
+
 # blabr 0.25.1
 
 ## Fixed
