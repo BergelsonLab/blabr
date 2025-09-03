@@ -11,7 +11,6 @@
 #' blab_share <- get_blab_share_path()
 #' }
 get_blab_share_path <- function(check_exists = TRUE) {
-  message("DEBUG MODE")
   blab_share_path <- Sys.getenv('BLAB_SHARE_PATH')
   if (is.null(blab_share_path) | blab_share_path == "" ) {
     blab_share_path <- '/Volumes/Fas-Phyc-PEB-Lab'

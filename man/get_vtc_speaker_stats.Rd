@@ -2,7 +2,8 @@
 % Please edit documentation in R/lena.R
 \name{get_vtc_speaker_stats}
 \alias{get_vtc_speaker_stats}
-\title{Calculate per-speaker statistics based on the VTC output}
+\title{Calculate per-speaker statistics based on the VTC output. This function does
+not keep all of the original columns, check \code{add_vtc_speaker_stats} for that.}
 \usage{
 get_vtc_speaker_stats(intervals, all_rttm)
 }
@@ -23,5 +24,6 @@ interval in \code{intervals} and three new columns: \code{voice_type} and \code{
 and \code{count} of VTC annotations. The \code{duration} is in seconds.
 }
 \description{
-Calculate per-speaker statistics based on the VTC output
+Calculate per-speaker statistics based on the VTC output. This function does
+not keep all of the original columns, check \code{add_vtc_speaker_stats} for that.
 }

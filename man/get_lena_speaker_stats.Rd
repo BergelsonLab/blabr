@@ -4,7 +4,7 @@
 \alias{get_lena_speaker_stats}
 \title{Calculate per-speaker statistics based on the .its file}
 \usage{
-get_lena_speaker_stats(its_xml, intervals)
+get_lena_speaker_stats(its_xml, intervals, time_type = c("wall", "wav"))
 }
 \arguments{
 \item{its_xml}{XML object created by \code{rlena::read_its_file}.}
@@ -15,16 +15,26 @@ get_lena_speaker_stats(its_xml, intervals)
 \item For \code{wav}: \code{interval_start_wav}, \code{interval_end_wav} (both in ms since wav start)
 Can contain other columns.
 }}
+
+\item{time_type}{Either \code{wall} or \code{wav}. If \code{wall} (default), expects columns
+\code{interval_start}, \code{interval_end} (POSIXct timestamps), and \code{interval_start_wav}
+(milliseconds since wav start). Will calculate \code{interval_end_wav} dynamically
+and drop it from output. If \code{wav}, expects \code{interval_start_wav} and
+\code{interval_end_wav} (both in milliseconds since wav start).}
 }
 \value{
 a tibble with the following columns:
 \itemize{
-\item interval_start, interval_end: same as in the intervals input tibble,
-\item adult_word_count: non-zero for MAN and FAN only
+\item interval columns: same as in the intervals input tibble,
+\item spkr: speaker identifier from LENA
+\item adult_word_count: non-zero for FA* and MA* speakers only
 \item utterance_count: for CH* - the sum of childUttCnt, for everyone else - the
 number of conversation segments
+\item segment_duration: total duration of segments for this speaker in this interval
 }
 }
 \description{
-Calculate per-speaker statistics based on the .its file
+Only analyzes conversation blocks (blkType == 'Conversation'). Uses point-in-time
+matching where segment start time must fall within interval boundaries (unlike
+add_lena_stats which uses overlap-based proportional allocation).
 }
