@@ -105,6 +105,7 @@ get_all_basiclevel <- function(version = NULL,
     all_bl <- all_bl %>%
       tidyr::drop_na(basic_level)
   }
+  message("Editing")
 
   return(all_bl)
 }
