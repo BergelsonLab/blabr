@@ -85,6 +85,16 @@ get_vihi_annotations_tables <- function(version = NULL) {
     rbind(interval_0) %>% 
     arrange(eaf_filename, onset)
   
+  # tables$annotations <- tables$annotations
+  tables$annotations <- tables$annotations %>% 
+    mutate(is_first_90_minutes = onset < 90*60*1000) %>% 
+    mutate(
+      code_num = ifelse(
+        is_first_90_minutes & code_num == "-1",
+        "0",
+        code_num
+      )
+    )
 
   return(tables)
 }
