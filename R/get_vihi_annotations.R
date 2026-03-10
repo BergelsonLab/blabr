@@ -64,6 +64,27 @@ get_vihi_annotations_tables <- function(version = NULL) {
       is_top_5_high_vol = (sampling_type == 'high-volubility')
       & (dplyr::dense_rank(rank) <= 5),
       .by = eaf_filename)
+  
+  message("DEV 2 VERSION")
+  interval_0 <- tables$intervals %>% 
+    select(eaf_filename) %>% 
+    unique() %>% 
+    mutate(
+      code_num = "0",
+      sampling_type = "initial",
+      is_silent = NA,
+      onset = 0,
+      offset = 5400000,
+      context_onset = 0,  # First 90 minute interval doesn't have context on/offset
+      context_offset = 5400000,
+      rank = NA, 
+      is_top_5_high_vol = FALSE
+    )
+  
+  tables$intervals <- tables$intervals %>% 
+    rbind(interval_0) %>% 
+    arrange(eaf_filename, onset)
+  
 
   return(tables)
 }
@@ -270,7 +291,7 @@ get_vihi_annotations <- function(
       tables$intervals <- tables$intervals %>%
         dplyr::filter(
           fs::path_ext_remove(eaf_filename) %in% tables$vi_td_matches$VIHI_ID,
-          sampling_type == 'random' | is_top_5_high_vol
+          sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
         )
     }
 
@@ -291,6 +312,8 @@ get_vihi_annotations <- function(
     tables$annotations <- tables$annotations %>%
       dplyr::filter(is.na(PI))
   }
+  
+  
 
   # Run checks on annotations
   annotation_errors <- find_errors_in_vihi_annotations(tables$annotations)
