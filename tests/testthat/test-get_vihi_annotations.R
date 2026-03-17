@@ -65,6 +65,8 @@ test_that("VI+TD-VI subset looks right", {
     vi_and_td_matches)
 
   expect_equal(dim(vi_tdvi_annotations), c(28785, 12))
+  
+  # This test is currently wrong because there are errors in the VIHI csv to be fixed
   expect_column_contents(
     vi_tdvi_annotations,
     list(eaf_filename = "ab6814bd71f1e93b5ab1f5ab2b9b621e",

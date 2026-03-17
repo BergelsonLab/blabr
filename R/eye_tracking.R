@@ -685,7 +685,7 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #' - `prewin` (factor): Whether a time bin comes before the target onset. Values are "Y" and "N".
 #' - For each window defined by `t_starts[i]` and `t_ends[i]`, the following columns are added:
 #'   - `window_{t_starts[i]}_{t_ends[i]}ms` (factor): Whether a time bin is in the window from `t_starts[i]` to `t_ends[i]` milliseconds after target onset. Values are "Y" and "N".
-#'   - `which_window_{t_starts[i]}_{t_ends[i]}ms` (factor): Indicates whether the time bin is in the window (labeled as "{t_starts[i]}_{t_ends[i]}ms"), comes before the target onset ("pre"), or neither ("neither").
+#'   - `which_window_{t_starts[i]}_{t_ends[i]}ms` (factor): Indicates whether the time bin is in the window (labeled as `{t_starts[i]}_{t_ends[i]}ms`), comes before the target onset ("pre"), or neither ("neither").
 #' - `t_onset` (numeric): Time (in milliseconds) from the target onset rounded up to the nearest multiple of `t_step`.
 #'
 #' @export
