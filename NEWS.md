@@ -1,3 +1,13 @@
+# blabr 0.26.0
+
+## Fixed
+
+- Braces error in documentation of `assign_time_windows()` method in `eyetracking.R`
+
+## Changes
+
+- `get_vihi_annotations()` function now add an interval for the first 90 minutes of every vihi recording in `intervals` table (interval 0, sampling type "initial"), and added a column to `annotations` table called `is_first_90_minutes`.
+
 # blabr 0.25.2
 
 ## Fixed
