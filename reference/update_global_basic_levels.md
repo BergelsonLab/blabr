@@ -1,0 +1,32 @@
+# Updates global basic levels in all_basiclevel_na
+
+Updates global basic levels in all_basiclevel_na
+
+## Usage
+
+``` r
+update_global_basic_levels(all_basic_level_na_path)
+```
+
+## Arguments
+
+- all_basic_level_na_path:
+
+  Path to the all_basiclevel_na.csv file created using
+  `blabpy.seedlings.pipeline.make_updated_all_basic_level_here`
+
+  Loads
+
+  - the temporary all_basiclevel_na.csv
+
+  - object_dict and annotid_disambiguation used for mapping
+    objects/tokens to their global basic level - from the all_basiclevel
+    repo.
+
+  Then adds a global_bl column to all_basiclevel_na if it can.
+
+  If it can, it will return all_basiclevel_na with the new global_bl
+  column.
+
+  If it can't, it will throw an error and provide instructions on how to
+  update the global basic level mappings.

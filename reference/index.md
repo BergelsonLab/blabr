@@ -1,0 +1,207 @@
+# Package index
+
+## All functions
+
+- [`add_lena_stats()`](http://bergelsonlab.com/blabr/reference/add_lena_stats.md)
+  : Add LENA stats to each interval in a dataframe
+
+- [`add_vtc_speaker_stats()`](http://bergelsonlab.com/blabr/reference/add_vtc_speaker_stats.md)
+  :
+
+  Calculate per-speaker statistics based on the VTC output and add it to
+  the original tibble. Do the same calculation as
+  `get_vtc_speaker_stats` but keep all the original columns.
+
+- [`add_vtc_stats()`](http://bergelsonlab.com/blabr/reference/add_vtc_stats.md)
+  : Add ctc calculated based on the vtc annotations
+
+- [`all_errors()`](http://bergelsonlab.com/blabr/reference/all_errors.md)
+  : A closure to keep track of al the errors from reading the csv files.
+  There might be a more elegant way to concatenate and print all errors
+  from all files, but this seems to do the job for now.
+
+- [`assign_time_windows()`](http://bergelsonlab.com/blabr/reference/assign_time_windows.md)
+  : Assigns binned fixations to specified time windows
+
+- [`big_aggregate()`](http://bergelsonlab.com/blabr/reference/big_aggregate.md)
+  : Add aggregations columns into an all_basiclevel tibble
+
+- [`calculate_lena_like_stats()`](http://bergelsonlab.com/blabr/reference/calculate_lena_like_stats.md)
+  : Calculate stats similar to those in LENA's 5min.csv files
+
+- [`characters_to_factors()`](http://bergelsonlab.com/blabr/reference/characters_to_factors.md)
+  : Convert all character columns to factors
+
+- [`collect_bl_files()`](http://bergelsonlab.com/blabr/reference/collect_bl_files.md)
+  : Collect basic level files
+
+- [`concat_all_bl()`](http://bergelsonlab.com/blabr/reference/concat_all_bl.md)
+  : Concatenate all the basic level files
+
+- [`concat_month_bl()`](http://bergelsonlab.com/blabr/reference/concat_month_bl.md)
+  : Concatenate basic level files by month
+
+- [`fixations_to_timeseries()`](http://bergelsonlab.com/blabr/reference/fixations_to_timeseries.md)
+  : Convert a dataframe of fixation intervals to an evenly spaced
+  timeseries
+
+- [`get_all_basiclevel()`](http://bergelsonlab.com/blabr/reference/get_all_basiclevel.md)
+  : Get the all_basiclevel data from the all_basiclevel repo
+
+- [`get_blab_share_path()`](http://bergelsonlab.com/blabr/reference/get_blab_share_path.md)
+  : Find BLab share
+
+- [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md)
+  : Get the CDI spreadsheet for SEEDLingS babies
+
+- [`get_current_commit_date()`](http://bergelsonlab.com/blabr/reference/get_current_commit_date.md)
+  : Get the date of the currently checked out commit
+
+- [`get_current_tag()`](http://bergelsonlab.com/blabr/reference/get_current_tag.md)
+  : Find tag label of the currently checked out commit.
+
+- [`get_dataset_version()`](http://bergelsonlab.com/blabr/reference/get_dataset_version.md)
+  : Get the version tag of the last downloaded version of a dataset
+
+- [`get_df_file()`](http://bergelsonlab.com/blabr/reference/get_df_file.md)
+  : Downloads and optionally loads a csv/feather file from a specified
+  version of a dataset
+
+- [`get_global_bl_mappings()`](http://bergelsonlab.com/blabr/reference/get_global_bl_mappings.md)
+  : Get the global basic level spreadsheets
+
+- [`get_late_target_onset()`](http://bergelsonlab.com/blabr/reference/get_late_target_onset.md)
+  : (no docs yet) Find late target onsets and create a doc to check and
+  potentially correct them
+
+- [`get_latest_tag()`](http://bergelsonlab.com/blabr/reference/get_latest_tag.md)
+  : Finds the latest version tag
+
+- [`get_latest_version()`](http://bergelsonlab.com/blabr/reference/get_latest_version.md)
+  : Find latest version available for downloading?
+
+- [`get_lena_speaker_stats()`](http://bergelsonlab.com/blabr/reference/get_lena_speaker_stats.md)
+  : Calculate per-speaker statistics based on the .its file
+
+- [`get_mesrep()`](http://bergelsonlab.com/blabr/reference/get_mesrep.md)
+  : (no docs yet) Create message report with corrected key presses
+
+- [`get_motor_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_motor_spreadsheet.md)
+  : The the motor questionaire spreadsheet for the SEEDLingS babies
+
+- [`get_reliability()`](http://bergelsonlab.com/blabr/reference/get_reliability.md)
+  : Get the reliability spreadsheets
+
+- [`get_repo_path()`](http://bergelsonlab.com/blabr/reference/get_repo_path.md)
+  : Absolute path to a dataset folder
+
+- [`get_seedlings_nouns()`](http://bergelsonlab.com/blabr/reference/get_seedlings_nouns.md)
+  [`get_seedlings_nouns_extra()`](http://bergelsonlab.com/blabr/reference/get_seedlings_nouns.md)
+  [`get_seedlings_nouns_codebook()`](http://bergelsonlab.com/blabr/reference/get_seedlings_nouns.md)
+  : Load data from the SEEDLingS - Nouns dataset
+
+- [`get_seedlings_speaker_stats()`](http://bergelsonlab.com/blabr/reference/get_seedlings_speaker_stats.md)
+  : Calculates the number of Seedlings annotations in each interval (by
+  speaker)
+
+- [`get_versions()`](http://bergelsonlab.com/blabr/reference/get_versions.md)
+  : List available versions
+
+- [`get_vihi_annotations()`](http://bergelsonlab.com/blabr/reference/get_vihi_annotations.md)
+  : Load VIHI annotation data
+
+- [`get_vtc_speaker_stats()`](http://bergelsonlab.com/blabr/reference/get_vtc_speaker_stats.md)
+  :
+
+  Calculate per-speaker statistics based on the VTC output. This
+  function does not keep all of the original columns, check
+  `add_vtc_speaker_stats` for that.
+
+- [`handle_dataset_version()`](http://bergelsonlab.com/blabr/reference/handle_dataset_version.md)
+  : Handles the version.
+
+- [`join_full_audio_video()`](http://bergelsonlab.com/blabr/reference/join_full_audio_video.md)
+  : Join the audio and video dataframes into one big dataframe
+
+- [`keypress_issues()`](http://bergelsonlab.com/blabr/reference/keypress_issues.md)
+  : (no docs yet) Find key press issues and create a doc to check and
+  potentially correct them
+
+- [`keypress_retrieved()`](http://bergelsonlab.com/blabr/reference/keypress_retrieved.md)
+  : (no docs yet) Load file with manually corrected key presses or late
+  target onsets
+
+- [`late_target_retrieved()`](http://bergelsonlab.com/blabr/reference/late_target_retrieved.md)
+  : (no docs yet) Load file with manually corrected late target onsets
+
+- [`list_rename()`](http://bergelsonlab.com/blabr/reference/list_rename.md)
+  :
+
+  [`dplyr::rename`](https://dplyr.tidyverse.org/reference/rename.html)
+  for lists
+
+- [`make_five_min_approximation()`](http://bergelsonlab.com/blabr/reference/make_five_min_approximation.md)
+  : Approximate LENA's 5min.csv output
+
+- [`merge_split_reports()`](http://bergelsonlab.com/blabr/reference/merge_split_reports.md)
+  : Merge tables from split fixation and message reports
+
+- [`prepare_intervals()`](http://bergelsonlab.com/blabr/reference/prepare_intervals.md)
+  : Prepare intervals to potentially be annotated later
+
+- [`process_concat_bl()`](http://bergelsonlab.com/blabr/reference/process_concat_bl.md)
+  : Post-processing for the full basic level dataframe
+
+- [`read_fixation_report()`](http://bergelsonlab.com/blabr/reference/read_fixation_report.md)
+  : Read EyeLink fixation report file
+
+- [`read_message_report()`](http://bergelsonlab.com/blabr/reference/read_message_report.md)
+  : Read EyeLink message report file
+
+- [`read_rttm()`](http://bergelsonlab.com/blabr/reference/read_rttm.md)
+  : Read an .rttm file produced by Voice Type Classifier
+
+- [`read_seedlings_audio_annotations()`](http://bergelsonlab.com/blabr/reference/read_seedlings_audio_annotations.md)
+  : Read audio sparse code csv from the Seedlings annotations.
+
+- [`run_git_command()`](http://bergelsonlab.com/blabr/reference/run_git_command.md)
+  : Run a git command in a dataset repository
+
+- [`sample_intervals_periodically()`](http://bergelsonlab.com/blabr/reference/sample_intervals_periodically.md)
+  : Sample intervals periodically, e.g. every hour
+
+- [`sample_intervals_randomly()`](http://bergelsonlab.com/blabr/reference/sample_intervals_randomly.md)
+  : Sample intervals randomly
+
+- [`sample_intervals_with_highest()`](http://bergelsonlab.com/blabr/reference/sample_intervals_with_highest.md)
+  : Sample intervals that are highest on a given metric
+
+- [`split_fixation_report()`](http://bergelsonlab.com/blabr/reference/split_fixation_report.md)
+  : Split a fixation report into a list of hierarchical dataframes
+
+- [`split_message_report()`](http://bergelsonlab.com/blabr/reference/split_message_report.md)
+  : Split a message report into a list of hierarchical dataframes
+
+- [`tag_low_data_trials()`](http://bergelsonlab.com/blabr/reference/tag_low_data_trials.md)
+  : Tag low-data trials based on fixation timeseries
+
+- [`theme_AMERICA()`](http://bergelsonlab.com/blabr/reference/theme_AMERICA.md)
+  : Theme "AMERICA" for ggplot2
+
+- [`theme_blab()`](http://bergelsonlab.com/blabr/reference/theme_blab.md)
+  : Theme "blab" for ggplot2
+
+- [`theme_spooky()`](http://bergelsonlab.com/blabr/reference/theme_spooky.md)
+  : Theme "spooky" for ggplot2
+
+- [`update_global_basic_levels()`](http://bergelsonlab.com/blabr/reference/update_global_basic_levels.md)
+  : Updates global basic levels in all_basiclevel_na
+
+- [`update_tags()`](http://bergelsonlab.com/blabr/reference/update_tags.md)
+  : Fetches dataset tags from GitHub
+
+- [`write_rttm()`](http://bergelsonlab.com/blabr/reference/write_rttm.md)
+  : Write a tibble to an .rttm file
+
+- [`write_seedlings_audio_annotations()`](http://bergelsonlab.com/blabr/reference/write_seedlings_audio_annotations.md)
+  : Write the seedlings audio annotation tibble back to the csv file
