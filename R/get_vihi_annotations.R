@@ -64,12 +64,11 @@ get_vihi_annotations_tables <- function(version = NULL) {
       is_top_5_high_vol = (sampling_type == 'high-volubility')
       & (dplyr::dense_rank(rank) <= 5),
       .by = eaf_filename)
-  
-  message("DEV 2 VERSION")
-  interval_0 <- tables$intervals %>% 
-    select(eaf_filename) %>% 
-    unique() %>% 
-    mutate(
+
+  interval_0 <- tables$intervals %>%
+    dplyr::select(eaf_filename) %>%
+    unique() %>%
+    dplyr::mutate(
       code_num = "0",
       sampling_type = "initial",
       is_silent = NA,
@@ -77,18 +76,18 @@ get_vihi_annotations_tables <- function(version = NULL) {
       offset = 5400000,
       context_onset = 0,  # First 90 minute interval doesn't have context on/offset
       context_offset = 5400000,
-      rank = NA, 
+      rank = NA,
       is_top_5_high_vol = FALSE
     )
-  
-  tables$intervals <- tables$intervals %>% 
-    rbind(interval_0) %>% 
-    arrange(eaf_filename, onset)
-  
+
+  tables$intervals <- tables$intervals %>%
+    rbind(interval_0) %>%
+    dplyr::arrange(eaf_filename, onset)
+
   # tables$annotations <- tables$annotations
-  tables$annotations <- tables$annotations %>% 
-    mutate(is_first_90_minutes = onset < 90*60*1000) %>% 
-    mutate(
+  tables$annotations <- tables$annotations %>%
+    dplyr::mutate(is_first_90_minutes = onset < 90*60*1000) %>%
+    dplyr::mutate(
       code_num = ifelse(
         is_first_90_minutes & code_num == "-1",
         "0",
@@ -222,9 +221,9 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 #'   Interval-level checks aren't currently checked at all.
 #' - Annotations marked as PI are included. Filter them out if you don't want
 #'   them.
-#' - Every recording has been given an interval 0 with sampling type "initial", 
-#'   which corresponds to the first 90 minutes but EXCLUDING any overlap with 
-#'   the random or hi-vol intervals. If any of the sampled intervals (random or 
+#' - Every recording has been given an interval 0 with sampling type "initial",
+#'   which corresponds to the first 90 minutes but EXCLUDING any overlap with
+#'   the random or hi-vol intervals. If any of the sampled intervals (random or
 #'   hi-vol) is in the first 90 minutes, their annotations will NOT be included
 #'   in interval 0. However, any annotations within the first 90 minutes will
 #'   be given the value `TRUE` in the `is_first_90_minutes` column regardless of
@@ -249,7 +248,7 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 #' - 'random' (the default) loads the annotations from the 15 randomly sampled
 #' intervals from all recordings in the corpus.
 #' - 'VI+TD-VI' loads the annotations from the random, the top-5
-#' high-volubility intervals, and the initial 90 minutes interval 
+#' high-volubility intervals, and the initial 90 minutes interval
 #' from VI recordings and their TD matches.
 #' - 'everything' loads all annotations from all tiers. Exercise caution with
 #' this option: the data will include incomplete and unchecked annotations.
@@ -330,8 +329,8 @@ get_vihi_annotations <- function(
     tables$annotations <- tables$annotations %>%
       dplyr::filter(is.na(PI))
   }
-  
-  
+
+
 
   # Run checks on annotations
   annotation_errors <- find_errors_in_vihi_annotations(tables$annotations)
