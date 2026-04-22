@@ -1,3 +1,11 @@
+#' Select all word item columns for a cdi spreadsheet
+#'
+#' @param data a dataframe of the original cdi csv
+#' @param cdi_type Either wg or ws
+#'
+#' @return New dataframe containing only vocabulary item column
+#' 
+#' @export
 cdi_get_words <- function(data, cdi_type = "wg") {
 
   data <- if (cdi_type == "wg" | cdi_type == "WG") {
@@ -21,6 +29,14 @@ cdi_get_words <- function(data, cdi_type = "wg") {
   return(data)
 }
 
+#' Calculate the vocabulary checklist score of a cdi spreadsheet
+#'
+#' @param data a dataframe of the original cdi csv
+#' @param cdi_type Either wg or ws
+#' @param remove_incomplete whether to remove any incomplete cdi forms
+#'
+#' @return New dataframe with vocab score
+#' @export
 get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
 
 

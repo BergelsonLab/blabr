@@ -20,8 +20,9 @@ get_vihi_annotations(
 \itemize{
 \item 'random' (the default) loads the annotations from the 15 randomly sampled
 intervals from all recordings in the corpus.
-\item 'VI+TD-VI' loads the annotations from the random and the top-5
-high-volubility intervals from VI recordings and their TD matches.
+\item 'VI+TD-VI' loads the annotations from the random, the top-5
+high-volubility intervals, and the initial 90 minutes interval
+from VI recordings and their TD matches.
 \item 'everything' loads all annotations from all tiers. Exercise caution with
 this option: the data will include incomplete and unchecked annotations.
 }}
@@ -62,6 +63,13 @@ Notes:
 Interval-level checks aren't currently checked at all.
 \item Annotations marked as PI are included. Filter them out if you don't want
 them.
+\item Every recording has been given an interval 0 with sampling type "initial",
+which corresponds to the first 90 minutes but EXCLUDING any overlap with
+the random or hi-vol intervals. If any of the sampled intervals (random or
+hi-vol) is in the first 90 minutes, their annotations will NOT be included
+in interval 0. However, any annotations within the first 90 minutes will
+be given the value \code{TRUE} in the \code{is_first_90_minutes} column regardless of
+whether it is in interval 0 or not.
 \item The transcribed utterance can be empty (''). Normally, that means that a
 code interval has been segmented but not annotated. But there might be
 other stray utterance segments like that.

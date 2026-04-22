@@ -26,7 +26,7 @@ The input dataframe with the following columns added:
 \item For each window defined by \code{t_starts[i]} and \code{t_ends[i]}, the following columns are added:
 \itemize{
 \item \verb{window_\{t_starts[i]\}_\{t_ends[i]\}ms} (factor): Whether a time bin is in the window from \code{t_starts[i]} to \code{t_ends[i]} milliseconds after target onset. Values are "Y" and "N".
-\item \verb{which_window_\{t_starts[i]\}_\{t_ends[i]\}ms} (factor): Indicates whether the time bin is in the window (labeled as "{t_starts\link{i}}_{t_ends\link{i}}ms"), comes before the target onset ("pre"), or neither ("neither").
+\item \verb{which_window_\{t_starts[i]\}_\{t_ends[i]\}ms} (factor): Indicates whether the time bin is in the window (labeled as \verb{\{t_starts[i]\}_\{t_ends[i]\}ms}), comes before the target onset ("pre"), or neither ("neither").
 }
 \item \code{t_onset} (numeric): Time (in milliseconds) from the target onset rounded up to the nearest multiple of \code{t_step}.
 }
