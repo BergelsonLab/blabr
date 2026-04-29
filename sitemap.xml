@@ -41,6 +41,7 @@
 <url><loc>http://bergelsonlab.com/blabr/reference/get_seedlings_speaker_stats.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_versions.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_vihi_annotations.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/get_vihi_cdi.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_vocab_score.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_vtc_speaker_stats.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/handle_dataset_version.html</loc></url>
@@ -75,6 +76,7 @@
 <url><loc>http://bergelsonlab.com/blabr/reference/theme_spooky.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/update_global_basic_levels.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/update_tags.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/wrangle_web_cdi.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/write_rttm.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/write_seedlings_audio_annotations.html</loc></url>
 </urlset>

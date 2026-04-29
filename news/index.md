@@ -1,5 +1,14 @@
 # Changelog
 
+## blabr 0.26.1
+
+### Added
+
+- [`wrangle_web_cdi()`](http://bergelsonlab.com/blabr/reference/wrangle_web_cdi.md)
+  for cleaning up cdi exports from webcdi
+- [`get_vihi_cdi()`](http://bergelsonlab.com/blabr/reference/get_vihi_cdi.md)
+  load in CDI from VIHI source on blab_share
+
 ## blabr 0.26.0
 
 ### Fixed
@@ -8,7 +17,7 @@
   [`assign_time_windows()`](http://bergelsonlab.com/blabr/reference/assign_time_windows.md)
   method in `eyetracking.R`
 
-### Changes
+### Changed
 
 - [`get_vihi_annotations()`](http://bergelsonlab.com/blabr/reference/get_vihi_annotations.md)
   function now add an interval for the first 90 minutes of every vihi

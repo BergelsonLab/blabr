@@ -113,6 +113,10 @@
 - [`get_vihi_annotations()`](http://bergelsonlab.com/blabr/reference/get_vihi_annotations.md)
   : Load VIHI annotation data
 
+- [`get_vihi_cdi()`](http://bergelsonlab.com/blabr/reference/get_vihi_cdi.md)
+  : Load VIHI cdi output from BLAB_SHARE (server will need to be
+  mounted)
+
 - [`get_vocab_score()`](http://bergelsonlab.com/blabr/reference/get_vocab_score.md)
   : Calculate the vocabulary checklist score of a cdi spreadsheet
 
@@ -205,6 +209,10 @@
 
 - [`update_tags()`](http://bergelsonlab.com/blabr/reference/update_tags.md)
   : Fetches dataset tags from GitHub
+
+- [`wrangle_web_cdi()`](http://bergelsonlab.com/blabr/reference/wrangle_web_cdi.md)
+  : Clean up raw CDI output (item + summary) for any project
+  administered through WebCDI.
 
 - [`write_rttm()`](http://bergelsonlab.com/blabr/reference/write_rttm.md)
   : Write a tibble to an .rttm file
