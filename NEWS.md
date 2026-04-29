@@ -1,10 +1,17 @@
+# blabr 0.26.1
+
+## Added
+
+- `wrangle_web_cdi()` for cleaning up cdi exports from webcdi
+- `get_vihi_cdi()` load in CDI from VIHI source on blab_share
+
 # blabr 0.26.0
 
 ## Fixed
 
 - Braces error in documentation of `assign_time_windows()` method in `eyetracking.R`
 
-## Changes
+## Changed
 
 - `get_vihi_annotations()` function now add an interval for the first 90 minutes of every vihi recording in `intervals` table (interval 0, sampling type "initial"), and added a column to `annotations` table called `is_first_90_minutes`.
 
