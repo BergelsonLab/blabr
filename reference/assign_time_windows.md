@@ -54,8 +54,8 @@ The input dataframe with the following columns added:
 
   - `which_window_{t_starts[i]}_{t_ends[i]}ms` (factor): Indicates
     whether the time bin is in the window (labeled as
-    "t_startsi_t_endsims"), comes before the target onset ("pre"), or
-    neither ("neither").
+    `{t_starts[i]}_{t_ends[i]}ms`), comes before the target onset
+    ("pre"), or neither ("neither").
 
 - `t_onset` (numeric): Time (in milliseconds) from the target onset
   rounded up to the nearest multiple of `t_step`.

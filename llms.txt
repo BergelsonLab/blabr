@@ -59,6 +59,9 @@ all_bl <- get_all_basiclevel()
 - [`calculate_lena_like_stats()`](http://bergelsonlab.com/blabr/reference/calculate_lena_like_stats.md)
   : Calculate stats similar to those in LENA's 5min.csv files
 
+- [`cdi_get_words()`](http://bergelsonlab.com/blabr/reference/cdi_get_words.md)
+  : Select all word item columns for a cdi spreadsheet
+
 - [`characters_to_factors()`](http://bergelsonlab.com/blabr/reference/characters_to_factors.md)
   : Convert all character columns to factors
 
@@ -139,6 +142,9 @@ all_bl <- get_all_basiclevel()
 
 - [`get_vihi_annotations()`](http://bergelsonlab.com/blabr/reference/get_vihi_annotations.md)
   : Load VIHI annotation data
+
+- [`get_vocab_score()`](http://bergelsonlab.com/blabr/reference/get_vocab_score.md)
+  : Calculate the vocabulary checklist score of a cdi spreadsheet
 
 - [`get_vtc_speaker_stats()`](http://bergelsonlab.com/blabr/reference/get_vtc_speaker_stats.md)
   :

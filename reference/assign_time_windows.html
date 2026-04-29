@@ -67,7 +67,7 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The input dataframe with the following columns added:</p><ul><li><p><code>prewin</code> (factor): Whether a time bin comes before the target onset. Values are "Y" and "N".</p></li>
 <li><p>For each window defined by <code>t_starts[i]</code> and <code>t_ends[i]</code>, the following columns are added:</p><ul><li><p><code>window_{t_starts[i]}_{t_ends[i]}ms</code> (factor): Whether a time bin is in the window from <code>t_starts[i]</code> to <code>t_ends[i]</code> milliseconds after target onset. Values are "Y" and "N".</p></li>
-<li><p><code>which_window_{t_starts[i]}_{t_ends[i]}ms</code> (factor): Indicates whether the time bin is in the window (labeled as "t_startsi_t_endsims"), comes before the target onset ("pre"), or neither ("neither").</p></li>
+<li><p><code>which_window_{t_starts[i]}_{t_ends[i]}ms</code> (factor): Indicates whether the time bin is in the window (labeled as <code>{t_starts[i]}_{t_ends[i]}ms</code>), comes before the target onset ("pre"), or neither ("neither").</p></li>
 </ul></li>
 <li><p><code>t_onset</code> (numeric): Time (in milliseconds) from the target onset rounded up to the nearest multiple of <code>t_step</code>.</p></li>
 </ul></div>

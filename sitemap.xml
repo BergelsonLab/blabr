@@ -13,6 +13,7 @@
 <url><loc>http://bergelsonlab.com/blabr/reference/assign_time_windows.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/big_aggregate.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/calculate_lena_like_stats.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/cdi_get_words.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/characters_to_factors.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/checkout_tag.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/collect_bl_files.html</loc></url>
@@ -40,6 +41,7 @@
 <url><loc>http://bergelsonlab.com/blabr/reference/get_seedlings_speaker_stats.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_versions.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_vihi_annotations.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/get_vocab_score.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_vtc_speaker_stats.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/handle_dataset_version.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/index.html</loc></url>
