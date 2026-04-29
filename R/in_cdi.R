@@ -24,6 +24,23 @@ cdi_words =
     "yard",	"yogurt",
     "zebra",	"zipper",	"zoo")
 
+wg_summary_cols <- c("First Signs", "Phrases", "Phrases Percentile-sex", "Imitation", "Labeling", 
+                     "Words Understood", "Words Understood Percentile-sex", "Words Understood Percentile-both", 
+                     "Words Produced", "Words Produced Percentile-sex", "Words Produced Percentile-both", 
+                     "First Gestures", "Games Gestures", "Object Gestures", "Adult Gestures", "Parent Gestures", 
+                     "Early Gestures", "Early Gestures Percentile-sex", "Early Gestures Percentile-both", 
+                     "Later Gestures", "Later Gestures Percentile-sex", "Later Gestures Percentile-both", 
+                     "Total Gestures", "Total Gestures Percentile-sex", "Total Gestures Percentile-both")
+
+ws_summary_cols <- c("Words Produced", "Words Produced Percentile-sex", "Words Produced Percentile-both", 
+                     "How Children Use Words", "Word Endings 1", "Word Endings 1 Percentile-sex", 
+                     "Word Endings 1 Percentile-both", "Word Forms 1 Nouns", "Word Forms 1 Nouns Percentile-sex", 
+                     "Word Forms 1 Nouns Percentile-both", "Word Forms 1 Verbs", "Word Forms 2 Nouns", 
+                     "Word Forms 2 Verbs", "Combining", "Combining % yes answers at this age and sex" , 
+                     "Complexity", "Complexity Percentile-sex", "Complexity Percentile-both", 
+                     "Combination Example 1", "Combination Example 2", "Combination Example 3")  
+
+
 on_cdi <- function(input) {
   dplyr::mutate(input, in_cdi = basic_level %in% cdi_words)
 }
