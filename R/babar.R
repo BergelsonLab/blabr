@@ -14,13 +14,13 @@ babar_cols_type <- readr::cols_only(
 sonority_dict <- readr::read_tsv(system.file("extdata", "sonority.tsv", package = "blabr"))
 
 all_vowels <- sonority_dict %>%
-  filter(type == "vowel") %>%
-  pull(phoneme) %>%
+  dplyr::filter(type == "vowel") %>%
+  dplyr::pull(phoneme) %>%
   unique()
 
 all_glides <- sonority_dict %>%
-  filter(category == "glide") %>%
-  pull(phoneme) %>%
+  dplyr::filter(category == "glide") %>%
+  dplyr::pull(phoneme) %>%
   unique()
 
 #'
@@ -30,11 +30,8 @@ all_glides <- sonority_dict %>%
 #'@return
 #'@export
 read_babar <- function(filepath, batch) {
-  message("Reading babar file batch:")
-  # add canonical_prop_utt, consonant_inventory,
-  # phonetic_inventory, phoneme_entropy, syllable_entropy,
-  # type_token_ratio, canonical_prop_syl
   if (batch) {
+    message(paste0("Reading all csv files in the following folder: ", filepath))
     babar_files <- list.files(
       path = filepath,
       pattern = "\\.csv$",
@@ -114,4 +111,39 @@ get_inventory <- function(df) {
   return(df_with_inventory)
 }
 
+#'
+#'
+#'@param
+#'
+#'@return
+#'@export
+get_canonical_metrics <- function(df) {
+  df_with_metrics <- df %>%
+    dplyr::mutate(
+      has_cv_transition = stringr::str_detect(cv, "C\\sV|V\\sC")
+    ) %>%
+    dplyr::group_by(recording_id) %>%
+    dplyr::summarise(
+      n_utterances = n(),
+      canonnical_prop = sum(has_cv_transition, na.rm = TRUE)/n(),
+      canonical_babbling_ratio = mean(has_cv_transition, na.rm = TRUE)
+    )
+}
 
+get_metrics_and_inventory <- function(df) {
+  df_with_inventory <- get_inventory(df)
+  df_with_consonant_inventory <- get_consonant_inventory(df)
+  df_with_metrics <- get_canonical_metrics(df)
+
+  final_df <- df_with_inventory %>%
+    dplyr::left_join(
+      df_with_consonant_inventory,
+      by = "recording_id"
+    ) %>%
+    dplyr::left_join(
+      df_with_metrics,
+      by = "recording_id"
+    )
+
+  return(final_df)
+}
