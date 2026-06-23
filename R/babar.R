@@ -2,13 +2,14 @@ babar_cols_type <- readr::cols_only(
   filename=readr::col_character(),
   onset=readr::col_double(),
   offset=readr::col_double(),
-  # speaker=readr::col_factor(levels = c("KCHI", "FEM", "MAL", "OCH")),
-  speaker=readr::col_character(),
+  speaker=readr::col_factor(levels = c("KCHI", "FEM", "MAL", "OCH")),
   phonemes=readr::col_character(),
   syllables=readr::col_character(),
   n_syllables=readr::col_integer(),
   n_phonemes=readr::col_integer(),
-  cv=readr::col_character()
+  cv=readr::col_character(),
+  n_canonical_syllables=readr::col_integer(),
+  is_canonical=readr::col_logical()
 )
 
 sonority_dict <- readr::read_tsv(system.file("extdata", "sonority.tsv", package = "blabr"))
@@ -57,7 +58,7 @@ get_vowels_and_glides <- function() {
   return(list(vowels=all_vowels, glides=all_glides, all=sonority_dict))
 }
 
-pivot_to_phoneme <- function(df) {
+pivot_to_phoneme <- function(df, minimum_count=50) {
   df_by_phoneme <- df %>%
     tidyr::drop_na(phonemes) %>%
     tidyr::separate_rows(phonemes, sep=" ") %>% # one row for every phoneme
@@ -65,7 +66,7 @@ pivot_to_phoneme <- function(df) {
     dplyr::group_by(recording_id, phonemes) %>%
     dplyr::mutate(phoneme_count = n()) %>%
     dplyr::ungroup() %>%
-    dplyr::filter(phoneme_count >= 20)
+    dplyr::filter(phoneme_count >= minimum_count)
 
   return(df_by_phoneme)
 }
@@ -76,8 +77,8 @@ pivot_to_phoneme <- function(df) {
 #'
 #'@return
 #'@export
-get_consonant_inventory <- function(df) {
-  df_by_phoneme <- pivot_to_phoneme(df)
+get_consonant_inventory <- function(df, minimum_count=50) {
+  df_by_phoneme <- pivot_to_phoneme(df, minimum_count=minimum_count)
 
   df_with_consonants <- df_by_phoneme %>%
     dplyr::filter(! category %in% c("vowel", "glide")) %>%
@@ -97,8 +98,8 @@ get_consonant_inventory <- function(df) {
 #'
 #'@return
 #'@export
-get_inventory <- function(df) {
-  df_by_phoneme <- pivot_to_phoneme(df)
+get_inventory <- function(df, minimum_count=50) {
+  df_by_phoneme <- pivot_to_phoneme(df, minimum_count=minimum_count)
 
   df_with_inventory <- df_by_phoneme %>%
     dplyr::distinct(recording_id, phonemes) %>%
@@ -119,20 +120,22 @@ get_inventory <- function(df) {
 #'@export
 get_canonical_metrics <- function(df) {
   df_with_metrics <- df %>%
-    dplyr::mutate(
-      has_cv_transition = stringr::str_detect(cv, "C\\sV|V\\sC")
-    ) %>%
-    dplyr::group_by(recording_id) %>%
+    dplyr::mutate(is_canonical_with_na = ifelse(
+      is.na(syllables),
+      NA,
+      is_canonical
+    )) %>% 
+    dplyr::group_by(recording_id) %>% 
     dplyr::summarise(
       n_utterances = n(),
-      canonnical_prop = sum(has_cv_transition, na.rm = TRUE)/n(),
-      canonical_babbling_ratio = mean(has_cv_transition, na.rm = TRUE)
+      canonical_prop = sum(is_canonical_with_na, na.rm = TRUE)/n(), 
+      canonical_babbling_ratio = mean(is_canonical_with_na, na.rm = TRUE)
     )
 }
 
-get_metrics_and_inventory <- function(df) {
-  df_with_inventory <- get_inventory(df)
-  df_with_consonant_inventory <- get_consonant_inventory(df)
+get_metrics_and_inventory <- function(df, minimum_count=50) {
+  df_with_inventory <- get_inventory(df, minimum_count=minimum_count)
+  df_with_consonant_inventory <- get_consonant_inventory(df, minimum_count=minimum_count)
   df_with_metrics <- get_canonical_metrics(df)
 
   final_df <- df_with_inventory %>%
