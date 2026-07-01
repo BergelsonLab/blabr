@@ -120,16 +120,17 @@ get_inventory <- function(df, minimum_count=50) {
 #'@export
 get_canonical_metrics <- function(df) {
   df_with_metrics <- df %>%
-    dplyr::mutate(is_canonical_with_na = ifelse(
-      is.na(syllables),
-      NA,
-      is_canonical
-    )) %>% 
+    dplyr::mutate(is_canonical_with_na = ifelse(is.na(syllables), NA, is_canonical), 
+                  n_syllables = ifelse(is.na(syllables), NA, n_syllables)
+                  ) %>% 
     dplyr::group_by(recording_id) %>% 
     dplyr::summarise(
       n_utterances = n(),
-      canonical_prop = sum(is_canonical_with_na, na.rm = TRUE)/n(), 
-      canonical_babbling_ratio = mean(is_canonical_with_na, na.rm = TRUE)
+      canonical_prop_utt = sum(is_canonical_with_na, na.rm = TRUE)/n(), 
+      canonical_babbling_ratio = mean(is_canonical_with_na, na.rm = TRUE),
+      n_syllables = sum(n_syllables, na.rm = TRUE),
+      n_canonical_syllables = sum(n_canonical_syllables),
+      canonical_prop_syl = sum(n_canonical_syllables) / n_syllables
     )
 }
 
