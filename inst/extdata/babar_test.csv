@@ -1,0 +1,27 @@
+filename,onset,offset,speaker,phonemes,syllables,n_syllables,n_phonemes,cv,n_canonical_syllables,is_canonical
+babar_test.wav,13.26,14.28,KCHI,m m,m m,1,2,C C,0,False
+babar_test.wav,45.46,45.62,KCHI,,,1,1,,0,False
+babar_test.wav,77.1,78.0,KCHI,,,1,1,,0,False
+babar_test.wav,1168.5,1169.86,KCHI,u ɡ æ,u|ɡ æ,2,3,V|C V,1,True
+babar_test.wav,25012.12,25015.3,KCHI,ĩ ĩ,ĩ|ĩ,2,2,V|V,0,False
+babar_test.wav,25018.06,25018.98,KCHI,e s e,e|s e,2,3,V|C V,1,True
+babar_test.wav,25035.24,25036.52,KCHI,d a d ə,d a|d ə,2,4,C V|C V,2,True
+babar_test.wav,25059.78,25061.08,KCHI,a,a,1,1,V,0,False
+babar_test.wav,25080.22,25081.8,KCHI,a ʌ,a|ʌ,2,2,V|V,0,False
+babar_test.wav,25087.58,25088.42,KCHI,a,a,1,1,V,0,False
+babar_test.wav,25113.24,25114.52,KCHI,a ʊ d ə,a|ʊ|d ə,3,4,V|V|C V,1,True
+babar_test.wav,25197.76,25198.26,KCHI,b u,b u,1,2,C V,1,True
+babar_test.wav,25201.16,25202.96,KCHI,t æ b ʌ,t æ|b ʌ,2,4,C V|C V,2,True
+babar_test.wav,25203.62,25204.52,KCHI,æ,æ,1,1,V,0,False
+babar_test.wav,25239.42,25242.44,KCHI,æ d æ d æ d a,æ|d æ|d æ|d a,4,7,V|C V|C V|C V,3,True
+babar_test.wav,25253.92,25255.06,KCHI,m m h m,m m h m,1,4,C C V C,1,True
+babar_test.wav,25467.74,25468.96,KCHI,a,a,1,1,V,0,False
+babar_test.wav,25481.22,25484.48,KCHI,w i j e e a h a,w i|j e|e|a|h a,5,8,V V|V V|V|V|V V,0,False
+babar_test.wav,25486.14,25488.92,KCHI,e,e,1,1,V,0,False
+babar_test.wav,25494.84,25495.82,KCHI,,,1,1,,0,False
+babar_test.wav,25501.22,25504.82,KCHI,ɪ u i h i,ɪ|u|i|h i,4,5,V|V|V|V V,0,False
+babar_test.wav,25507.18,25508.1,KCHI,i,i,1,1,V,0,False
+babar_test.wav,25508.72,25513.24,KCHI,i i a,i|i|a,3,3,V|V|V,0,False
+babar_test.wav,25514.04,25514.2,KCHI,,,1,1,,0,False
+babar_test.wav,25514.72,25518.86,KCHI,,,1,1,,0,False
+
