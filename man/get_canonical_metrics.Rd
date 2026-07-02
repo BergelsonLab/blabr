@@ -12,6 +12,9 @@
 \usage{
 get_canonical_metrics(df)
 }
+\arguments{
+\item{df}{babar dataframe}
+}
 \value{
 A dataframe with these new metrics as new columns
 }

@@ -19,6 +19,10 @@ Can contain other columns.
 \item{all_rttm}{An \code{all.rttm} file from the VTC output loaded with
 \code{read_rttm}.}
 }
+\value{
+Same as \code{intervals} but with three new columns: \code{voice_type} and \code{duration}
+and \code{count} of VTC annotations. The \code{duration} is in seconds.
+}
 \description{
 Calculate per-speaker statistics based on the VTC output and add it to the
 original tibble. Do the same calculation as \code{get_vtc_speaker_stats} but keep

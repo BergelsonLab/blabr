@@ -407,7 +407,7 @@ get_vtc_speaker_stats <- function(intervals, all_rttm) {
 #' @inheritParams add_vtc_stats
 #' @inheritParams get_vtc_speaker_stats
 #'
-#' Same as `intervals` but with three new columns: `voice_type` and `duration`
+#' @return Same as `intervals` but with three new columns: `voice_type` and `duration`
 #' and `count` of VTC annotations. The `duration` is in seconds.
 #' @export
 add_vtc_speaker_stats <- function(intervals, all_rttm) {

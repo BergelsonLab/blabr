@@ -24,7 +24,7 @@ all_glides <- sonority_dict %>%
   dplyr::pull(phoneme) %>%
   unique()
 
-#'Read in a babar output csv file, or a folder of babar output csv files, and 
+#'Read in a babar output csv file, or a folder of babar output csv files, and
 #'compile into one dataframe
 #'@param filepath path to either a babar csv file or a folder containing multiple
 #'babar csv files
@@ -61,12 +61,12 @@ get_vowels_and_glides <- function() {
   return(list(vowels=all_vowels, glides=all_glides, all=sonority_dict))
 }
 
-#'Wrangling the babar dataframe into long form, one row per phoneme 
+#'Wrangling the babar dataframe into long form, one row per phoneme
 #'with sonority value. Whether a sound is considered a phoneme is determined by
 #'the minimum count parameter.
 #'
 #'@param df babar dataframe
-#'@param minimum_count the minimum number of occurences of a phoneme per recording 
+#'@param minimum_count the minimum number of occurences of a phoneme per recording
 #'to be counted as a phoneme. Default is 50.
 #'
 #'@return A dataframe with one row per phoneme per recording
@@ -83,10 +83,10 @@ pivot_to_phoneme <- function(df, minimum_count=50) {
 }
 
 #'Collecting the consonant inventory of each recording. Glides are not included.
-# The inventory is a space separated string. 
+# The inventory is a space separated string.
 #'
 #'@inheritParams pivot_to_phoneme
-#'@param df
+#'@param df babar dataframe
 #'
 #'@return A dataframe with these new metrics as new columns
 #'
@@ -107,11 +107,11 @@ get_consonant_inventory <- function(df, minimum_count=50) {
 }
 
 #'Collecting the phonetic inventory of each recording.
-#'The inventory is a space separated string. 
+#'The inventory is a space separated string.
 #'
 #'@inheritParams pivot_to_phoneme
-#'@param df
-#' 
+#'@param df babar dataframe
+#'
 #'@return A dataframe with these new metrics as new columns
 #'
 #'@export
@@ -129,25 +129,25 @@ get_inventory <- function(df, minimum_count=50) {
   return(df_with_inventory)
 }
 
-#'Calculate canonical related metrics for each recording, including: 
+#'Calculate canonical related metrics for each recording, including:
 #'  - Canonical utterances (per utterance and per syllable): n_canonical/all
 #'  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
 #'  - Total number of syllables
 #'  - Total number of canonical syllables
 #'
-#'@param df
+#'@param df babar dataframe
 #'
 #'@return A dataframe with these new metrics as new columns
 #'@export
 get_canonical_metrics <- function(df) {
   df_with_metrics <- df %>%
-    dplyr::mutate(is_canonical_with_na = ifelse(is.na(syllables), NA, is_canonical), 
+    dplyr::mutate(is_canonical_with_na = ifelse(is.na(syllables), NA, is_canonical),
                   n_syllables = ifelse(is.na(syllables), NA, n_syllables)
-                  ) %>% 
-    dplyr::group_by(recording_id) %>% 
+                  ) %>%
+    dplyr::group_by(recording_id) %>%
     dplyr::summarise(
       n_utterances = n(),
-      canonical_prop_utt = sum(is_canonical_with_na, na.rm = TRUE)/n(), 
+      canonical_prop_utt = sum(is_canonical_with_na, na.rm = TRUE)/n(),
       canonical_babbling_ratio = mean(is_canonical_with_na, na.rm = TRUE),
       n_syllables = sum(n_syllables, na.rm = TRUE),
       n_canonical_syllables = sum(n_canonical_syllables),
@@ -163,7 +163,7 @@ get_canonical_metrics <- function(df) {
 #'  - Total number of canonical syllables
 #'
 #'@inheritParams pivot_to_phoneme
-#'@param df
+#'@param df babar dataframe
 #'
 #'@return A dataframe with these new metrics as new columns, one row per recording
 #'@export

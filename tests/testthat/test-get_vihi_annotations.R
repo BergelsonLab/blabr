@@ -38,6 +38,7 @@ test_that("get_vihi_annotations works if errors are allowed", {
 })
 
 test_that("VI+TD-VI subset looks right", {
+  skip("There are errors in current VIHI tables, will need to be fixed. See https://github.com/BergelsonLab/blabr/issues/52")
   vi_tdvi_annotations <-
     get_vihi_annotations(
       version = version,
@@ -65,7 +66,7 @@ test_that("VI+TD-VI subset looks right", {
     vi_and_td_matches)
 
   expect_equal(dim(vi_tdvi_annotations), c(28785, 12))
-  
+
   # This test is currently wrong because there are errors in the VIHI csv to be fixed
   expect_column_contents(
     vi_tdvi_annotations,
