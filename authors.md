@@ -7,12 +7,12 @@
 ## Citation
 
 Lab B (2026). *blabr: a toolbox for working in the BLAB*. R package
-version 0.26.1, <http://bergelsonlab.com/blabr/>.
+version 0.26.2, <http://bergelsonlab.com/blabr/>.
 
     @Manual{,
       title = {blabr: a toolbox for working in the BLAB},
       author = {Bergelson Lab},
       year = {2026},
-      note = {R package version 0.26.1},
+      note = {R package version 0.26.2},
       url = {http://bergelsonlab.com/blabr/},
     }

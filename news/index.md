@@ -1,5 +1,16 @@
 # Changelog
 
+## blabr 0.26.2
+
+### Added
+
+- new `babar` module for wrangling babar output:
+  - `read_babar()`
+  - `get_consonant_inventory()`
+  - `get_inventory()`
+  - `get_canonical_metrics()`
+  - `get_metrics_and_inventory()`
+
 ## blabr 0.26.1
 
 ### Added
