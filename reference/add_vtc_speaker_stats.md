@@ -25,3 +25,8 @@ add_vtc_speaker_stats(intervals, all_rttm)
 - all_rttm:
 
   An `all.rttm` file from the VTC output loaded with `read_rttm`.
+
+## Value
+
+Same as `intervals` but with three new columns: `voice_type` and
+`duration` and `count` of VTC annotations. The `duration` is in seconds.

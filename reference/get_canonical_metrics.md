@@ -24,6 +24,12 @@ Calculate canonical related metrics for each recording, including:
 get_canonical_metrics(df)
 ```
 
+## Arguments
+
+- df:
+
+  babar dataframe
+
 ## Value
 
 A dataframe with these new metrics as new columns
