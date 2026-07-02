@@ -7,6 +7,7 @@ An R library for working in the BLAB.
 Then, to install blabr itself:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github('BergelsonLab/blabr')
 ```
@@ -23,6 +24,7 @@ instruction on GitBook
 Open up RStudio, and try this out:
 
 ``` r
+
 library(blabr)
 
 all_bl <- get_all_basiclevel()

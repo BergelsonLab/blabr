@@ -21,6 +21,7 @@ A string with the date.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 get_current_commit_date('all_basiclevel')
 } # }

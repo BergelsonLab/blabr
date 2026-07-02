@@ -27,6 +27,7 @@ a dataframe containing the all_basiclevel data
 ## Examples
 
 ``` r
+
 # get version with a specific version tag
 all_bl <- get_all_basiclevel(version='0.3.2')
 #> Error in run_git_command(repo, "fetch --tags --prune --prune-tags"): Expected to find the "all_basiclevel" repository at the following location: /home/runner/BLAB_DATA/all_basiclevel. Please clone it.
