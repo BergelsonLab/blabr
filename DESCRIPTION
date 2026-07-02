@@ -39,10 +39,10 @@ Imports:
     tidyselect
 Remotes:
   HomeBankCode/rlena
-RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat (>= 3.0.0),
     vdiffr
 Config/testthat/edition: 3
 URL: http://bergelsonlab.com/blabr/
+Config/roxygen2/version: 8.0.0

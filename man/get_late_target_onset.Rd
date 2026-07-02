@@ -12,9 +12,6 @@ get_late_target_onset(
   out_csv = FALSE
 )
 }
-\arguments{
-\item{out_csv}{}
-}
 \description{
 (no docs yet) Find late target onsets and create a doc to check and potentially correct them
 }

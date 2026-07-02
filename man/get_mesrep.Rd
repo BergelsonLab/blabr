@@ -11,9 +11,6 @@ get_mesrep(
     "AudioTarget", "Trial")
 )
 }
-\arguments{
-\item{final_columns}{}
-}
 \description{
 (no docs yet) Create message report with corrected key presses
 }

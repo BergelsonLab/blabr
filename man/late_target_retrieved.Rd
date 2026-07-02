@@ -9,9 +9,6 @@ late_target_retrieved(
   drop_list = c("video_pop_time", "video_targetonset", "notes")
 )
 }
-\arguments{
-\item{drop_list}{}
-}
 \description{
 (no docs yet) Load file with manually corrected late target onsets
 }

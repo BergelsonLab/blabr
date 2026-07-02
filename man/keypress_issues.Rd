@@ -12,9 +12,6 @@ keypress_issues(
   out_csv = FALSE
 )
 }
-\arguments{
-\item{out_csv}{}
-}
 \description{
 (no docs yet) Find key press issues and create a doc to check and potentially correct them
 }
