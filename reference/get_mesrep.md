@@ -12,7 +12,3 @@ get_mesrep(
     "AudioTarget", "Trial")
 )
 ```
-
-## Arguments
-
-- final_columns:

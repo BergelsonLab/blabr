@@ -54,8 +54,26 @@
 - [`get_blab_share_path()`](http://bergelsonlab.com/blabr/reference/get_blab_share_path.md)
   : Find BLab share
 
+- [`get_canonical_metrics()`](http://bergelsonlab.com/blabr/reference/get_canonical_metrics.md)
+  :
+
+  Calculate canonical related metrics for each recording, including:
+
+  - Canonical utterances (per utterance and per syllable):
+    n_canonical/all
+
+  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
+
+  - Total number of syllables
+
+  - Total number of canonical syllables
+
 - [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md)
   : Get the CDI spreadsheet for SEEDLingS babies
+
+- [`get_consonant_inventory()`](http://bergelsonlab.com/blabr/reference/get_consonant_inventory.md)
+  : Collecting the consonant inventory of each recording. Glides are not
+  included.
 
 - [`get_current_commit_date()`](http://bergelsonlab.com/blabr/reference/get_current_commit_date.md)
   : Get the date of the currently checked out commit
@@ -73,6 +91,10 @@
 - [`get_global_bl_mappings()`](http://bergelsonlab.com/blabr/reference/get_global_bl_mappings.md)
   : Get the global basic level spreadsheets
 
+- [`get_inventory()`](http://bergelsonlab.com/blabr/reference/get_inventory.md)
+  : Collecting the phonetic inventory of each recording. The inventory
+  is a space separated string.
+
 - [`get_late_target_onset()`](http://bergelsonlab.com/blabr/reference/get_late_target_onset.md)
   : (no docs yet) Find late target onsets and create a doc to check and
   potentially correct them
@@ -88,6 +110,21 @@
 
 - [`get_mesrep()`](http://bergelsonlab.com/blabr/reference/get_mesrep.md)
   : (no docs yet) Create message report with corrected key presses
+
+- [`get_metrics_and_inventory()`](http://bergelsonlab.com/blabr/reference/get_metrics_and_inventory.md)
+  :
+
+  Collecting phonetic and consonant inventories as space separated
+  strings, and canonical related metrics, including:
+
+  - Canonical utterances (per utterance and per syllable):
+    n_canonical/all
+
+  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
+
+  - Total number of syllables
+
+  - Total number of canonical syllables
 
 - [`get_motor_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_motor_spreadsheet.md)
   : The the motor questionaire spreadsheet for the SEEDLingS babies
@@ -156,11 +193,20 @@
 - [`merge_split_reports()`](http://bergelsonlab.com/blabr/reference/merge_split_reports.md)
   : Merge tables from split fixation and message reports
 
+- [`pivot_to_phoneme()`](http://bergelsonlab.com/blabr/reference/pivot_to_phoneme.md)
+  : Wrangling the babar dataframe into long form, one row per phoneme
+  with sonority value. Whether a sound is considered a phoneme is
+  determined by the minimum count parameter.
+
 - [`prepare_intervals()`](http://bergelsonlab.com/blabr/reference/prepare_intervals.md)
   : Prepare intervals to potentially be annotated later
 
 - [`process_concat_bl()`](http://bergelsonlab.com/blabr/reference/process_concat_bl.md)
   : Post-processing for the full basic level dataframe
+
+- [`read_babar()`](http://bergelsonlab.com/blabr/reference/read_babar.md)
+  : Read in a babar output csv file, or a folder of babar output csv
+  files, and compile into one dataframe
 
 - [`read_fixation_report()`](http://bergelsonlab.com/blabr/reference/read_fixation_report.md)
   : Read EyeLink fixation report file

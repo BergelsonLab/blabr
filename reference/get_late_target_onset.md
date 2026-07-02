@@ -14,7 +14,3 @@ get_late_target_onset(
   out_csv = FALSE
 )
 ```
-
-## Arguments
-
-- out_csv:

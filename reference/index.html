@@ -147,10 +147,24 @@
 
         <dt>
 
+          <code><a href="get_canonical_metrics.html">get_canonical_metrics()</a></code>
+
+        </dt>
+        <dd>Calculate canonical related metrics for each recording, including: <ul><li><p>Canonical utterances (per utterance and per syllable): n_canonical/all</p></li> <li><p>Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical</p></li> <li><p>Total number of syllables</p></li> <li><p>Total number of canonical syllables</p></li> </ul></dd>
+
+        <dt>
+
           <code><a href="get_cdi_spreadsheet.html">get_cdi_spreadsheet()</a></code>
 
         </dt>
         <dd>Get the CDI spreadsheet for SEEDLingS babies</dd>
+
+        <dt>
+
+          <code><a href="get_consonant_inventory.html">get_consonant_inventory()</a></code>
+
+        </dt>
+        <dd>Collecting the consonant inventory of each recording. Glides are not included.</dd>
 
         <dt>
 
@@ -189,6 +203,13 @@
 
         <dt>
 
+          <code><a href="get_inventory.html">get_inventory()</a></code>
+
+        </dt>
+        <dd>Collecting the phonetic inventory of each recording. The inventory is a space separated string.</dd>
+
+        <dt>
+
           <code><a href="get_late_target_onset.html">get_late_target_onset()</a></code>
 
         </dt>
@@ -221,6 +242,13 @@
 
         </dt>
         <dd>(no docs yet) Create message report with corrected key presses</dd>
+
+        <dt>
+
+          <code><a href="get_metrics_and_inventory.html">get_metrics_and_inventory()</a></code>
+
+        </dt>
+        <dd>Collecting phonetic and consonant inventories as space separated strings, and canonical related metrics, including: <ul><li><p>Canonical utterances (per utterance and per syllable): n_canonical/all</p></li> <li><p>Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical</p></li> <li><p>Total number of syllables</p></li> <li><p>Total number of canonical syllables</p></li> </ul></dd>
 
         <dt>
 
@@ -350,6 +378,13 @@
 
         <dt>
 
+          <code><a href="pivot_to_phoneme.html">pivot_to_phoneme()</a></code>
+
+        </dt>
+        <dd>Wrangling the babar dataframe into long form, one row per phoneme with sonority value. Whether a sound is considered a phoneme is determined by the minimum count parameter.</dd>
+
+        <dt>
+
           <code><a href="prepare_intervals.html">prepare_intervals()</a></code>
 
         </dt>
@@ -361,6 +396,13 @@
 
         </dt>
         <dd>Post-processing for the full basic level dataframe</dd>
+
+        <dt>
+
+          <code><a href="read_babar.html">read_babar()</a></code>
+
+        </dt>
+        <dd>Read in a babar output csv file, or a folder of babar output csv files, and compile into one dataframe</dd>
 
         <dt>
 

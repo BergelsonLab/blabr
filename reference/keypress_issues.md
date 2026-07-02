@@ -14,7 +14,3 @@ keypress_issues(
   out_csv = FALSE
 )
 ```
-
-## Arguments
-
-- out_csv:

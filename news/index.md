@@ -5,11 +5,11 @@
 ### Added
 
 - new `babar` module for wrangling babar output:
-  - `read_babar()`
-  - `get_consonant_inventory()`
-  - `get_inventory()`
-  - `get_canonical_metrics()`
-  - `get_metrics_and_inventory()`
+  - [`read_babar()`](http://bergelsonlab.com/blabr/reference/read_babar.md)
+  - [`get_consonant_inventory()`](http://bergelsonlab.com/blabr/reference/get_consonant_inventory.md)
+  - [`get_inventory()`](http://bergelsonlab.com/blabr/reference/get_inventory.md)
+  - [`get_canonical_metrics()`](http://bergelsonlab.com/blabr/reference/get_canonical_metrics.md)
+  - [`get_metrics_and_inventory()`](http://bergelsonlab.com/blabr/reference/get_metrics_and_inventory.md)
 
 ## blabr 0.26.1
 

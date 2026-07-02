@@ -10,7 +10,3 @@ late_target_retrieved(
   drop_list = c("video_pop_time", "video_targetonset", "notes")
 )
 ```
-
-## Arguments
-
-- drop_list:
