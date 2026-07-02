@@ -1,3 +1,9 @@
+# blabr 0.26.3
+
+## Fixed
+
+- Fix `babar` test and documentation page deployment
+
 # blabr 0.26.2
 
 ## Added
