@@ -3,13 +3,7 @@
 \name{get_metrics_and_inventory}
 \alias{get_metrics_and_inventory}
 \title{Collecting phonetic and consonant inventories as space separated strings, and
-canonical related metrics, including:
-\itemize{
-\item Canonical utterances (per utterance and per syllable): n_canonical/all
-\item Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
-\item Total number of syllables
-\item Total number of canonical syllables
-}}
+canonical related metrics.}
 \usage{
 get_metrics_and_inventory(df, minimum_count = 50)
 }
@@ -23,8 +17,7 @@ to be counted as a phoneme. Default is 50.}
 A dataframe with these new metrics as new columns, one row per recording
 }
 \description{
-Collecting phonetic and consonant inventories as space separated strings, and
-canonical related metrics, including:
+The metrics calculated are:
 \itemize{
 \item Canonical utterances (per utterance and per syllable): n_canonical/all
 \item Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical

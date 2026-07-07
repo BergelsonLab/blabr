@@ -2,13 +2,7 @@
 % Please edit documentation in R/babar.R
 \name{get_canonical_metrics}
 \alias{get_canonical_metrics}
-\title{Calculate canonical related metrics for each recording, including:
-\itemize{
-\item Canonical utterances (per utterance and per syllable): n_canonical/all
-\item Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
-\item Total number of syllables
-\item Total number of canonical syllables
-}}
+\title{Calculate canonical related metrics for each recording.}
 \usage{
 get_canonical_metrics(df)
 }
@@ -19,7 +13,7 @@ get_canonical_metrics(df)
 A dataframe with these new metrics as new columns
 }
 \description{
-Calculate canonical related metrics for each recording, including:
+The metrics calculated are:
 \itemize{
 \item Canonical utterances (per utterance and per syllable): n_canonical/all
 \item Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical

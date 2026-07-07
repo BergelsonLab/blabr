@@ -129,16 +129,18 @@ get_inventory <- function(df, minimum_count=50) {
   return(df_with_inventory)
 }
 
-#'Calculate canonical related metrics for each recording, including:
+#' Calculate canonical related metrics for each recording.
+#'
+#' The metrics calculated are:
 #'  - Canonical utterances (per utterance and per syllable): n_canonical/all
 #'  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
 #'  - Total number of syllables
 #'  - Total number of canonical syllables
 #'
-#'@param df babar dataframe
+#' @param df babar dataframe
 #'
-#'@return A dataframe with these new metrics as new columns
-#'@export
+#' @return A dataframe with these new metrics as new columns
+#' @export
 get_canonical_metrics <- function(df) {
   df_with_metrics <- df %>%
     dplyr::mutate(is_canonical_with_na = ifelse(is.na(syllables), NA, is_canonical),
@@ -155,18 +157,20 @@ get_canonical_metrics <- function(df) {
     )
 }
 
-#'Collecting phonetic and consonant inventories as space separated strings, and
-#'canonical related metrics, including:
+#' Collecting phonetic and consonant inventories as space separated strings, and
+#' canonical related metrics.
+#'
+#' The metrics calculated are:
 #'  - Canonical utterances (per utterance and per syllable): n_canonical/all
 #'  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
 #'  - Total number of syllables
 #'  - Total number of canonical syllables
 #'
-#'@inheritParams pivot_to_phoneme
-#'@param df babar dataframe
+#' @inheritParams pivot_to_phoneme
+#' @param df babar dataframe
 #'
-#'@return A dataframe with these new metrics as new columns, one row per recording
-#'@export
+#' @return A dataframe with these new metrics as new columns, one row per recording
+#' @export
 get_metrics_and_inventory <- function(df, minimum_count=50) {
   df_with_inventory <- get_inventory(df, minimum_count=minimum_count)
   df_with_consonant_inventory <- get_consonant_inventory(df, minimum_count=minimum_count)
