@@ -1,15 +1,6 @@
-# Collecting phonetic and consonant inventories as space separated strings, and canonical related metrics, including:
+# Collecting phonetic and consonant inventories as space separated strings, and canonical related metrics.
 
-- Canonical utterances (per utterance and per syllable): n_canonical/all
-
-- Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
-
-- Total number of syllables
-
-- Total number of canonical syllables
-
-Collecting phonetic and consonant inventories as space separated
-strings, and canonical related metrics, including:
+The metrics calculated are:
 
 - Canonical utterances (per utterance and per syllable): n_canonical/all
 

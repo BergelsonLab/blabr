@@ -55,18 +55,7 @@
   : Find BLab share
 
 - [`get_canonical_metrics()`](http://bergelsonlab.com/blabr/reference/get_canonical_metrics.md)
-  :
-
-  Calculate canonical related metrics for each recording, including:
-
-  - Canonical utterances (per utterance and per syllable):
-    n_canonical/all
-
-  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
-
-  - Total number of syllables
-
-  - Total number of canonical syllables
+  : Calculate canonical related metrics for each recording.
 
 - [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md)
   : Get the CDI spreadsheet for SEEDLingS babies
@@ -112,19 +101,8 @@
   : (no docs yet) Create message report with corrected key presses
 
 - [`get_metrics_and_inventory()`](http://bergelsonlab.com/blabr/reference/get_metrics_and_inventory.md)
-  :
-
-  Collecting phonetic and consonant inventories as space separated
-  strings, and canonical related metrics, including:
-
-  - Canonical utterances (per utterance and per syllable):
-    n_canonical/all
-
-  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
-
-  - Total number of syllables
-
-  - Total number of canonical syllables
+  : Collecting phonetic and consonant inventories as space separated
+  strings, and canonical related metrics.
 
 - [`get_motor_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_motor_spreadsheet.md)
   : The the motor questionaire spreadsheet for the SEEDLingS babies
