@@ -1,5 +1,20 @@
 # Changelog
 
+## blabr 0.26.4
+
+### Added
+
+- new
+  [`get_clf_eyetracking()`](http://bergelsonlab.com/blabr/reference/get_clf_eyetracking.md)
+  method in `eyetracking.R`. Similar to other `get_*()` method for the
+  new CLF eyetracking blab_data folder
+
+### Changed
+
+- In `get_data.R`, for the method
+  [`get_df_file()`](http://bergelsonlab.com/blabr/reference/get_df_file.md),
+  I added new functionality to read in “rds” files for larger files.
+
 ## blabr 0.26.3
 
 ### Fixed

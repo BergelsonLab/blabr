@@ -60,6 +60,10 @@
 - [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md)
   : Get the CDI spreadsheet for SEEDLingS babies
 
+- [`get_clf_eyetracking()`](http://bergelsonlab.com/blabr/reference/get_clf_eyetracking.md)
+  : The wrangled eyetracking spreadsheet for CLF eyetracking components
+  of all studies (CLF, PBS, Prefunc, ProsPr, WFR, biWFR).
+
 - [`get_consonant_inventory()`](http://bergelsonlab.com/blabr/reference/get_consonant_inventory.md)
   : Collecting the consonant inventory of each recording. Glides are not
   included.
