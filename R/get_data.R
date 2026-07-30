@@ -359,6 +359,8 @@ get_df_file <- function(repo, filename, version = NULL, read = TRUE,
                               show_col_types = FALSE)
   } else if (endsWith(file_path, ".feather")) {
     result <- arrow::read_feather(file_path)
+  } else if (endsWith(file_path, ".Rds")) {
+    result <- readRDS(file_path)
   }
 
   message("reading file: ", file_path)

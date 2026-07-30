@@ -932,3 +932,17 @@ FindFrozenTrials <- function(gazeData,
  message("Column added identifying trials where gaze stayed in one interest area for whole trial (frozen = T).")
  return(gazeData)
 }
+
+#' The wrangled eyetracking spreadsheet for CLF eyetracking components of all studies (CLF, PBS, Prefunc, ProsPr, WFR, biWFR).
+#'
+#' @param version version tag to checkout
+#'
+#' @return a dataframe containing the fixation as time series, excluding invalid trials
+#' @export
+#'
+#' @examples
+#' motor <- get_motor_spreadsheet(version = '0.0.2')
+get_clf_eyetracking <- function(version=NULL) {
+  get_df_file('clf_eyetracking', "local/fixation_timeseries_with_exclusions.Rds",
+              version = version)
+}
