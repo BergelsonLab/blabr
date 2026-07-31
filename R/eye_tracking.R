@@ -941,7 +941,7 @@ FindFrozenTrials <- function(gazeData,
 #' @export
 #'
 #' @examples
-#' motor <- get_motor_spreadsheet(version = '0.0.2')
+#' eyetracking <- get_clf_eyetracking(version = '0.0.1')
 get_clf_eyetracking <- function(version=NULL) {
   get_df_file('clf_eyetracking', "local/fixation_timeseries_with_exclusions.Rds",
               version = version)
