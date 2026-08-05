@@ -39,7 +39,9 @@ get_vihi_annotations_tables <- function(version = NULL) {
       VIHI_recording_id = readr::col_character(),
       population = readr::col_character(),
       TD_recording_id = readr::col_character(),
-      match_type = readr::col_character())
+      match_type = readr::col_character()),
+    recordings = NULL,
+    subjects = NULL
   )
 
   version <- handle_dataset_version(repo = 'vihi_annotations',
@@ -58,7 +60,10 @@ get_vihi_annotations_tables <- function(version = NULL) {
   tables <- list(
     annotations = get_table('annotations'),
     intervals = get_table('intervals'),
-    matches = get_table('matches'))
+    matches = get_table('matches'),
+    recordings = get_table('recordings'),
+    subjects = get_table('subjects')
+  )
 
   tables$intervals <- tables$intervals %>%
     dplyr::mutate(
