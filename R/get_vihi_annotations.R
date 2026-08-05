@@ -35,10 +35,11 @@ get_vihi_annotations_tables <- function(version = NULL) {
       context_offset = readr::col_integer(),
       is_silent = readr::col_character(),
       rank = readr::col_integer()),
-    vi_td_matches = readr::cols(
-        pair = readr::col_double(),
-        VIHI_ID = readr::col_character(),
-        match_group = readr::col_character())
+    matches = readr::cols(
+      VIHI_recording_id = readr::col_character(),
+      population = readr::col_character(),
+      TD_recording_id = readr::col_character(),
+      match_type = readr::col_character())
   )
 
   version <- handle_dataset_version(repo = 'vihi_annotations',
@@ -57,7 +58,7 @@ get_vihi_annotations_tables <- function(version = NULL) {
   tables <- list(
     annotations = get_table('annotations'),
     intervals = get_table('intervals'),
-    vi_td_matches = get_table('vi_td_matches'))
+    matches = get_table('matches'))
 
   tables$intervals <- tables$intervals %>%
     dplyr::mutate(
@@ -293,21 +294,16 @@ get_vihi_annotations <- function(
   tables <- get_vihi_annotations_tables(version)
 
   if (subset %in% c('random', 'VI+TD-VI')) {
-    # Filter out recordings by removing the corresponding intervals
-    if (subset == 'VI+TD-VI') {
-      tables$intervals <- tables$intervals %>%
-        dplyr::filter(fs::path_ext_remove(eaf_filename)
-                      %in% tables$vi_td_matches$VIHI_ID)
-    }
-
     # Select the intervals
     if (subset == 'random') {
       tables$intervals <- tables$intervals %>%
         dplyr::filter(sampling_type == 'random')
     } else if (subset == 'VI+TD-VI') {
+      vi_td_matches <- tables$matches %>% 
+        filter(population == "VI")
       tables$intervals <- tables$intervals %>%
         dplyr::filter(
-          fs::path_ext_remove(eaf_filename) %in% tables$vi_td_matches$VIHI_ID,
+          fs::path_ext_remove(eaf_filename) %in% c(vi_td_matches$VIHI_recording_id, vi_td_matches$TD_recording_id),
           sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
         )
     }
