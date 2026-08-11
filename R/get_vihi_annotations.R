@@ -379,3 +379,99 @@ get_vihi_annotations <- function(
 
   return(result)
 }
+
+get_vihi_new_tables <- function() {
+  version <- "0.0.0.9013-dev1"
+  tables <- get_vihi_annotations_tables(version)
+  
+  annotations <- tables$annotations
+  intervals <- tables$intervals
+  matches <- tables$matches
+  subjects <- tables$subjects
+  recordings <- tables$recordings
+  
+  subjects$exact_age = TRUE
+  subjects <- subjects %>% 
+    select(full_id, population, subject_id, exact_age, everything())
+  
+  subjects <- subjects %>% 
+    mutate(
+      is_babbling = ifelse(
+        is_babbling == TRUE,
+        "completed",
+        "none"
+      ),
+      is_repetition = ifelse(
+        is_repetition == TRUE,
+        "completed",
+        "none"
+      ),
+      is_interqual = ifelse(
+        is_interqual == TRUE,
+        "completed",
+        "none"
+      ),    
+    ) %>% 
+    mutate(
+      is_repetition = ifelse(
+        subject_id %in% c("052","053", "056", "057"),
+        "in_progress",
+        is_repetition
+      ),
+    )
+  
+  recordings <- recordings %>% 
+    dplyr::mutate(full_id = str_sub(full_recording_id, 1, 6)) %>%
+    dplyr::left_join(
+      subjects %>% 
+        select(full_id, is_babbling, is_repetition, is_interqual), 
+      by = "full_id"
+    )
+  
+  intervals <- intervals %>% 
+    dplyr::mutate(full_id = str_sub(eaf_filename, 1, 6)) %>%
+    mutate(chi_tier = TRUE, other_tiers = TRUE) %>% 
+    dplyr::left_join(
+      subjects %>% 
+        select(full_id, is_babbling, is_repetition, is_interqual), 
+      by = "full_id"
+    ) %>% 
+    rename(
+      babbling = is_babbling,
+      repetition = is_repetition,
+      interqual = is_interqual
+    ) %>% 
+    mutate(
+      babbling = ifelse(
+        babbling == "completed",
+        TRUE,
+        FALSE
+      ),
+      repetition = ifelse(
+        repetition == "completed",
+        TRUE,
+        FALSE
+      ),
+      interqual = ifelse(
+        interqual == "completed",
+        TRUE,
+        FALSE
+      )
+    )
+  
+  selected_subjects <- subjects %>% 
+    dplyr::filter(is_babbling == "completed") 
+  
+  selected_matches <- matches %>% 
+    dplyr::mutate(full_id = str_sub(VIHI_recording_id, 1, 6)) %>%
+    dplyr::right_join(selected_subjects, by = "full_id") 
+  
+  intervals <- intervals %>%
+    dplyr::filter(
+      fs::path_ext_remove(eaf_filename) %in% c(selected_matches$VIHI_recording_id, selected_matches$TD_recording_id),
+      sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
+    )
+  
+  annotations <- annotations %>% 
+    dplyr::semi_join(intervals, by=c('eaf_filename', 'code_num'))
+}
