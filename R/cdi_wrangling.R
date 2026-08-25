@@ -40,6 +40,7 @@
 wrangle_web_cdi <- function(cdi_df,
                             form = c("WG", "WS"),
                             table = c("summary", "wordlevel", "raw"),
+                            new_cols = NULL,
                             withDemographic = FALSE,
                             justWord = TRUE,
                             rename = TRUE) {
@@ -56,6 +57,9 @@ wrangle_web_cdi <- function(cdi_df,
   
   all_cols <- colnames(cdi_df)
   id_cols <- c("study_name", "subject_id", "repeat_num")
+  if (!is.null(new_cols)) {
+    id_cols <- c(id_cols, new_cols)
+  }
   admin_cols <- c("opt_out", "local_lab_id", "administration_id", "link", "completed", "completedBackgroundInfo", "due_date", "last_modified", "created_date", "completed_date", "event_id")
   demographic_cols <- all_cols[!all_cols %in% c(id_cols, admin_cols, summary_cols, item_cols)]
   
@@ -181,6 +185,50 @@ get_vihi_cdi <- function(population = c("VIHI", "VI", "HI", "TD"),
     dplyr::select(VIHI_ID, Population, Form, exact_age, everything())
 
   return(final_cdi)
+}
+
+#' Load CDI output from all RO1 studies and SemPhonD
+#' 
+#' @inheritParams wrangle_web_cdi
+#' @param version version tag to checkout
+#' 
+#' @export
+#'
+get_ro1_cdi <- function(table = c("summary", "wordlevel", "raw"),
+                        withDemographic = FALSE,
+                        justWord = TRUE,
+                        version=NULL) {
+  table <- match.arg(table)
+  new_cols = c("unique_cdi_id")
+  
+  ro1_cdi <- get_df_file('ro1_cdi_spreadsheet', "all_cdi.csv",
+              version = version)
+  
+  cdi_wg <- ro1_cdi %>%
+    dplyr::filter(form == "WG") %>%
+    dplyr::select(-form) %>% 
+    wrangle_web_cdi(form = "WG",
+                    new_cols = new_cols,
+                    table = table,
+                    withDemographic = withDemographic,
+                    justWord = justWord,
+                    rename = FALSE) %>%
+    dplyr::mutate(form = "WG")
+  
+  cdi_ws <- ro1_cdi %>%
+    dplyr::filter(form == "WS") %>%
+    dplyr::select(-form) %>% 
+    wrangle_web_cdi(form = "WS",
+                    new_cols = new_cols,
+                    table = table,
+                    withDemographic = withDemographic,
+                    justWord = justWord,
+                    rename = FALSE) %>%
+    dplyr::mutate(form = "WS")
+  
+  final_cdi <- dplyr::bind_rows(cdi_wg, cdi_ws) %>% 
+    select(study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything())
+  
 }
 
 #' Select all word item columns for a cdi spreadsheet
