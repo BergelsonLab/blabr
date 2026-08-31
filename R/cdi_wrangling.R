@@ -194,14 +194,14 @@ get_vihi_cdi <- function(population = c("VIHI", "VI", "HI", "TD"),
 #' 
 #' @export
 #'
-get_ro1_cdi <- function(table = c("summary", "wordlevel", "raw"),
+get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
                         withDemographic = FALSE,
                         justWord = TRUE,
                         version=NULL) {
   table <- match.arg(table)
   new_cols = c("unique_cdi_id")
   
-  ro1_cdi <- get_df_file('ro1_cdi_spreadsheet', "all_cdi.csv",
+  ro1_cdi <- get_df_file('r01_cdi_spreadsheet', "all_cdi.csv",
               version = version)
   
   cdi_wg <- ro1_cdi %>%
@@ -227,7 +227,7 @@ get_ro1_cdi <- function(table = c("summary", "wordlevel", "raw"),
     dplyr::mutate(form = "WS")
   
   final_cdi <- dplyr::bind_rows(cdi_wg, cdi_ws) %>% 
-    select(study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything())
+    dplyr::select(study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything())
   
 }
 
