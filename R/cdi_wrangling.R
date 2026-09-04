@@ -1,3 +1,39 @@
+#' TODO: This method is just copy pasted from wrangled CDI right now, fix 
+#' this and rethink how we wanna get the columns
+#' 
+#' Get the item and summary columns for a given CDI form
+#' 
+#' @param form Which kind of cdi form is this (`WG` or `WS`)?
+#' @param justWord Should the data include only vocabulary checklist item? If 
+#' `TRUE` (default), returns only `Words Produced` and `Words Understood` related 
+#' columns for `summary` table and vocabulary items for `wordlevel` table. If 
+#' `FALSE`, will include gestures-related items for `WG` form and sentence-related 
+#' items for `WS` form. If you select `raw` table, all items will be included 
+#' regardless of this variable.
+#' 
+#' @export
+get_cdi_cols <- function(form = c("WG", "WS"), justWord = TRUE) {
+  form <- match.arg(form)
+  
+  wg_key <- readr::read_csv(system.file("extdata", "English_WG_dictionary.csv", package = "blabr"))
+  ws_key <- readr::read_csv(system.file("extdata", "English_WS_dictionary.csv", package = "blabr"))
+  
+  if (form == "WG") {
+    item_cols <- wg_key$item
+    summary_cols <- wg_summary_cols
+  } else if (form == "WS") {
+    item_cols <- ws_key$item
+    summary_cols <- ws_summary_cols
+  }
+  
+  if (justWord) {
+    item_cols <- item_cols[stringr::str_detect(item_cols, "(Produced)|(Understood)")]
+    summary_cols <- summary_cols[stringr::str_detect(summary_cols, "(Produced)|(Understood)")]
+  }
+  
+  return(list(item_cols = item_cols, summary_cols = summary_cols))
+})
+
 #' Clean up raw CDI output (item + summary) for any project administered through 
 #' WebCDI.
 #' 
@@ -190,16 +226,21 @@ get_vihi_cdi <- function(population = c("VIHI", "VI", "HI", "TD"),
 #' Load CDI output from all RO1 studies and SemPhonD
 #' 
 #' @inheritParams wrangle_web_cdi
+#' @param study Which study to include (`biWFR`, `WFR`, `CLF`, `PBS`, `MISCOM`, 
+#' `ProsPr`, `PreFunc`, or `SemPhonD`)? 
+#' If `all` (default), will include all studies. 
 #' @param version version tag to checkout
 #' 
 #' @export
 #'
 get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
+                        study = c("all", "biWFR", "WFR", "CLF", "PBS", "MISCOM", "ProsPr", "PreFunc", "SemPhonD"),
                         withDemographic = FALSE,
                         justWord = TRUE,
                         version=NULL) {
   table <- match.arg(table)
-  new_cols = c("unique_cdi_id")
+  study <- match.arg(study)
+  new_cols = c("study_id", "unique_cdi_id")
   
   ro1_cdi <- get_df_file('r01_cdi_spreadsheet', "all_cdi.csv",
               version = version)
@@ -227,7 +268,12 @@ get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
     dplyr::mutate(form = "WS")
   
   final_cdi <- dplyr::bind_rows(cdi_wg, cdi_ws) %>% 
-    dplyr::select(study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything())
+    dplyr::select(study_id, study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything())
+  
+  if (study != "all") {
+    final_cdi <- final_cdi %>%
+      dplyr::filter(study_id == study)
+  }
   
 }
 
