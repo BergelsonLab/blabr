@@ -1,38 +1,21 @@
-#' TODO: This method is just copy pasted from wrangled CDI right now, fix 
-#' this and rethink how we wanna get the columns
-#' 
-#' Get the item and summary columns for a given CDI form
+#' Get the legends for the item columns for CDI forms, with which category they belong to. 
+#' Items include the vocabulary checklist items, gesture items, and sentence items.
 #' 
 #' @param form Which kind of cdi form is this (`WG` or `WS`)?
-#' @param justWord Should the data include only vocabulary checklist item? If 
-#' `TRUE` (default), returns only `Words Produced` and `Words Understood` related 
-#' columns for `summary` table and vocabulary items for `wordlevel` table. If 
-#' `FALSE`, will include gestures-related items for `WG` form and sentence-related 
-#' items for `WS` form. If you select `raw` table, all items will be included 
-#' regardless of this variable.
 #' 
 #' @export
-get_cdi_cols <- function(form = c("WG", "WS"), justWord = TRUE) {
+get_cdi_dict <- function(form = c("WG", "WS")) {
   form <- match.arg(form)
   
   wg_key <- readr::read_csv(system.file("extdata", "English_WG_dictionary.csv", package = "blabr"))
   ws_key <- readr::read_csv(system.file("extdata", "English_WS_dictionary.csv", package = "blabr"))
   
   if (form == "WG") {
-    item_cols <- wg_key$item
-    summary_cols <- wg_summary_cols
+    return(wg_key)
   } else if (form == "WS") {
-    item_cols <- ws_key$item
-    summary_cols <- ws_summary_cols
+    return(ws_key)
   }
-  
-  if (justWord) {
-    item_cols <- item_cols[stringr::str_detect(item_cols, "(Produced)|(Understood)")]
-    summary_cols <- summary_cols[stringr::str_detect(summary_cols, "(Produced)|(Understood)")]
-  }
-  
-  return(list(item_cols = item_cols, summary_cols = summary_cols))
-})
+}
 
 #' Clean up raw CDI output (item + summary) for any project administered through 
 #' WebCDI.
@@ -83,8 +66,8 @@ wrangle_web_cdi <- function(cdi_df,
   form <- match.arg(form)
   table <- match.arg(table)
   
-  wg_key <- readr::read_csv(system.file("extdata", "English_WG_dictionary.csv", package = "blabr"))
-  ws_key <- readr::read_csv(system.file("extdata", "English_WS_dictionary.csv", package = "blabr"))
+  wg_key <- get_cdi_dict("WG")
+  ws_key <- get_cdi_dict("WS")
   wg_cols <- wg_key$item
   ws_cols <- ws_key$item
   
@@ -275,9 +258,12 @@ get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
       dplyr::filter(study_id == study)
   }
   
+  return(final_cdi)
 }
 
 #' Select all word item columns for a cdi spreadsheet
+#' This function was used to generate the current seedlings cdi spreadsheet
+#' as retrieved by `get_cdi_spreadsheet()`.
 #'
 #' @param data a dataframe of the original cdi csv
 #' @param cdi_type Either wg or ws
@@ -309,6 +295,8 @@ cdi_get_words <- function(data, cdi_type = "wg") {
 }
 
 #' Calculate the vocabulary checklist score of a cdi spreadsheet
+#' This function was used to generate the current seedlings cdi spreadsheet
+#' as retrieved by `get_cdi_spreadsheet()`.
 #'
 #' @param data a dataframe of the original cdi csv
 #' @param cdi_type Either wg or ws
@@ -317,7 +305,6 @@ cdi_get_words <- function(data, cdi_type = "wg") {
 #' @return New dataframe with vocab score
 #' @export
 get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
-
 
   if (remove_incomplete == T){
     data <- data %>%
