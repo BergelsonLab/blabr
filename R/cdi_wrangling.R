@@ -1,5 +1,6 @@
 #' Get the legends for the item columns for CDI forms, with which category they belong to. 
 #' Items include the vocabulary checklist items, gesture items, and sentence items.
+#' These two csv (for WG and WS) was downloaded from WebCDI's GitHub repository: https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms, specifically the files `[English_WG].csv` and `[English_WS].csv`.
 #' 
 #' @param form Which kind of cdi form is this (`WG` or `WS`)?
 #' 
@@ -17,7 +18,7 @@ get_cdi_dict <- function(form = c("WG", "WS")) {
   }
 }
 
-#' Clean up raw CDI output (item + summary) for any project administered through 
+#' Clean up raw CDI output (item + summary) for any project administered through
 #' WebCDI.
 #' 
 #' @param filepath Dataframe of the csv file downloaded from WebCDI 
@@ -349,4 +350,20 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
   }
   return(data)
 
+}
+
+#' Wrangle the seedlings CDI table from BLAB_DATA to get summary values
+#' The norm conversion table was downloaded from https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles
+#' 
+#' @inheritParams wrangle_web_cdi
+#' @param data a dataframe of the original cdi csv
+#' 
+#' @return A dataframe of the wrangled CDI output according to the parameters
+#' @export
+#' 
+wrangle_seedlings_cdi <- function(cdi_df, form = c("WG", "WS"), table = c("summary", "wordlevel", "raw"), withDemographic = FALSE, justWord = TRUE) {
+  form <- match.arg(form)
+  table <- match.arg(table)
+  
+  return(cdi_df)
 }
