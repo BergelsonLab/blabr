@@ -32,7 +32,7 @@ wg_summary_cols <- c("First Signs", "Phrases", "Phrases Percentile-sex", "Imitat
                      "Later Gestures", "Later Gestures Percentile-sex", "Later Gestures Percentile-both", 
                      "Total Gestures", "Total Gestures Percentile-sex", "Total Gestures Percentile-both")
 
-ws_summary_cols <- c("Words Produced", "Words Produced Percentile-sex", "Words Produced Percentile-both", 
+ws_summary_cols <- c("Total Produced", "Total Produced Percentile-sex", "Total Produced Percentile-both", 
                      "How Children Use Words", "Word Endings 1", "Word Endings 1 Percentile-sex", 
                      "Word Endings 1 Percentile-both", "Word Forms 1 Nouns", "Word Forms 1 Nouns Percentile-sex", 
                      "Word Forms 1 Nouns Percentile-both", "Word Forms 1 Verbs", "Word Forms 2 Nouns", 

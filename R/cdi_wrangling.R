@@ -83,6 +83,12 @@ wrangle_web_cdi <- function(cdi_df,
   admin_cols <- c("opt_out", "local_lab_id", "administration_id", "link", "completed", "completedBackgroundInfo", "due_date", "last_modified", "created_date", "completed_date", "event_id")
   demographic_cols <- all_cols[!all_cols %in% c(id_cols, admin_cols, summary_cols, item_cols)]
   
+  if (rename) {  # so we have the same name for form WG and WS
+    ws_summary_cols[1] = "Words Produced"
+    ws_summary_cols[2] = "Words Produced Percentile-sex"
+    ws_summary_cols[3] = "Words Produced Percentile-both"
+  }
+  
   if (withDemographic) {
     cols_to_keep <- c(id_cols, demographic_cols)
   } else {
@@ -114,7 +120,7 @@ wrangle_web_cdi <- function(cdi_df,
         ) # so we have the same name for form WG and WS
     }
     item_cols <- ws_cols
-    summary_cols <- ws_summary_cols
+    summary_cols <- ws_summary_cols 
   } 
   
   if (table != "wordlevel") {
@@ -361,9 +367,10 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
 #' @return A dataframe of the wrangled CDI output according to the parameters
 #' @export
 #' 
-wrangle_seedlings_cdi <- function(cdi_df, form = c("WG", "WS"), table = c("summary", "wordlevel", "raw"), withDemographic = FALSE, justWord = TRUE) {
-  form <- match.arg(form)
+wrangle_seedlings_cdi <- function(cdi_df, table = c("summary", "wordlevel", "raw"), withDemographic = FALSE, justWord = TRUE) {
   table <- match.arg(table)
+  
+  
   
   return(cdi_df)
 }
