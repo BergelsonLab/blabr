@@ -83,12 +83,6 @@ wrangle_web_cdi <- function(cdi_df,
   admin_cols <- c("opt_out", "local_lab_id", "administration_id", "link", "completed", "completedBackgroundInfo", "due_date", "last_modified", "created_date", "completed_date", "event_id")
   demographic_cols <- all_cols[!all_cols %in% c(id_cols, admin_cols, summary_cols, item_cols)]
   
-  if (rename) {  # so we have the same name for form WG and WS
-    ws_summary_cols[1] = "Words Produced"
-    ws_summary_cols[2] = "Words Produced Percentile-sex"
-    ws_summary_cols[3] = "Words Produced Percentile-both"
-  }
-  
   if (withDemographic) {
     cols_to_keep <- c(id_cols, demographic_cols)
   } else {
@@ -111,7 +105,7 @@ wrangle_web_cdi <- function(cdi_df,
     item_cols <- wg_cols
     summary_cols <- wg_summary_cols
   } else if (form == "WS") {
-    if (rename) {
+    if (rename == TRUE) {
       cdi_df <- cdi_df %>% 
         dplyr::rename(
           `Words Produced` = `Total Produced`, 
@@ -130,12 +124,12 @@ wrangle_web_cdi <- function(cdi_df,
       cols_to_keep <- all_cols
     }
     cdi_df <- cdi_df %>% 
-      dplyr::select(all_of(cols_to_keep))
+      dplyr::select(dplyr::any_of(cols_to_keep))
     
   } else {
     cdi_df <- cdi_df %>% 
-      dplyr::select(c(cols_to_keep, item_cols)) %>% 
-      tidyr::pivot_longer(cols = all_of(item_cols), names_to = "item", values_to = "response")
+      dplyr::select(dplyr::any_of(c(cols_to_keep, item_cols))) %>% 
+      tidyr::pivot_longer(cols = dplyr::all_of(item_cols), names_to = "item", values_to = "response")
   }
   
   return(cdi_df)
@@ -358,7 +352,9 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
 
 }
 
-#' Wrangle the seedlings CDI table from BLAB_DATA to get summary values
+#' Get the seedlings CDI table from the BLAB_DATA [repo](https://github.com/BergelsonLab/cdi_spreadsheet) 
+#' using `get_cdi_spreadsheet()`, but wrangled to include summary values and 
+#' with options for which form to retrieve the dataframe.
 #' The norm conversion table was downloaded from https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles
 #' 
 #' @param version version tag to checkout
