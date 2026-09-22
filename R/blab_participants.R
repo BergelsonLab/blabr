@@ -9,7 +9,7 @@
 #' which may contain study name and subject number in various formats
 #' 
 parse_raw_id <- function(raw_id) {
-  parsed_id <- str_match(stringr::str_trim(raw_id), "^([A-Za-z_]+)\\s*(\\d+)")
+  parsed_id <- stringr::str_match(stringr::str_trim(raw_id), "^([A-Za-z_]+)\\s*(\\d+)")
   study_id <- parsed_id[, 2]
   subject_id <- parsed_id[, 3]
   cleaned_id <- ifelse(
@@ -27,6 +27,8 @@ parse_raw_id <- function(raw_id) {
 #' Standardize and clean up local subject IDs for blab participants
 #' 
 #' @param df A data frame containing participant information, loaded in from the blab-wide participant spreadsheet
+#' 
+#' @return a new data frame with standardized IDs
 #'
 wrangle_blab_participants <- function(df) {
   RN_df <- df %>% dplyr::select(blab_id, RN, CHS_global_id, n_projects)
@@ -48,10 +50,8 @@ wrangle_blab_participants <- function(df) {
 
 #' Get clean blab-wide participants data from participants tracking sheet and standardize the local ids
 #' 
-#' @param 
-#' @param 
+#' @return a dataframe of all blab participants with standardized local ids
 #' 
-#' @export
 get_blab_participants <- function() {
   participants_path <- file.path(get_blab_share_path(), "experimental_projects/participants.xlsx")
   message("Reading all blab_wide participants data...")
@@ -65,10 +65,8 @@ get_blab_participants <- function() {
 
 #' Get the list of excluded participants from the blab_wide tracking sheet
 #' 
-#' @param 
-#' @param 
+#' @return A dataframe of exluded participants, their local subject ids and notes
 #' 
-#' @export
 get_blab_excluded_participants <- function() {
   participants_path <- file.path(get_blab_share_path(), "experimental_projects/participants.xlsx")
   
