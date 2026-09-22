@@ -1,3 +1,23 @@
+# blabr 0.26.5
+
+## Added
+
+- `get_r01_cdi` to get the new R01 CDI data from the new BLAB_DATA repo raw_r01_cdi, along with features for filtering out which studies and what form, `get_cdi_cols` for retrieving CDI keys, and `get_seedlings_cdi()` for adding summary values to seedlings cdi
+
+- Add warnings in `get_cdi_spreadsheet()` to let users know to use new `get_seedlings_cdi()` function
+
+- New `blab-partitipants` module (with test), still in progress, but allow retrieval of blab-wide participants spreadsheets and exclusion sheets, along with function for normalizing global id.
+
+## Fixed
+
+- Updating a handful of errorful documentations, including clarifications for`cdi_get_words()` and `get_vocab_score()` in `cdi_wrangling.R`, fixing brackets for `assign_time_window()` in `eyetracking.R`, disabling example in documentation for `get_vihi_annotations()`, and fix `get_clf_eyetracking()` examples in documentation
+
+- Found a bug in renaming parameter for `wrangle_web_cdi()`, fix column names of WS summary in `in_cdi.R` to ammend this.
+
+- Skipping tests for `test-lena.R` and `test-global_basic_level.r` for now, but make notes for future fixes
+
+- Add `show_col_types = FALSE` for `babar.R` and `cdi_wrangling.R` to remove distracting messages
+
 # blabr 0.26.4
 
 ## Added
