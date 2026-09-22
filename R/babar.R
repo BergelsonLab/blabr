@@ -12,7 +12,7 @@ babar_cols_type <- readr::cols_only(
   is_canonical=readr::col_logical()
 )
 
-sonority_dict <- readr::read_tsv(system.file("extdata", "sonority.tsv", package = "blabr"))
+sonority_dict <- readr::read_tsv(system.file("extdata", "sonority.tsv", package = "blabr"), show_col_types=FALSE)
 
 all_vowels <- sonority_dict %>%
   dplyr::filter(type == "vowel") %>%
@@ -46,7 +46,7 @@ read_babar <- function(filepath, batch) {
       dplyr::bind_rows()
   } else {
     df <- filepath %>%
-      readr::read_csv(col_types = babar_cols_type)
+      readr::read_csv(col_types = babar_cols_type, show_col_types=FALSE)
   }
 
   df <- df %>%

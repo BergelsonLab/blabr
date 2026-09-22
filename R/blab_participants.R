@@ -34,13 +34,13 @@ wrangle_blab_participants <- function(df) {
   
   cleaned_df <- studies_df %>%
     dplyr::mutate(
-      across(
+      dplyr::across(
         -c(blab_id),
         parse_raw_id
       )
     ) %>% 
-    right_join(RN_df, by = "blab_id") %>% 
-    select(blab_id, RN, CHS_global_id, n_projects, everything())
+    dplyr::right_join(RN_df, by = "blab_id") %>% 
+    dplyr::select(blab_id, RN, CHS_global_id, n_projects, dplyr::everything())
   
   return(cleaned_df)
 }
