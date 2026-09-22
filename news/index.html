@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">blabr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,22 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.26.5" id="blabr-0265">blabr 0.26.5<a class="anchor" aria-label="anchor" href="#blabr-0265"></a></h2>
+<div class="section level3">
+<h3 id="added-0-26-5">Added<a class="anchor" aria-label="anchor" href="#added-0-26-5"></a></h3>
+<ul><li><p><code>get_r01_cdi</code> to get the new R01 CDI data from the new BLAB_DATA repo raw_r01_cdi, along with features for filtering out which studies and what form, <code>get_cdi_cols</code> for retrieving CDI keys, and <code><a href="../reference/get_seedlings_cdi.html">get_seedlings_cdi()</a></code> for adding summary values to seedlings cdi</p></li>
+<li><p>Add warnings in <code><a href="../reference/get_cdi_spreadsheet.html">get_cdi_spreadsheet()</a></code> to let users know to use new <code><a href="../reference/get_seedlings_cdi.html">get_seedlings_cdi()</a></code> function</p></li>
+<li><p>New <code>blab-partitipants</code> module (with test), still in progress, but allow retrieval of blab-wide participants spreadsheets and exclusion sheets, along with function for normalizing global id.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="fixed-0-26-5">Fixed<a class="anchor" aria-label="anchor" href="#fixed-0-26-5"></a></h3>
+<ul><li><p>Updating a handful of errorful documentations, including clarifications for<code><a href="../reference/cdi_get_words.html">cdi_get_words()</a></code> and <code><a href="../reference/get_vocab_score.html">get_vocab_score()</a></code> in <code>cdi_wrangling.R</code>, fixing brackets for <code>assign_time_window()</code> in <code>eyetracking.R</code>, disabling example in documentation for <code><a href="../reference/get_vihi_annotations.html">get_vihi_annotations()</a></code>, and fix <code><a href="../reference/get_clf_eyetracking.html">get_clf_eyetracking()</a></code> examples in documentation</p></li>
+<li><p>Found a bug in renaming parameter for <code><a href="../reference/wrangle_web_cdi.html">wrangle_web_cdi()</a></code>, fix column names of WS summary in <code>in_cdi.R</code> to ammend this.</p></li>
+<li><p>Skipping tests for <code>test-lena.R</code> and <code>test-global_basic_level.r</code> for now, but make notes for future fixes</p></li>
+<li><p>Add <code>show_col_types = FALSE</code> for <code>babar.R</code> and <code>cdi_wrangling.R</code> to remove distracting messages</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.26.4" id="blabr-0264">blabr 0.26.4<a class="anchor" aria-label="anchor" href="#blabr-0264"></a></h2>
 <div class="section level3">

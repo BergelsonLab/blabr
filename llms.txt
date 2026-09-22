@@ -62,7 +62,11 @@ all_bl <- get_all_basiclevel()
   : Calculate stats similar to those in LENA's 5min.csv files
 
 - [`cdi_get_words()`](http://bergelsonlab.com/blabr/reference/cdi_get_words.md)
-  : Select all word item columns for a cdi spreadsheet
+  :
+
+  Select all word item columns for a cdi spreadsheet This function was
+  used to generate the current seedlings cdi spreadsheet as retrieved by
+  [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md).
 
 - [`characters_to_factors()`](http://bergelsonlab.com/blabr/reference/characters_to_factors.md)
   : Convert all character columns to factors
@@ -83,11 +87,29 @@ all_bl <- get_all_basiclevel()
 - [`get_all_basiclevel()`](http://bergelsonlab.com/blabr/reference/get_all_basiclevel.md)
   : Get the all_basiclevel data from the all_basiclevel repo
 
+- [`get_blab_excluded_participants()`](http://bergelsonlab.com/blabr/reference/get_blab_excluded_participants.md)
+  : Get the list of excluded participants from the blab_wide tracking
+  sheet
+
+- [`get_blab_participants()`](http://bergelsonlab.com/blabr/reference/get_blab_participants.md)
+  : Get clean blab-wide participants data from participants tracking
+  sheet and standardize the local ids
+
 - [`get_blab_share_path()`](http://bergelsonlab.com/blabr/reference/get_blab_share_path.md)
   : Find BLab share
 
 - [`get_canonical_metrics()`](http://bergelsonlab.com/blabr/reference/get_canonical_metrics.md)
   : Calculate canonical related metrics for each recording.
+
+- [`get_cdi_dict()`](http://bergelsonlab.com/blabr/reference/get_cdi_dict.md)
+  :
+
+  Get the legends for the item columns for CDI forms, with which
+  category they belong to. Items include the vocabulary checklist items,
+  gesture items, and sentence items. These two csv (for WG and WS) was
+  downloaded from WebCDI's GitHub repository:
+  https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms,
+  specifically the files `[English_WG].csv` and `[English_WS].csv`.
 
 - [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md)
   : Get the CDI spreadsheet for SEEDLingS babies
@@ -143,11 +165,25 @@ all_bl <- get_all_basiclevel()
 - [`get_motor_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_motor_spreadsheet.md)
   : The the motor questionaire spreadsheet for the SEEDLingS babies
 
+- [`get_r01_cdi()`](http://bergelsonlab.com/blabr/reference/get_r01_cdi.md)
+  : Load CDI output from all RO1 studies and SemPhonD
+
 - [`get_reliability()`](http://bergelsonlab.com/blabr/reference/get_reliability.md)
   : Get the reliability spreadsheets
 
 - [`get_repo_path()`](http://bergelsonlab.com/blabr/reference/get_repo_path.md)
   : Absolute path to a dataset folder
+
+- [`get_seedlings_cdi()`](http://bergelsonlab.com/blabr/reference/get_seedlings_cdi.md)
+  :
+
+  Get the seedlings CDI table from the BLAB_DATA
+  [repo](https://github.com/BergelsonLab/cdi_spreadsheet) using
+  [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md),
+  but wrangled to include summary values and with options for which form
+  to retrieve the dataframe. The norm conversion table was downloaded
+  from
+  https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles
 
 - [`get_seedlings_nouns()`](http://bergelsonlab.com/blabr/reference/get_seedlings_nouns.md)
   [`get_seedlings_nouns_extra()`](http://bergelsonlab.com/blabr/reference/get_seedlings_nouns.md)
@@ -169,7 +205,12 @@ all_bl <- get_all_basiclevel()
   mounted)
 
 - [`get_vocab_score()`](http://bergelsonlab.com/blabr/reference/get_vocab_score.md)
-  : Calculate the vocabulary checklist score of a cdi spreadsheet
+  :
+
+  Calculate the vocabulary checklist score of a cdi spreadsheet This
+  function was used to generate the current seedlings cdi spreadsheet as
+  retrieved by
+  [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md).
 
 - [`get_vtc_speaker_stats()`](http://bergelsonlab.com/blabr/reference/get_vtc_speaker_stats.md)
   :
@@ -206,6 +247,16 @@ all_bl <- get_all_basiclevel()
 
 - [`merge_split_reports()`](http://bergelsonlab.com/blabr/reference/merge_split_reports.md)
   : Merge tables from split fixation and message reports
+
+- [`parse_raw_id()`](http://bergelsonlab.com/blabr/reference/parse_raw_id.md)
+  : Parse a raw local subject ID and return a cleaned, standardized
+  version of the ID Will look for a continuous string of letters and
+  underscore (the study name) followed by a continuous string of digits
+  (the subject number), and will return a cleaned version of the ID in
+  the format "studyname_subjectnumber", with the study name in
+  uppercase, all underscore removed, and the subject number as an
+  integer (no leading zeros). If the input does not match this pattern,
+  it will return the original input.
 
 - [`pivot_to_phoneme()`](http://bergelsonlab.com/blabr/reference/pivot_to_phoneme.md)
   : Wrangling the babar dataframe into long form, one row per phoneme
@@ -269,6 +320,9 @@ all_bl <- get_all_basiclevel()
 
 - [`update_tags()`](http://bergelsonlab.com/blabr/reference/update_tags.md)
   : Fetches dataset tags from GitHub
+
+- [`wrangle_blab_participants()`](http://bergelsonlab.com/blabr/reference/wrangle_blab_participants.md)
+  : Standardize and clean up local subject IDs for blab participants
 
 - [`wrangle_web_cdi()`](http://bergelsonlab.com/blabr/reference/wrangle_web_cdi.md)
   : Clean up raw CDI output (item + summary) for any project

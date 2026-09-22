@@ -10,6 +10,7 @@ wrangle_web_cdi(
   cdi_df,
   form = c("WG", "WS"),
   table = c("summary", "wordlevel", "raw"),
+  new_cols = NULL,
   withDemographic = FALSE,
   justWord = TRUE,
   rename = TRUE
@@ -17,6 +18,11 @@ wrangle_web_cdi(
 ```
 
 ## Arguments
+
+- cdi_df:
+
+  Dataframe of the csv file downloaded from WebCDI (you should use the
+  csv with both item level and summary data)
 
 - form:
 
@@ -41,6 +47,13 @@ wrangle_web_cdi(
     well as metadata columns (e.g. date created, webcdi link, admin id,
     etc.). Is not affected by `withDemographic` and `justWord`
     parameters.
+
+- new_cols:
+
+  a vector of string, names of new colummns added to the output from
+  WebCDI (if any). Will count these new columns as ID and keep them in
+  every version of the CDI tables. Useful for any unique id columns
+  generated from the WebCDI output
 
 - withDemographic:
 
@@ -69,11 +82,6 @@ wrangle_web_cdi(
   will changed to `Words Produced`, `Words Produced Percentile-sex` and
   `Words Produced Percentile-both`. Otherwise, they will remain
   unchanged
-
-- filepath:
-
-  Dataframe of the csv file downloaded from WebCDI (you should use the
-  csv with both item level and sumary data)
 
 ## Value
 

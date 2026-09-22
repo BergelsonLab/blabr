@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">blabr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,15 +66,15 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The input dataframe with the following columns added:</p><ul><li><p><code>prewin</code> (factor): Whether a time bin comes before the target onset. Values are "Y" and "N".</p></li>
-<li><p>For each window defined by <code>t_starts[i]</code> and <code>t_ends[i]</code>, the following columns are added:</p><ul><li><p><code>window_{t_starts[i]}_{t_ends[i]}ms</code> (factor): Whether a time bin is in the window from <code>t_starts[i]</code> to <code>t_ends[i]</code> milliseconds after target onset. Values are "Y" and "N".</p></li>
-<li><p><code>which_window_{t_starts[i]}_{t_ends[i]}ms</code> (factor): Indicates whether the time bin is in the window (labeled as <code>{t_starts[i]}_{t_ends[i]}ms</code>), comes before the target onset ("pre"), or neither ("neither").</p></li>
+<li><p>For each window defined by <code>t_starts[i]</code> and <code>t_ends[i]</code>, the following columns are added:</p><ul><li><p><code>window_&lt;t_starts[i]&gt;_&lt;t_ends[i]&gt;ms</code> (factor): Whether a time bin is in the window from <code>t_starts[i]</code> to <code>t_ends[i]</code> milliseconds after target onset. Values are "Y" and "N".</p></li>
+<li><p><code>which_window_&lt;t_starts[i]&gt;_&lt;t_ends[i]&gt;ms</code> (factor): Indicates whether the time bin is in the window (labeled as <code>&lt;t_starts[i]&gt;_&lt;t_ends[i]&gt;ms</code>), comes before the target onset ("pre"), or neither ("neither").</p></li>
 </ul></li>
 <li><p><code>t_onset</code> (numeric): Time (in milliseconds) from the target onset rounded up to the nearest multiple of <code>t_step</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The function assigns each time bin in <code>fixation_timeseries</code> to specified time windows defined by <code>t_starts</code> and <code>t_ends</code> relative to the target onset. For each window, it creates two new columns:</p><ul><li><p><code>window_{start}_{end}ms</code>: Indicates whether the time bin falls within the window from <code>start</code> to <code>end</code> milliseconds after target onset. Values are "Y" or "N".</p></li>
-<li><p><code>which_window_{start}_{end}ms</code>: Indicates whether the time bin is in the window (labeled as "start_endms"), comes before the target onset ("pre"), or neither ("neither").</p></li>
+    <p>The function assigns each time bin in <code>fixation_timeseries</code> to specified time windows defined by <code>t_starts</code> and <code>t_ends</code> relative to the target onset. For each window, it creates two new columns:</p><ul><li><p><code>window_&lt;start&gt;_&lt;end&gt;ms</code>: Indicates whether the time bin falls within the window from <code>start</code> to <code>end</code> milliseconds after target onset. Values are "Y" or "N".</p></li>
+<li><p><code>which_window_&lt;start&gt;_&lt;end&gt;ms</code>: Indicates whether the time bin is in the window (labeled as `<start>_<end>ms“), comes before the target onset ("pre"), or neither ("neither").</end></start></p></li>
 </ul><p>Time bins located exactly at <code>t_starts[i]</code> or <code>t_ends[i]</code> are included in the corresponding window (i.e., the intervals are inclusive of the endpoints).</p>
 <p>The function also adds a <code>prewin</code> column indicating whether the time bin comes before the target onset.</p>
 <p>The <code>t_onset</code> column is computed as the time from the target onset, rounded up to the nearest multiple of <code>t_step</code>.</p>

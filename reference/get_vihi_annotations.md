@@ -104,15 +104,13 @@ Notes:
 ## Examples
 
 ``` r
+if (FALSE) { # \dontrun{
 vitd_annotations <- get_vihi_annotations(version='0.0.0.9006-dev.5',
                                          subset='VI+TD-VI')
-#> Error in run_git_command(repo, "fetch --tags --prune --prune-tags"): Expected to find the "vihi_annotations" repository at the following location: /home/runner/BLAB_DATA/vihi_annotations. Please clone it.
 
 vitd <- get_vihi_annotations(version='0.0.0.9006-dev.5', subset='VI+TD-VI',
                              table='all')
-#> Error in run_git_command(repo, "fetch --tags --prune --prune-tags"): Expected to find the "vihi_annotations" repository at the following location: /home/runner/BLAB_DATA/vihi_annotations. Please clone it.
 vitd$annotations %>% head()
-#> Error: object 'vitd' not found
 vitd$intervals %>% head()
-#> Error: object 'vitd' not found
+} # }
 ```

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">blabr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,7 +94,7 @@
           <code><a href="cdi_get_words.html">cdi_get_words()</a></code>
 
         </dt>
-        <dd>Select all word item columns for a cdi spreadsheet</dd>
+        <dd>Select all word item columns for a cdi spreadsheet This function was used to generate the current seedlings cdi spreadsheet as retrieved by <code><a href="../reference/get_cdi_spreadsheet.html">get_cdi_spreadsheet()</a></code>.</dd>
 
         <dt>
 
@@ -140,6 +140,20 @@
 
         <dt>
 
+          <code><a href="get_blab_excluded_participants.html">get_blab_excluded_participants()</a></code>
+
+        </dt>
+        <dd>Get the list of excluded participants from the blab_wide tracking sheet</dd>
+
+        <dt>
+
+          <code><a href="get_blab_participants.html">get_blab_participants()</a></code>
+
+        </dt>
+        <dd>Get clean blab-wide participants data from participants tracking sheet and standardize the local ids</dd>
+
+        <dt>
+
           <code><a href="get_blab_share_path.html">get_blab_share_path()</a></code>
 
         </dt>
@@ -151,6 +165,13 @@
 
         </dt>
         <dd>Calculate canonical related metrics for each recording.</dd>
+
+        <dt>
+
+          <code><a href="get_cdi_dict.html">get_cdi_dict()</a></code>
+
+        </dt>
+        <dd>Get the legends for the item columns for CDI forms, with which category they belong to. Items include the vocabulary checklist items, gesture items, and sentence items. These two csv (for WG and WS) was downloaded from WebCDI's GitHub repository: https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms, specifically the files <code>[English_WG].csv</code> and <code>[English_WS].csv</code>.</dd>
 
         <dt>
 
@@ -266,6 +287,13 @@
 
         <dt>
 
+          <code><a href="get_r01_cdi.html">get_r01_cdi()</a></code>
+
+        </dt>
+        <dd>Load CDI output from all RO1 studies and SemPhonD</dd>
+
+        <dt>
+
           <code><a href="get_reliability.html">get_reliability()</a></code>
 
         </dt>
@@ -277,6 +305,13 @@
 
         </dt>
         <dd>Absolute path to a dataset folder</dd>
+
+        <dt>
+
+          <code><a href="get_seedlings_cdi.html">get_seedlings_cdi()</a></code>
+
+        </dt>
+        <dd>Get the seedlings CDI table from the BLAB_DATA <a href="https://github.com/BergelsonLab/cdi_spreadsheet" class="external-link">repo</a> using <code><a href="../reference/get_cdi_spreadsheet.html">get_cdi_spreadsheet()</a></code>, but wrangled to include summary values and with options for which form to retrieve the dataframe. The norm conversion table was downloaded from https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles</dd>
 
         <dt>
 
@@ -318,7 +353,7 @@
           <code><a href="get_vocab_score.html">get_vocab_score()</a></code>
 
         </dt>
-        <dd>Calculate the vocabulary checklist score of a cdi spreadsheet</dd>
+        <dd>Calculate the vocabulary checklist score of a cdi spreadsheet This function was used to generate the current seedlings cdi spreadsheet as retrieved by <code><a href="../reference/get_cdi_spreadsheet.html">get_cdi_spreadsheet()</a></code>.</dd>
 
         <dt>
 
@@ -382,6 +417,13 @@
 
         </dt>
         <dd>Merge tables from split fixation and message reports</dd>
+
+        <dt>
+
+          <code><a href="parse_raw_id.html">parse_raw_id()</a></code>
+
+        </dt>
+        <dd>Parse a raw local subject ID and return a cleaned, standardized version of the ID Will look for a continuous string of letters and underscore (the study name) followed by a continuous string of digits (the subject number), and will return a cleaned version of the ID in the format "studyname_subjectnumber", with the study name in uppercase, all underscore removed, and the subject number as an integer (no leading zeros). If the input does not match this pattern, it will return the original input.</dd>
 
         <dt>
 
@@ -522,6 +564,13 @@
 
         </dt>
         <dd>Fetches dataset tags from GitHub</dd>
+
+        <dt>
+
+          <code><a href="wrangle_blab_participants.html">wrangle_blab_participants()</a></code>
+
+        </dt>
+        <dd>Standardize and clean up local subject IDs for blab participants</dd>
 
         <dt>
 

@@ -23,6 +23,6 @@ trials
 ## Examples
 
 ``` r
-motor <- get_motor_spreadsheet(version = '0.0.2')
-#> Error in run_git_command(repo, "fetch --tags --prune --prune-tags"): Expected to find the "motor_spreadsheet" repository at the following location: /home/runner/BLAB_DATA/motor_spreadsheet. Please clone it.
+eyetracking <- get_clf_eyetracking(version = '0.0.1')
+#> Error in run_git_command(repo, "fetch --tags --prune --prune-tags"): Expected to find the "clf_eyetracking" repository at the following location: /home/runner/BLAB_DATA/clf_eyetracking. Please clone it.
 ```

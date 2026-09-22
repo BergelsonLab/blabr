@@ -48,13 +48,13 @@ The input dataframe with the following columns added:
 - For each window defined by `t_starts[i]` and `t_ends[i]`, the
   following columns are added:
 
-  - `window_{t_starts[i]}_{t_ends[i]}ms` (factor): Whether a time bin is
+  - `window_<t_starts[i]>_<t_ends[i]>ms` (factor): Whether a time bin is
     in the window from `t_starts[i]` to `t_ends[i]` milliseconds after
     target onset. Values are "Y" and "N".
 
-  - `which_window_{t_starts[i]}_{t_ends[i]}ms` (factor): Indicates
+  - `which_window_<t_starts[i]>_<t_ends[i]>ms` (factor): Indicates
     whether the time bin is in the window (labeled as
-    `{t_starts[i]}_{t_ends[i]}ms`), comes before the target onset
+    `<t_starts[i]>_<t_ends[i]>ms`), comes before the target onset
     ("pre"), or neither ("neither").
 
 - `t_onset` (numeric): Time (in milliseconds) from the target onset
@@ -66,12 +66,12 @@ The function assigns each time bin in `fixation_timeseries` to specified
 time windows defined by `t_starts` and `t_ends` relative to the target
 onset. For each window, it creates two new columns:
 
-- `window_{start}_{end}ms`: Indicates whether the time bin falls within
+- `window_<start>_<end>ms`: Indicates whether the time bin falls within
   the window from `start` to `end` milliseconds after target onset.
   Values are "Y" or "N".
 
-- `which_window_{start}_{end}ms`: Indicates whether the time bin is in
-  the window (labeled as "start_endms"), comes before the target onset
+- `which_window_<start>_<end>ms`: Indicates whether the time bin is in
+  the window (labeled as \`\_ms“), comes before the target onset
   ("pre"), or neither ("neither").
 
 Time bins located exactly at `t_starts[i]` or `t_ends[i]` are included

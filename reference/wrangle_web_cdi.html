@@ -9,7 +9,7 @@ WebCDI."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">blabr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@ WebCDI.</p>
 <span>  <span class="va">cdi_df</span>,</span>
 <span>  form <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"WG"</span>, <span class="st">"WS"</span><span class="op">)</span>,</span>
 <span>  table <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"summary"</span>, <span class="st">"wordlevel"</span>, <span class="st">"raw"</span><span class="op">)</span>,</span>
+<span>  new_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  withDemographic <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  justWord <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  rename <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -55,7 +56,12 @@ WebCDI.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-form">form<a class="anchor" aria-label="anchor" href="#arg-form"></a></dt>
+<dl><dt id="arg-cdi-df">cdi_df<a class="anchor" aria-label="anchor" href="#arg-cdi-df"></a></dt>
+<dd><p>Dataframe of the csv file downloaded from WebCDI
+(you should use the csv with both item level and summary data)</p></dd>
+
+
+<dt id="arg-form">form<a class="anchor" aria-label="anchor" href="#arg-form"></a></dt>
 <dd><p>Which kind of cdi form is this (<code>WG</code> or <code>WS</code>).
 Will only include columns from each form.</p></dd>
 
@@ -72,6 +78,13 @@ each item and columns for aggregated score,
 as well as metadata columns (e.g. date created, webcdi link, admin id, etc.).
 Is not affected by <code>withDemographic</code> and <code>justWord</code> parameters.</p></li>
 </ul></dd>
+
+
+<dt id="arg-new-cols">new_cols<a class="anchor" aria-label="anchor" href="#arg-new-cols"></a></dt>
+<dd><p>a vector of string, names of new colummns added to the output
+from WebCDI (if any). Will count these new columns as ID and keep them in every
+version of the CDI tables. Useful for any unique id columns generated from
+the WebCDI output</p></dd>
 
 
 <dt id="arg-withdemographic">withDemographic<a class="anchor" aria-label="anchor" href="#arg-withdemographic"></a></dt>
@@ -98,11 +111,6 @@ three summary columns in WS named <code>Total Produced</code>, <code>Total Produ
 and <code>Total Produced Percentile-both</code> will  changed to <code>Words Produced</code>,
 <code>Words Produced Percentile-sex</code> and <code>Words Produced Percentile-both</code>. Otherwise,
 they will remain unchanged</p></dd>
-
-
-<dt id="arg-filepath">filepath<a class="anchor" aria-label="anchor" href="#arg-filepath"></a></dt>
-<dd><p>Dataframe of the csv file downloaded from WebCDI
-(you should use the csv with both item level and sumary data)</p></dd>
 
 </dl></div>
     <div class="section level2">

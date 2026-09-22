@@ -1,6 +1,9 @@
-# Calculate the vocabulary checklist score of a cdi spreadsheet
+# Calculate the vocabulary checklist score of a cdi spreadsheet This function was used to generate the current seedlings cdi spreadsheet as retrieved by `get_cdi_spreadsheet()`.
 
-Calculate the vocabulary checklist score of a cdi spreadsheet
+Calculate the vocabulary checklist score of a cdi spreadsheet This
+function was used to generate the current seedlings cdi spreadsheet as
+retrieved by
+[`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md).
 
 ## Usage
 
