@@ -21,8 +21,8 @@ get_cdi_dict <- function(form = c("WG", "WS")) {
 #' Clean up raw CDI output (item + summary) for any project administered through
 #' WebCDI.
 #' 
-#' @param filepath Dataframe of the csv file downloaded from WebCDI 
-#' (you should use the csv with both item level and sumary data)
+#' @param cdi_df Dataframe of the csv file downloaded from WebCDI 
+#' (you should use the csv with both item level and summary data)
 #' @param form Which kind of cdi form is this (`WG` or `WS`). 
 #' Will only include columns from each form.
 #' @param table Which subset of the output to include? 
@@ -36,6 +36,10 @@ get_cdi_dict <- function(form = c("WG", "WS")) {
 #' each item and columns for aggregated score, 
 #' as well as metadata columns (e.g. date created, webcdi link, admin id, etc.). 
 #' Is not affected by `withDemographic` and `justWord` parameters.
+#' @param new_cols a vector of string, names of new colummns added to the output 
+#' from WebCDI (if any). Will count these new columns as ID and keep them in every 
+#' version of the CDI tables. Useful for any unique id columns generated from
+#' the WebCDI output
 #' @param withDemographic Should the data include answers to demographic questions 
 #' (e.g. sibling count, birth order, caregive info, etc.)? These columns are not 
 #' treated as item, so if you select `wordlevel_long` table, the demographic 

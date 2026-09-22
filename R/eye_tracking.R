@@ -670,8 +670,8 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #'
 #' @details
 #' The function assigns each time bin in `fixation_timeseries` to specified time windows defined by `t_starts` and `t_ends` relative to the target onset. For each window, it creates two new columns:
-#' - `window_{start}_{end}ms`: Indicates whether the time bin falls within the window from `start` to `end` milliseconds after target onset. Values are "Y" or "N".
-#' - `which_window_{start}_{end}ms`: Indicates whether the time bin is in the window (labeled as "{start}_{end}ms"), comes before the target onset ("pre"), or neither ("neither").
+#' - `window_<start>_<end>ms`: Indicates whether the time bin falls within the window from `start` to `end` milliseconds after target onset. Values are "Y" or "N".
+#' - `which_window_<start>_<end>ms`: Indicates whether the time bin is in the window (labeled as `<start>_<end>ms``), comes before the target onset ("pre"), or neither ("neither").
 #'
 #' Time bins located exactly at `t_starts[i]` or `t_ends[i]` are included in the corresponding window (i.e., the intervals are inclusive of the endpoints).
 #'
@@ -684,8 +684,8 @@ late_target_retrieved <- function(filename, drop_list = c("video_pop_time", "vid
 #' @return The input dataframe with the following columns added:
 #' - `prewin` (factor): Whether a time bin comes before the target onset. Values are "Y" and "N".
 #' - For each window defined by `t_starts[i]` and `t_ends[i]`, the following columns are added:
-#'   - `window_{t_starts[i]}_{t_ends[i]}ms` (factor): Whether a time bin is in the window from `t_starts[i]` to `t_ends[i]` milliseconds after target onset. Values are "Y" and "N".
-#'   - `which_window_{t_starts[i]}_{t_ends[i]}ms` (factor): Indicates whether the time bin is in the window (labeled as `{t_starts[i]}_{t_ends[i]}ms`), comes before the target onset ("pre"), or neither ("neither").
+#'   - `window_<t_starts[i]>_<t_ends[i]>ms` (factor): Whether a time bin is in the window from `t_starts[i]` to `t_ends[i]` milliseconds after target onset. Values are "Y" and "N".
+#'   - `which_window_<t_starts[i]>_<t_ends[i]>ms` (factor): Indicates whether the time bin is in the window (labeled as `<t_starts[i]>_<t_ends[i]>ms`), comes before the target onset ("pre"), or neither ("neither").
 #' - `t_onset` (numeric): Time (in milliseconds) from the target onset rounded up to the nearest multiple of `t_step`.
 #'
 #' @export
@@ -941,7 +941,7 @@ FindFrozenTrials <- function(gazeData,
 #' @export
 #'
 #' @examples
-#' motor <- get_motor_spreadsheet(version = '0.0.2')
+#' eyetracking <- get_clf_eyetracking(version = '0.0.1')
 get_clf_eyetracking <- function(version=NULL) {
   get_df_file('clf_eyetracking', "local/fixation_timeseries_with_exclusions.Rds",
               version = version)
