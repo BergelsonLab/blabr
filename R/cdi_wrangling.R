@@ -367,10 +367,47 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
 #' @return A dataframe of the wrangled CDI output according to the parameters
 #' @export
 #' 
-wrangle_seedlings_cdi <- function(cdi_df, table = c("summary", "wordlevel", "raw"), withDemographic = FALSE, justWord = TRUE) {
+get_seedlings_cdi <- function(version=NULL, table = c("summary", "wordlevel", "raw"), justWord = TRUE) {
+
   table <- match.arg(table)
   
+  non_item_cols <- c("ResponseID", "SubjectNumber", "subj", "month", "Date_Completed", "AgeMonthUncorrected", "SeedlingsFinalSample", "Relation_to_child", "Child_gender", "CDIcomp", "CDIprod")
+  cdi_raw <- get_cdi_spreadsheet(version=version) %>% 
+    dplyr::select(dplyr::all_of(non_item_cols), dplyr::everything())
   
+  if (table == "raw") {
+    return(cdi_raw)
+  }
   
-  return(cdi_df)
+  all_cols <- colnames(cdi_raw)
+  first_signs_cols <- c("Understand_childname", "Understand_nono", "Understand_theresmommy")
+  phrases_cols <- all_cols[! all_cols %in% first_signs_cols & startsWith(all_cols, "Understand_")]
+  starting_to_talk_cols <- c("Talk_parroting", "Talk_labeling")
+  
+  if (table == "wordlevel") {
+    wrangled_cdi <- cdi_raw  
+      
+  } else if (table == "summary") {
+    wrangled_cdi <- cdi_raw %>%
+      dplyr::mutate(
+        dplyr::across(dplyr::all_of(first_signs_cols), ~ifelse(.x == "Yes", 1, 0)),
+        dplyr::across(dplyr::all_of(starting_to_talk_cols), ~ifelse(.x != "Never", 1, 0))
+      ) %>% 
+      dplyr::mutate(
+        phrases = rowSums(dplyr::across(dplyr::all_of(phrases_cols), ~.x == "Understands"), na.rm = TRUE),
+        
+        first_gestures = rowSums(dplyr::across(Gestures_showobject:Gestures_allgone, ~.x != "Never"), na.rm = TRUE),
+        games_gestures = rowSums(dplyr::across(Gestures_allgone:Gestures_dance, ~.x == "Yes"), na.rm = TRUE),
+        object_gestures = rowSums(dplyr::across(Gestures_spoonfork:Gestures_pretendstir, ~.x == "Yes"), na.rm = TRUE),
+        parent_gestures = rowSums(dplyr::across(Gestures_puttobed:Gestures_diaper, ~.x == "Yes"), na.rm = TRUE),
+        adult_gestures = rowSums(dplyr::across(Gestures_sweep:Gestures_wearglasses, ~.x == "Yes"), na.rm = TRUE),
+        
+        early_gestures = first_gestures + games_gestures,
+        later_gestures = object_gestures + parent_gestures + adult_gestures,
+        total_gestures = early_gestures + later_gestures
+      ) %>% 
+      select(ResponseID, SubjectNumber, dplyr::all_of(first_signs_cols), phrases, dplyr::all_of(starting_to_talk_cols), CDIcomp, CDIprod, first_gestures, games_gestures, object_gestures, parent_gestures, adult_gestures, early_gestures, later_gestures, total_gestures)
+  }
+  
+  return(wrangled_cdi)
 }
