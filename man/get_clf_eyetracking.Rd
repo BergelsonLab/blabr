@@ -16,5 +16,5 @@ a dataframe containing the fixation as time series, excluding invalid trials
 The wrangled eyetracking spreadsheet for CLF eyetracking components of all studies (CLF, PBS, Prefunc, ProsPr, WFR, biWFR).
 }
 \examples{
-motor <- get_motor_spreadsheet(version = '0.0.2')
+eyetracking <- get_clf_eyetracking(version = '0.0.1')
 }

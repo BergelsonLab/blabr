@@ -2,7 +2,9 @@
 % Please edit documentation in R/cdi_wrangling.R
 \name{cdi_get_words}
 \alias{cdi_get_words}
-\title{Select all word item columns for a cdi spreadsheet}
+\title{Select all word item columns for a cdi spreadsheet
+This function was used to generate the current seedlings cdi spreadsheet
+as retrieved by \code{get_cdi_spreadsheet()}.}
 \usage{
 cdi_get_words(data, cdi_type = "wg")
 }
@@ -16,4 +18,6 @@ New dataframe containing only vocabulary item column
 }
 \description{
 Select all word item columns for a cdi spreadsheet
+This function was used to generate the current seedlings cdi spreadsheet
+as retrieved by \code{get_cdi_spreadsheet()}.
 }

@@ -2,7 +2,9 @@
 % Please edit documentation in R/cdi_wrangling.R
 \name{get_vocab_score}
 \alias{get_vocab_score}
-\title{Calculate the vocabulary checklist score of a cdi spreadsheet}
+\title{Calculate the vocabulary checklist score of a cdi spreadsheet
+This function was used to generate the current seedlings cdi spreadsheet
+as retrieved by \code{get_cdi_spreadsheet()}.}
 \usage{
 get_vocab_score(data, cdi_type, remove_incomplete = T)
 }
@@ -18,4 +20,6 @@ New dataframe with vocab score
 }
 \description{
 Calculate the vocabulary checklist score of a cdi spreadsheet
+This function was used to generate the current seedlings cdi spreadsheet
+as retrieved by \code{get_cdi_spreadsheet()}.
 }
