@@ -62,7 +62,10 @@ get_vowels_and_glides <- function() {
 }
 
 #'Wrangling the babar dataframe into long form, one row per phoneme
-#'with sonority value. Whether a sound is considered a phoneme is determined by
+#'with sonority value. 
+#'
+#'@details
+#'Whether a sound is considered a phoneme is determined by
 #'the minimum count parameter.
 #'
 #'@param df babar dataframe
@@ -82,8 +85,12 @@ pivot_to_phoneme <- function(df, minimum_count=50) {
   return(df_by_phoneme)
 }
 
-#'Collecting the consonant inventory of each recording. Glides are not included.
-# The inventory is a space separated string.
+#'Collecting the consonant inventory of each recording. 
+#'
+#'@details
+#'Glides are not included in the inventory. The inventory is a space separated
+# string. Whether a sound is considered a phoneme is determined by the minimum 
+#'count parameter.
 #'
 #'@inheritParams pivot_to_phoneme
 #'@param df babar dataframe
@@ -107,7 +114,10 @@ get_consonant_inventory <- function(df, minimum_count=50) {
 }
 
 #'Collecting the phonetic inventory of each recording.
-#'The inventory is a space separated string.
+#'
+#'@details
+#'The inventory is a space separated string. Whether a sound is considered 
+#'a phoneme is determined by the minimum count parameter.
 #'
 #'@inheritParams pivot_to_phoneme
 #'@param df babar dataframe
@@ -131,6 +141,7 @@ get_inventory <- function(df, minimum_count=50) {
 
 #' Calculate canonical related metrics for each recording.
 #'
+#' @details
 #' The metrics calculated are:
 #'  - Canonical utterances (per utterance and per syllable): n_canonical/all
 #'  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
@@ -160,11 +171,15 @@ get_canonical_metrics <- function(df) {
 #' Collecting phonetic and consonant inventories as space separated strings, and
 #' canonical related metrics.
 #'
+#' @details
 #' The metrics calculated are:
 #'  - Canonical utterances (per utterance and per syllable): n_canonical/all
 #'  - Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
 #'  - Total number of syllables
 #'  - Total number of canonical syllables
+#'  The inventories are space separated strings. Glides are not included in the 
+#'  consonant inventory. Whether a sound is considered a phoneme is determined 
+#'  by the minimum count parameter.
 #'
 #' @inheritParams pivot_to_phoneme
 #' @param df babar dataframe

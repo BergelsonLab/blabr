@@ -108,7 +108,7 @@ get_all_basiclevel <- function(version = NULL,
   return(all_bl)
 }
 
-#' Get the CDI spreadsheet for SEEDLingS babies
+#' Get the CDI spreadsheet for SEEDLingS babies (raw form)
 #'
 #' @param version version tag to checkout
 #' @param type "feather" or "csv". defaults to "feather"

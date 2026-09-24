@@ -1,4 +1,6 @@
 #' Parse a raw local subject ID and return a cleaned, standardized version of the ID
+#' 
+#' @details
 #' Will look for a continuous string of letters and underscore (the study name) 
 #' followed by a continuous string of digits (the subject number), 
 #' and will return a cleaned version of the ID in the format "studyname_subjectnumber",
