@@ -934,6 +934,11 @@ FindFrozenTrials <- function(gazeData,
 }
 
 #' The wrangled eyetracking spreadsheet for CLF eyetracking components of all studies (CLF, PBS, Prefunc, ProsPr, WFR, biWFR).
+#' 
+#' @details
+#' Clone BLAB-private [clf_eyetracking](https://github.com/bergelsonlab/clf_eyetracking.git)
+#' repo to `~/BLAB_DATA` once before using this function. 
+#' 
 #'
 #' @param version version tag to checkout
 #'
