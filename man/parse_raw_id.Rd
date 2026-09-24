@@ -2,12 +2,7 @@
 % Please edit documentation in R/blab_participants.R
 \name{parse_raw_id}
 \alias{parse_raw_id}
-\title{Parse a raw local subject ID and return a cleaned, standardized version of the ID
-Will look for a continuous string of letters and underscore (the study name)
-followed by a continuous string of digits (the subject number),
-and will return a cleaned version of the ID in the format "studyname_subjectnumber",
-with the study name in uppercase, all underscore removed, and the subject number as an integer (no leading zeros).
-If the input does not match this pattern, it will return the original input.}
+\title{Parse a raw local subject ID and return a cleaned, standardized version of the ID}
 \usage{
 parse_raw_id(raw_id)
 }
@@ -17,6 +12,8 @@ which may contain study name and subject number in various formats}
 }
 \description{
 Parse a raw local subject ID and return a cleaned, standardized version of the ID
+}
+\details{
 Will look for a continuous string of letters and underscore (the study name)
 followed by a continuous string of digits (the subject number),
 and will return a cleaned version of the ID in the format "studyname_subjectnumber",

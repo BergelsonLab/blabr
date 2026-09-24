@@ -17,11 +17,18 @@ to be counted as a phoneme. Default is 50.}
 A dataframe with these new metrics as new columns, one row per recording
 }
 \description{
+Collecting phonetic and consonant inventories as space separated strings, and
+canonical related metrics.
+}
+\details{
 The metrics calculated are:
 \itemize{
 \item Canonical utterances (per utterance and per syllable): n_canonical/all
 \item Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
 \item Total number of syllables
 \item Total number of canonical syllables
+The inventories are space separated strings. Glides are not included in the
+consonant inventory. Whether a sound is considered a phoneme is determined
+by the minimum count parameter.
 }
 }

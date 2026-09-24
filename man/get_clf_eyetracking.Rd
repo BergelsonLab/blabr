@@ -15,6 +15,10 @@ a dataframe containing the fixation as time series, excluding invalid trials
 \description{
 The wrangled eyetracking spreadsheet for CLF eyetracking components of all studies (CLF, PBS, Prefunc, ProsPr, WFR, biWFR).
 }
+\details{
+Clone BLAB-private \href{https://github.com/bergelsonlab/clf_eyetracking.git}{clf_eyetracking}
+repo to \verb{~/BLAB_DATA} once before using this function.
+}
 \examples{
 eyetracking <- get_clf_eyetracking(version = '0.0.1')
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdi_wrangling.R
 \name{get_vihi_cdi}
 \alias{get_vihi_cdi}
-\title{Load VIHI cdi output from BLAB_SHARE (server will need to be mounted)}
+\title{Load VIHI cdi output from BLAB_SHARE}
 \usage{
 get_vihi_cdi(
   population = c("VIHI", "VI", "HI", "TD"),
@@ -47,5 +47,5 @@ items for \code{WS} form. If you select \code{raw} table, all items will be incl
 regardless of this variable.}
 }
 \description{
-Load VIHI cdi output from BLAB_SHARE (server will need to be mounted)
+(blab_share server will need to be mounted)
 }

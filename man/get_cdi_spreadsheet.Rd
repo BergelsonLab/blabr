@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_data.R
 \name{get_cdi_spreadsheet}
 \alias{get_cdi_spreadsheet}
-\title{Get the CDI spreadsheet for SEEDLingS babies}
+\title{Get the CDI spreadsheet for SEEDLingS babies (raw form)}
 \usage{
 get_cdi_spreadsheet(version = NULL, type = "feather")
 }
@@ -15,7 +15,7 @@ get_cdi_spreadsheet(version = NULL, type = "feather")
 a tibble containing the SEEDLingS CDI spreadsheet
 }
 \description{
-Get the CDI spreadsheet for SEEDLingS babies
+Get the CDI spreadsheet for SEEDLingS babies (raw form)
 }
 \examples{
 cdi <- get_cdi_spreadsheet(version='0.0.7')

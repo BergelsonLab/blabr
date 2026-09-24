@@ -6,8 +6,7 @@
 \usage{
 get_r01_cdi(
   table = c("summary", "wordlevel", "raw"),
-  study = c("all", "biWFR", "WFR", "CLF", "PBS", "MISCOM", "ProsPr", "PreFunc",
-    "SemPhonD"),
+  study = NULL,
   withDemographic = FALSE,
   justWord = TRUE,
   version = NULL
@@ -28,9 +27,10 @@ as well as metadata columns (e.g. date created, webcdi link, admin id, etc.).
 Is not affected by \code{withDemographic} and \code{justWord} parameters.
 }}
 
-\item{study}{Which study to include (\code{biWFR}, \code{WFR}, \code{CLF}, \code{PBS}, \code{MISCOM},
-\code{ProsPr}, \code{PreFunc}, or \code{SemPhonD})?
-If \code{all} (default), will include all studies.}
+\item{study}{Which study(s) to include among (\code{biWFR}, \code{WFR}, \code{CLF}, \code{PBS}, \code{MISCOM},
+\code{ProsPr}, \code{PreFunc}, or \code{SemPhonD})? Provide either a string (if only
+selecting one study) or a vector of strings (for multiple studies)
+If \code{NULL} (default), will include all studies.}
 
 \item{withDemographic}{Should the data include answers to demographic questions
 (e.g. sibling count, birth order, caregive info, etc.)? These columns are not
@@ -49,4 +49,8 @@ regardless of this variable.}
 }
 \description{
 Load CDI output from all RO1 studies and SemPhonD
+}
+\details{
+Clone BLAB-private \href{https://github.com/bergelsonlab/r01_cdi_spreadsheet.git}{r01_cdi_spreadsheet}
+repo to \verb{~/BLAB_DATA} once before using this function.
 }

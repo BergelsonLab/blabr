@@ -2,9 +2,7 @@
 % Please edit documentation in R/cdi_wrangling.R
 \name{get_cdi_dict}
 \alias{get_cdi_dict}
-\title{Get the legends for the item columns for CDI forms, with which category they belong to.
-Items include the vocabulary checklist items, gesture items, and sentence items.
-These two csv (for WG and WS) was downloaded from WebCDI's GitHub repository: https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms, specifically the files \verb{[English_WG].csv} and \verb{[English_WS].csv}.}
+\title{Get the legends for the item columns for CDI forms, with which category they belong to.}
 \usage{
 get_cdi_dict(form = c("WG", "WS"))
 }
@@ -13,6 +11,9 @@ get_cdi_dict(form = c("WG", "WS"))
 }
 \description{
 Get the legends for the item columns for CDI forms, with which category they belong to.
+}
+\details{
 Items include the vocabulary checklist items, gesture items, and sentence items.
-These two csv (for WG and WS) was downloaded from WebCDI's GitHub repository: https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms, specifically the files \verb{[English_WG].csv} and \verb{[English_WS].csv}.
+These two csv (for WG and WS) was downloaded from WebCDI's GitHub \href{https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms}{repo},
+specifically the files \verb{[English_WG].csv} and \verb{[English_WS].csv}.
 }

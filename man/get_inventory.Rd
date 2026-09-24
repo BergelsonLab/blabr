@@ -2,8 +2,7 @@
 % Please edit documentation in R/babar.R
 \name{get_inventory}
 \alias{get_inventory}
-\title{Collecting the phonetic inventory of each recording.
-The inventory is a space separated string.}
+\title{Collecting the phonetic inventory of each recording.}
 \usage{
 get_inventory(df, minimum_count = 50)
 }
@@ -18,5 +17,8 @@ A dataframe with these new metrics as new columns
 }
 \description{
 Collecting the phonetic inventory of each recording.
-The inventory is a space separated string.
+}
+\details{
+The inventory is a space separated string. Whether a sound is considered
+a phoneme is determined by the minimum count parameter.
 }

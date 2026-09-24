@@ -2,10 +2,7 @@
 % Please edit documentation in R/cdi_wrangling.R
 \name{get_seedlings_cdi}
 \alias{get_seedlings_cdi}
-\title{Get the seedlings CDI table from the BLAB_DATA \href{https://github.com/BergelsonLab/cdi_spreadsheet}{repo}
-using \code{get_cdi_spreadsheet()}, but wrangled to include summary values and
-with options for which form to retrieve the dataframe.
-The norm conversion table was downloaded from https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English\%20Percentiles}
+\title{Get the CDI spreadsheet for SEEDLingS babies (wrangled and with added summary values)}
 \usage{
 get_seedlings_cdi(
   version = NULL,
@@ -42,8 +39,12 @@ items will be included regardless of this variable.}
 A dataframe of the wrangled CDI output according to the parameters
 }
 \description{
+Get the CDI spreadsheet for SEEDLingS babies (wrangled and with added summary values)
+}
+\details{
 Get the seedlings CDI table from the BLAB_DATA \href{https://github.com/BergelsonLab/cdi_spreadsheet}{repo}
 using \code{get_cdi_spreadsheet()}, but wrangled to include summary values and
-with options for which form to retrieve the dataframe.
-The norm conversion table was downloaded from https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English\%20Percentiles
+with options for which form to retrieve the dataframe. Clone said repo to
+\verb{~/BLAB_DATA} once before using this function.
+The norm conversion table was downloaded from \href{https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English\%20Percentiles}{wordbank}
 }

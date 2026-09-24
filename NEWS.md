@@ -1,3 +1,13 @@
+# blabr 0.26.6
+
+## Added
+
+- Allow `get_r01_cdi` to select multiple studies, adding warning messages about which study it is reading.
+
+## Fixed
+
+- Fixing formatting issues for a lot of function documentations, leaving a short description and moving the rest to the detail section.
+
 # blabr 0.26.5
 
 ## Added
