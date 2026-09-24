@@ -1,11 +1,7 @@
-# Get the seedlings CDI table from the BLAB_DATA [repo](https://github.com/BergelsonLab/cdi_spreadsheet) using `get_cdi_spreadsheet()`, but wrangled to include summary values and with options for which form to retrieve the dataframe. The norm conversion table was downloaded from https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles
+# Get the CDI spreadsheet for SEEDLingS babies (wrangled and with added summary values)
 
-Get the seedlings CDI table from the BLAB_DATA
-[repo](https://github.com/BergelsonLab/cdi_spreadsheet) using
-[`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md),
-but wrangled to include summary values and with options for which form
-to retrieve the dataframe. The norm conversion table was downloaded from
-https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles
+Get the CDI spreadsheet for SEEDLingS babies (wrangled and with added
+summary values)
 
 ## Usage
 
@@ -55,3 +51,13 @@ get_seedlings_cdi(
 ## Value
 
 A dataframe of the wrangled CDI output according to the parameters
+
+## Details
+
+Get the seedlings CDI table from the BLAB_DATA
+[repo](https://github.com/BergelsonLab/cdi_spreadsheet) using
+[`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md),
+but wrangled to include summary values and with options for which form
+to retrieve the dataframe. Clone said repo to `~/BLAB_DATA` once before
+using this function. The norm conversion table was downloaded from
+[wordbank](https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles)

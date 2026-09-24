@@ -1,14 +1,7 @@
 # Collecting phonetic and consonant inventories as space separated strings, and canonical related metrics.
 
-The metrics calculated are:
-
-- Canonical utterances (per utterance and per syllable): n_canonical/all
-
-- Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
-
-- Total number of syllables
-
-- Total number of canonical syllables
+Collecting phonetic and consonant inventories as space separated
+strings, and canonical related metrics.
 
 ## Usage
 
@@ -30,3 +23,18 @@ get_metrics_and_inventory(df, minimum_count = 50)
 ## Value
 
 A dataframe with these new metrics as new columns, one row per recording
+
+## Details
+
+The metrics calculated are:
+
+- Canonical utterances (per utterance and per syllable): n_canonical/all
+
+- Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
+
+- Total number of syllables
+
+- Total number of canonical syllables The inventories are space
+  separated strings. Glides are not included in the consonant inventory.
+  Whether a sound is considered a phoneme is determined by the minimum
+  count parameter.

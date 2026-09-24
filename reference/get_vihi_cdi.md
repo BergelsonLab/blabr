@@ -1,6 +1,6 @@
-# Load VIHI cdi output from BLAB_SHARE (server will need to be mounted)
+# Load VIHI cdi output from BLAB_SHARE
 
-Load VIHI cdi output from BLAB_SHARE (server will need to be mounted)
+(blab_share server will need to be mounted)
 
 ## Usage
 

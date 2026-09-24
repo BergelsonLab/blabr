@@ -1,7 +1,6 @@
-# Collecting the phonetic inventory of each recording. The inventory is a space separated string.
+# Collecting the phonetic inventory of each recording.
 
-Collecting the phonetic inventory of each recording. The inventory is a
-space separated string.
+Collecting the phonetic inventory of each recording.
 
 ## Usage
 
@@ -23,3 +22,8 @@ get_inventory(df, minimum_count = 50)
 ## Value
 
 A dataframe with these new metrics as new columns
+
+## Details
+
+The inventory is a space separated string. Whether a sound is considered
+a phoneme is determined by the minimum count parameter.

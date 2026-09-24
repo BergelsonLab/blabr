@@ -1,8 +1,6 @@
-# Select all word item columns for a cdi spreadsheet This function was used to generate the current seedlings cdi spreadsheet as retrieved by `get_cdi_spreadsheet()`.
+# Select all word item columns for a cdi spreadsheet
 
-Select all word item columns for a cdi spreadsheet This function was
-used to generate the current seedlings cdi spreadsheet as retrieved by
-[`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md).
+Select all word item columns for a cdi spreadsheet
 
 ## Usage
 
@@ -23,3 +21,9 @@ cdi_get_words(data, cdi_type = "wg")
 ## Value
 
 New dataframe containing only vocabulary item column
+
+## Details
+
+This function was used to generate the current seedlings cdi spreadsheet
+as retrieved by
+[`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md).

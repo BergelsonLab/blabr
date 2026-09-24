@@ -20,6 +20,12 @@ get_clf_eyetracking(version = NULL)
 a dataframe containing the fixation as time series, excluding invalid
 trials
 
+## Details
+
+Clone BLAB-private
+[clf_eyetracking](https://github.com/bergelsonlab/clf_eyetracking.git)
+repo to `~/BLAB_DATA` once before using this function.
+
 ## Examples
 
 ``` r

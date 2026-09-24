@@ -1,8 +1,7 @@
-# Wrangling the babar dataframe into long form, one row per phoneme with sonority value. Whether a sound is considered a phoneme is determined by the minimum count parameter.
+# Wrangling the babar dataframe into long form, one row per phoneme with sonority value.
 
 Wrangling the babar dataframe into long form, one row per phoneme with
-sonority value. Whether a sound is considered a phoneme is determined by
-the minimum count parameter.
+sonority value.
 
 ## Usage
 
@@ -24,3 +23,8 @@ pivot_to_phoneme(df, minimum_count = 50)
 ## Value
 
 A dataframe with one row per phoneme per recording
+
+## Details
+
+Whether a sound is considered a phoneme is determined by the minimum
+count parameter.

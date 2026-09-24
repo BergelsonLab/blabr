@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">blabr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,8 +40,7 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_r01_cdi</span><span class="op">(</span></span>
 <span>  table <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"summary"</span>, <span class="st">"wordlevel"</span>, <span class="st">"raw"</span><span class="op">)</span>,</span>
-<span>  study <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"biWFR"</span>, <span class="st">"WFR"</span>, <span class="st">"CLF"</span>, <span class="st">"PBS"</span>, <span class="st">"MISCOM"</span>, <span class="st">"ProsPr"</span>, <span class="st">"PreFunc"</span>,</span>
-<span>    <span class="st">"SemPhonD"</span><span class="op">)</span>,</span>
+<span>  study <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  withDemographic <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  justWord <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  version <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -67,9 +66,10 @@ Is not affected by <code>withDemographic</code> and <code>justWord</code> parame
 
 
 <dt id="arg-study">study<a class="anchor" aria-label="anchor" href="#arg-study"></a></dt>
-<dd><p>Which study to include (<code>biWFR</code>, <code>WFR</code>, <code>CLF</code>, <code>PBS</code>, <code>MISCOM</code>,
-<code>ProsPr</code>, <code>PreFunc</code>, or <code>SemPhonD</code>)?
-If <code>all</code> (default), will include all studies.</p></dd>
+<dd><p>Which study(s) to include among (<code>biWFR</code>, <code>WFR</code>, <code>CLF</code>, <code>PBS</code>, <code>MISCOM</code>,
+<code>ProsPr</code>, <code>PreFunc</code>, or <code>SemPhonD</code>)? Provide either a string (if only
+selecting one study) or a vector of strings (for multiple studies)
+If <code>NULL</code> (default), will include all studies.</p></dd>
 
 
 <dt id="arg-withdemographic">withDemographic<a class="anchor" aria-label="anchor" href="#arg-withdemographic"></a></dt>
@@ -93,6 +93,11 @@ regardless of this variable.</p></dd>
 <dd><p>version tag to checkout</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Clone BLAB-private <a href="https://github.com/bergelsonlab/r01_cdi_spreadsheet.git" class="external-link">r01_cdi_spreadsheet</a>
+repo to <code>~/BLAB_DATA</code> once before using this function.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

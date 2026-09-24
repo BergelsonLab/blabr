@@ -1,6 +1,6 @@
-# Get the CDI spreadsheet for SEEDLingS babies
+# Get the CDI spreadsheet for SEEDLingS babies (raw form)
 
-Get the CDI spreadsheet for SEEDLingS babies
+Get the CDI spreadsheet for SEEDLingS babies (raw form)
 
 ## Usage
 

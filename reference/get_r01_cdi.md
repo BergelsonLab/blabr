@@ -7,8 +7,7 @@ Load CDI output from all RO1 studies and SemPhonD
 ``` r
 get_r01_cdi(
   table = c("summary", "wordlevel", "raw"),
-  study = c("all", "biWFR", "WFR", "CLF", "PBS", "MISCOM", "ProsPr", "PreFunc",
-    "SemPhonD"),
+  study = NULL,
   withDemographic = FALSE,
   justWord = TRUE,
   version = NULL
@@ -38,9 +37,10 @@ get_r01_cdi(
 
 - study:
 
-  Which study to include (`biWFR`, `WFR`, `CLF`, `PBS`, `MISCOM`,
-  `ProsPr`, `PreFunc`, or `SemPhonD`)? If `all` (default), will include
-  all studies.
+  Which study(s) to include among (`biWFR`, `WFR`, `CLF`, `PBS`,
+  `MISCOM`, `ProsPr`, `PreFunc`, or `SemPhonD`)? Provide either a string
+  (if only selecting one study) or a vector of strings (for multiple
+  studies) If `NULL` (default), will include all studies.
 
 - withDemographic:
 
@@ -63,3 +63,9 @@ get_r01_cdi(
 - version:
 
   version tag to checkout
+
+## Details
+
+Clone BLAB-private
+[r01_cdi_spreadsheet](https://github.com/bergelsonlab/r01_cdi_spreadsheet.git)
+repo to `~/BLAB_DATA` once before using this function.

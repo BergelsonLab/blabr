@@ -1,14 +1,6 @@
 # Calculate canonical related metrics for each recording.
 
-The metrics calculated are:
-
-- Canonical utterances (per utterance and per syllable): n_canonical/all
-
-- Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
-
-- Total number of syllables
-
-- Total number of canonical syllables
+Calculate canonical related metrics for each recording.
 
 ## Usage
 
@@ -25,3 +17,15 @@ get_canonical_metrics(df)
 ## Value
 
 A dataframe with these new metrics as new columns
+
+## Details
+
+The metrics calculated are:
+
+- Canonical utterances (per utterance and per syllable): n_canonical/all
+
+- Canonical babbling ratio: n_canonical/n_canonical + n_non_canonical
+
+- Total number of syllables
+
+- Total number of canonical syllables
