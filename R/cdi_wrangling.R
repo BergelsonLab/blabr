@@ -1,6 +1,9 @@
 #' Get the legends for the item columns for CDI forms, with which category they belong to. 
+#' 
+#' @details
 #' Items include the vocabulary checklist items, gesture items, and sentence items.
-#' These two csv (for WG and WS) was downloaded from WebCDI's GitHub repository: https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms, specifically the files `[English_WG].csv` and `[English_WS].csv`.
+#' These two csv (for WG and WS) was downloaded from WebCDI's GitHub [repo](https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms), 
+#' specifically the files `[English_WG].csv` and `[English_WS].csv`.
 #' 
 #' @param form Which kind of cdi form is this (`WG` or `WS`)?
 #' 
@@ -139,7 +142,10 @@ wrangle_web_cdi <- function(cdi_df,
   return(cdi_df)
 }
 
-#' Load VIHI cdi output from BLAB_SHARE (server will need to be mounted)
+#' Load VIHI cdi output from BLAB_SHARE 
+#' 
+#' (blab_share server will need to be mounted)
+#' 
 #' @inheritParams wrangle_web_cdi
 #' @param population Which group of participants to include (`VI`, `HI`, or 
 #' `VIHI` (which will include both))?
@@ -213,25 +219,48 @@ get_vihi_cdi <- function(population = c("VIHI", "VI", "HI", "TD"),
 
 #' Load CDI output from all RO1 studies and SemPhonD
 #' 
+#' @details
+#' Clone BLAB-private [r01_cdi_spreadsheet](https://github.com/bergelsonlab/r01_cdi_spreadsheet.git)
+#' repo to `~/BLAB_DATA` once before using this function. 
+#' 
 #' @inheritParams wrangle_web_cdi
-#' @param study Which study to include (`biWFR`, `WFR`, `CLF`, `PBS`, `MISCOM`, 
-#' `ProsPr`, `PreFunc`, or `SemPhonD`)? 
-#' If `all` (default), will include all studies. 
+#' @param study Which study(s) to include among (`biWFR`, `WFR`, `CLF`, `PBS`, `MISCOM`, 
+#' `ProsPr`, `PreFunc`, or `SemPhonD`)? Provide either a string (if only 
+#' selecting one study) or a vector of strings (for multiple studies)
+#' If `NULL` (default), will include all studies. 
 #' @param version version tag to checkout
 #' 
 #' @export
 #'
 get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
-                        study = c("all", "biWFR", "WFR", "CLF", "PBS", "MISCOM", "ProsPr", "PreFunc", "SemPhonD"),
+                        study = NULL,
                         withDemographic = FALSE,
                         justWord = TRUE,
                         version=NULL) {
-  table <- match.arg(table)
-  study <- match.arg(study)
-  new_cols = c("study_id", "unique_cdi_id")
-  
   ro1_cdi <- get_df_file('r01_cdi_spreadsheet', "all_cdi.csv",
-              version = version)
+                         version = version)
+  
+  all_studies = c("biWFR", "WFR", "CLF", "PBS", "MISCOM", "ProsPr", "PreFunc", "SemPhonD")
+  if (is.null(study)) {
+    message(glue::glue(
+      "Reading CDIs from all R01 project (biWFR, WFR, CLF, PBS, MISCOM, ProsPr, PreFunc) and SemPhonD.\n",
+      "If you want to only get a subset of them, provide the `study` parameter.\n",
+      "For example, add ', study=c('biWFR', 'MISCOM')' to get the CDIs from biWFR and MISCOM")
+    )
+    study <- all_studies
+  } else {
+    study <- match.arg(study, all_studies, several.ok = TRUE)
+  }
+  message("Reading CDIs from the following projects:")
+  print(study)
+  message(glue::glue(
+    "\nAny misspelled or unknown studies are ignored. If this is not what you are expecting, make sure that the name of the study is spelled correctly (including capitalization) as follows:\n",
+    "biWFR, WFR, CLF, PBS, MISCOM, ProsPr, PreFunc, SemPhonD\n",
+    "Remove the 'study' parameter to get all studies by default.")
+  )
+  
+  table <- match.arg(table)
+  new_cols = c("study_id", "unique_cdi_id")
   
   cdi_wg <- ro1_cdi %>%
     dplyr::filter(form == "WG") %>%
@@ -256,17 +285,15 @@ get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
     dplyr::mutate(form = "WS")
   
   final_cdi <- dplyr::bind_rows(cdi_wg, cdi_ws) %>% 
-    dplyr::select(study_id, study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything())
-  
-  if (study != "all") {
-    final_cdi <- final_cdi %>%
-      dplyr::filter(study_id == study)
-  }
+    dplyr::select(study_id, study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything()) %>% 
+    dplyr::filter(study_id %in% study)
   
   return(final_cdi)
 }
 
 #' Select all word item columns for a cdi spreadsheet
+#' 
+#' @details
 #' This function was used to generate the current seedlings cdi spreadsheet
 #' as retrieved by `get_cdi_spreadsheet()`.
 #'
@@ -300,6 +327,8 @@ cdi_get_words <- function(data, cdi_type = "wg") {
 }
 
 #' Calculate the vocabulary checklist score of a cdi spreadsheet
+#' 
+#' @details
 #' This function was used to generate the current seedlings cdi spreadsheet
 #' as retrieved by `get_cdi_spreadsheet()`.
 #'
@@ -356,10 +385,14 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
 
 }
 
+#' Get the CDI spreadsheet for SEEDLingS babies (wrangled and with added summary values)
+#' 
+#' @details
 #' Get the seedlings CDI table from the BLAB_DATA [repo](https://github.com/BergelsonLab/cdi_spreadsheet) 
 #' using `get_cdi_spreadsheet()`, but wrangled to include summary values and 
-#' with options for which form to retrieve the dataframe.
-#' The norm conversion table was downloaded from https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles
+#' with options for which form to retrieve the dataframe. Clone said repo to 
+#' `~/BLAB_DATA` once before using this function.
+#' The norm conversion table was downloaded from [wordbank](https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles)
 #' 
 #' @param version version tag to checkout
 #' @param table Which subset of the output to include? 
