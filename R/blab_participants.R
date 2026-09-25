@@ -33,8 +33,8 @@ parse_raw_id <- function(raw_id) {
 #' @return a new data frame with standardized IDs
 #'
 wrangle_blab_participants <- function(df) {
-  RN_df <- df %>% dplyr::select(blab_id, RN, CHS_global_id, n_projects)
-  studies_df <- df %>% dplyr::select(-RN, -CHS_global_id, -n_projects)
+  RN_df <- df %>% dplyr::select(blab_id, RN, CHS_child_global_id, n_projects, Notes)
+  studies_df <- df %>% dplyr::select(-RN, -CHS_child_global_id, -n_projects, -Notes)
   
   cleaned_df <- studies_df %>%
     dplyr::mutate(
@@ -44,7 +44,7 @@ wrangle_blab_participants <- function(df) {
       )
     ) %>% 
     dplyr::right_join(RN_df, by = "blab_id") %>% 
-    dplyr::select(blab_id, RN, CHS_global_id, n_projects, dplyr::everything())
+    dplyr::select(blab_id, RN, CHS_child_global_id, n_projects, dplyr::everything())
   
   return(cleaned_df)
 }

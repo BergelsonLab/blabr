@@ -27,8 +27,8 @@ as well as metadata columns (e.g. date created, webcdi link, admin id, etc.).
 Is not affected by \code{withDemographic} and \code{justWord} parameters.
 }}
 
-\item{study}{Which study(s) to include among (\code{biWFR}, \code{WFR}, \code{CLF}, \code{PBS}, \code{MISCOM},
-\code{ProsPr}, \code{PreFunc}, or \code{SemPhonD})? Provide either a string (if only
+\item{study}{Which study(s) to include among (\code{WFR}, \code{CLF}, \code{PBS}, \code{MISCOM},
+\code{ProsPr}, \code{PreFunc}, \code{SemPhonD}, or \code{SPARKED})? Provide either a string (if only
 selecting one study) or a vector of strings (for multiple studies)
 If \code{NULL} (default), will include all studies.}
 

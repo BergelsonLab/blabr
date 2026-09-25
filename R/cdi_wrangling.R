@@ -224,8 +224,8 @@ get_vihi_cdi <- function(population = c("VIHI", "VI", "HI", "TD"),
 #' repo to `~/BLAB_DATA` once before using this function. 
 #' 
 #' @inheritParams wrangle_web_cdi
-#' @param study Which study(s) to include among (`biWFR`, `WFR`, `CLF`, `PBS`, `MISCOM`, 
-#' `ProsPr`, `PreFunc`, or `SemPhonD`)? Provide either a string (if only 
+#' @param study Which study(s) to include among (`WFR`, `CLF`, `PBS`, `MISCOM`, 
+#' `ProsPr`, `PreFunc`, `SemPhonD`, or `SPARKED`)? Provide either a string (if only 
 #' selecting one study) or a vector of strings (for multiple studies)
 #' If `NULL` (default), will include all studies. 
 #' @param version version tag to checkout
@@ -240,12 +240,12 @@ get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
   ro1_cdi <- get_df_file('r01_cdi_spreadsheet', "all_cdi.csv",
                          version = version)
   
-  all_studies = c("biWFR", "WFR", "CLF", "PBS", "MISCOM", "ProsPr", "PreFunc", "SemPhonD")
+  all_studies = c("WFR", "CLF", "PBS", "MISCOM", "ProsPr", "PreFunc", "SemPhonD", "SPARKED")
   if (is.null(study)) {
     message(glue::glue(
-      "Reading CDIs from all R01 project (biWFR, WFR, CLF, PBS, MISCOM, ProsPr, PreFunc) and SemPhonD.\n",
+      "Reading CDIs from all R01 project (WFR, CLF, PBS, MISCOM, ProsPr, PreFunc, SPAKRED) and SemPhonD.\n",
       "If you want to only get a subset of them, provide the `study` parameter.\n",
-      "For example, add ', study=c('biWFR', 'MISCOM')' to get the CDIs from biWFR and MISCOM")
+      "For example, add ', study=c('WFR', 'MISCOM')' to get the CDIs from WFR and MISCOM")
     )
     study <- all_studies
   } else {
@@ -255,12 +255,12 @@ get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
   print(study)
   message(glue::glue(
     "\nAny misspelled or unknown studies are ignored. If this is not what you are expecting, make sure that the name of the study is spelled correctly (including capitalization) as follows:\n",
-    "biWFR, WFR, CLF, PBS, MISCOM, ProsPr, PreFunc, SemPhonD\n",
+    "WFR, CLF, PBS, MISCOM, ProsPr, PreFunc, SemPhonD, SPARKED\n",
     "Remove the 'study' parameter to get all studies by default.")
   )
   
   table <- match.arg(table)
-  new_cols = c("study_id", "unique_cdi_id")
+  new_cols = c("study_id", "study_name_webcdi", "unique_cdi_id")
   
   cdi_wg <- ro1_cdi %>%
     dplyr::filter(form == "WG") %>%
