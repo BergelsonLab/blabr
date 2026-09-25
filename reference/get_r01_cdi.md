@@ -37,10 +37,10 @@ get_r01_cdi(
 
 - study:
 
-  Which study(s) to include among (`biWFR`, `WFR`, `CLF`, `PBS`,
-  `MISCOM`, `ProsPr`, `PreFunc`, or `SemPhonD`)? Provide either a string
-  (if only selecting one study) or a vector of strings (for multiple
-  studies) If `NULL` (default), will include all studies.
+  Which study(s) to include among (`WFR`, `CLF`, `PBS`, `MISCOM`,
+  `ProsPr`, `PreFunc`, `SemPhonD`, or `SPARKED`)? Provide either a
+  string (if only selecting one study) or a vector of strings (for
+  multiple studies) If `NULL` (default), will include all studies.
 
 - withDemographic:
 
