@@ -1,5 +1,15 @@
 # Changelog
 
+## blabr 0.26.7
+
+### Changed
+
+- Added `SPARKED` as an option for `get_r01_cdi`, and merging `biWFR`
+  and `WFR` into one option. Reflected in documentations
+
+- New column name change to `study_name_webcdi` and adding more metadata
+  to `all_cdi.csv`
+
 ## blabr 0.26.6
 
 ### Added
