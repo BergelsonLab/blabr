@@ -10,6 +10,7 @@
 #' @param raw_id A string (or vector of strings when used with `dplyr`) representing a raw local subject ID, 
 #' which may contain study name and subject number in various formats
 #' 
+#' @export
 parse_raw_id <- function(raw_id) {
   parsed_id <- stringr::str_match(stringr::str_trim(raw_id), "^([A-Za-z_]+)\\s*(\\d+)")
   study_id <- parsed_id[, 2]
@@ -53,7 +54,7 @@ wrangle_blab_participants <- function(df) {
 #' Get clean blab-wide participants data from participants tracking sheet and standardize the local ids
 #' 
 #' @return a dataframe of all blab participants with standardized local ids
-#' 
+#' @export
 get_blab_participants <- function() {
   participants_path <- file.path(get_blab_share_path(), "experimental_projects/participants.xlsx")
   message("Reading all blab_wide participants data...")
@@ -68,7 +69,7 @@ get_blab_participants <- function() {
 #' Get the list of excluded participants from the blab_wide tracking sheet
 #' 
 #' @return A dataframe of exluded participants, their local subject ids and notes
-#' 
+#' @export
 get_blab_excluded_participants <- function() {
   participants_path <- file.path(get_blab_share_path(), "experimental_projects/participants.xlsx")
   

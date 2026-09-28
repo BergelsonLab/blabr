@@ -45,7 +45,7 @@ get_cdi_dict <- function(form = c("WG", "WS")) {
 #' the WebCDI output
 #' @param withDemographic Should the data include answers to demographic questions 
 #' (e.g. sibling count, birth order, caregive info, etc.)? These columns are not 
-#' treated as item, so if you select `wordlevel_long` table, the demographic 
+#' treated as item, so if you select `wordlevel` table, the demographic 
 #' answers will be included in every row. If you select `raw` table, demographic 
 #' columns will always be included. `FALSE` is default. 
 #' @param justWord Should the data include only vocabulary checklist item? If 
@@ -147,9 +147,9 @@ wrangle_web_cdi <- function(cdi_df,
 #' (blab_share server will need to be mounted)
 #' 
 #' @inheritParams wrangle_web_cdi
-#' @param population Which group of participants to include (`VI`, `HI`, or 
-#' `VIHI` (which will include both))?
-#' @param form Which kind of cdi forms to include (`WG`, `WS`, or `both`)? 
+#' @param population Which group of participants to include (`VI`, `HI`, `TD`, or 
+#' `VIHI` (which will include all three, default))?
+#' @param form Which kind of cdi forms to include (`WG`, `WS`, or `both` (default))? 
 #' The data will only include items that are featured on said form.
 #' 
 #' @export

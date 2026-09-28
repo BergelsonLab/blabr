@@ -13,10 +13,10 @@ get_vihi_cdi(
 )
 }
 \arguments{
-\item{population}{Which group of participants to include (\code{VI}, \code{HI}, or
-\code{VIHI} (which will include both))?}
+\item{population}{Which group of participants to include (\code{VI}, \code{HI}, \code{TD}, or
+\code{VIHI} (which will include all three, default))?}
 
-\item{form}{Which kind of cdi forms to include (\code{WG}, \code{WS}, or \code{both})?
+\item{form}{Which kind of cdi forms to include (\code{WG}, \code{WS}, or \code{both} (default))?
 The data will only include items that are featured on said form.}
 
 \item{table}{Which subset of the output to include?
@@ -35,7 +35,7 @@ Is not affected by \code{withDemographic} and \code{justWord} parameters.
 
 \item{withDemographic}{Should the data include answers to demographic questions
 (e.g. sibling count, birth order, caregive info, etc.)? These columns are not
-treated as item, so if you select \code{wordlevel_long} table, the demographic
+treated as item, so if you select \code{wordlevel} table, the demographic
 answers will be included in every row. If you select \code{raw} table, demographic
 columns will always be included. \code{FALSE} is default.}
 

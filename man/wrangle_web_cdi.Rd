@@ -43,7 +43,7 @@ the WebCDI output}
 
 \item{withDemographic}{Should the data include answers to demographic questions
 (e.g. sibling count, birth order, caregive info, etc.)? These columns are not
-treated as item, so if you select \code{wordlevel_long} table, the demographic
+treated as item, so if you select \code{wordlevel} table, the demographic
 answers will be included in every row. If you select \code{raw} table, demographic
 columns will always be included. \code{FALSE} is default.}
 
