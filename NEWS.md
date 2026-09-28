@@ -1,3 +1,11 @@
+# blabr 0.26.8
+
+## Fixed
+
+- Exporting `parse_raw_id()`, `get_blab_participants()`, and `get_blab_excluded_participants()`
+
+- Fix uncaught error in CDI methods documentations
+
 # blabr 0.26.7
 
 ## Changed
