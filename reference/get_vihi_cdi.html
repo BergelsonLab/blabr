@@ -52,12 +52,12 @@
 
 
 <dl><dt id="arg-population">population<a class="anchor" aria-label="anchor" href="#arg-population"></a></dt>
-<dd><p>Which group of participants to include (<code>VI</code>, <code>HI</code>, or
-<code>VIHI</code> (which will include both))?</p></dd>
+<dd><p>Which group of participants to include (<code>VI</code>, <code>HI</code>, <code>TD</code>, or
+<code>VIHI</code> (which will include all three, default))?</p></dd>
 
 
 <dt id="arg-form">form<a class="anchor" aria-label="anchor" href="#arg-form"></a></dt>
-<dd><p>Which kind of cdi forms to include (<code>WG</code>, <code>WS</code>, or <code>both</code>)?
+<dd><p>Which kind of cdi forms to include (<code>WG</code>, <code>WS</code>, or <code>both</code> (default))?
 The data will only include items that are featured on said form.</p></dd>
 
 
@@ -78,7 +78,7 @@ Is not affected by <code>withDemographic</code> and <code>justWord</code> parame
 <dt id="arg-withdemographic">withDemographic<a class="anchor" aria-label="anchor" href="#arg-withdemographic"></a></dt>
 <dd><p>Should the data include answers to demographic questions
 (e.g. sibling count, birth order, caregive info, etc.)? These columns are not
-treated as item, so if you select <code>wordlevel_long</code> table, the demographic
+treated as item, so if you select <code>wordlevel</code> table, the demographic
 answers will be included in every row. If you select <code>raw</code> table, demographic
 columns will always be included. <code>FALSE</code> is default.</p></dd>
 

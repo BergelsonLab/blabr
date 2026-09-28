@@ -18,13 +18,13 @@ get_vihi_cdi(
 
 - population:
 
-  Which group of participants to include (`VI`, `HI`, or `VIHI` (which
-  will include both))?
+  Which group of participants to include (`VI`, `HI`, `TD`, or `VIHI`
+  (which will include all three, default))?
 
 - form:
 
-  Which kind of cdi forms to include (`WG`, `WS`, or `both`)? The data
-  will only include items that are featured on said form.
+  Which kind of cdi forms to include (`WG`, `WS`, or `both` (default))?
+  The data will only include items that are featured on said form.
 
 - table:
 
@@ -49,10 +49,9 @@ get_vihi_cdi(
 
   Should the data include answers to demographic questions (e.g. sibling
   count, birth order, caregive info, etc.)? These columns are not
-  treated as item, so if you select `wordlevel_long` table, the
-  demographic answers will be included in every row. If you select `raw`
-  table, demographic columns will always be included. `FALSE` is
-  default.
+  treated as item, so if you select `wordlevel` table, the demographic
+  answers will be included in every row. If you select `raw` table,
+  demographic columns will always be included. `FALSE` is default.
 
 - justWord:
 

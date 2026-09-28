@@ -59,10 +59,9 @@ wrangle_web_cdi(
 
   Should the data include answers to demographic questions (e.g. sibling
   count, birth order, caregive info, etc.)? These columns are not
-  treated as item, so if you select `wordlevel_long` table, the
-  demographic answers will be included in every row. If you select `raw`
-  table, demographic columns will always be included. `FALSE` is
-  default.
+  treated as item, so if you select `wordlevel` table, the demographic
+  answers will be included in every row. If you select `raw` table,
+  demographic columns will always be included. `FALSE` is default.
 
 - justWord:
 
