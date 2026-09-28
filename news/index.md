@@ -1,5 +1,17 @@
 # Changelog
 
+## blabr 0.26.8
+
+### Fixed
+
+- Exporting
+  [`parse_raw_id()`](http://bergelsonlab.com/blabr/reference/parse_raw_id.md),
+  [`get_blab_participants()`](http://bergelsonlab.com/blabr/reference/get_blab_participants.md),
+  and
+  [`get_blab_excluded_participants()`](http://bergelsonlab.com/blabr/reference/get_blab_excluded_participants.md)
+
+- Fix uncaught error in CDI methods documentations
+
 ## blabr 0.26.7
 
 ### Changed
