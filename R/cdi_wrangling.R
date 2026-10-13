@@ -142,6 +142,7 @@ wrangle_web_cdi <- function(cdi_df,
   return(cdi_df)
 }
 
+
 #' Load VIHI cdi output from BLAB_SHARE 
 #' 
 #' (blab_share server will need to be mounted)
@@ -271,7 +272,8 @@ get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
                     withDemographic = withDemographic,
                     justWord = justWord,
                     rename = FALSE) %>%
-    dplyr::mutate(form = "WG")
+    dplyr::mutate(form = "WG") %>% 
+    dplyr::filter(study_id %in% study)
   
   cdi_ws <- ro1_cdi %>%
     dplyr::filter(form == "WS") %>%
@@ -282,11 +284,21 @@ get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
                     withDemographic = withDemographic,
                     justWord = justWord,
                     rename = FALSE) %>%
-    dplyr::mutate(form = "WS")
-  
-  final_cdi <- dplyr::bind_rows(cdi_wg, cdi_ws) %>% 
-    dplyr::select(study_id, study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything()) %>% 
+    dplyr::mutate(form = "WS") %>% 
     dplyr::filter(study_id %in% study)
+  
+  if (nrow(cdi_wg) == 0 & nrow(cdi_ws) == 0) {
+    stop("No CDIs found for the specified study/studies. Please check the spelling and capitalization of the study name(s).")
+  } else if (nrow(cdi_ws) == 0) {
+    final_cdi <- cdi_wg
+  } else if (nrow(cdi_wg) == 0) {
+    final_cdi <- cdi_ws
+  } else {
+    final_cdi <- dplyr::bind_rows(cdi_wg, cdi_ws)
+  }
+  
+  final_cdi <- final_cdi %>% 
+    dplyr::select(study_id, study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything()) 
   
   return(final_cdi)
 }
