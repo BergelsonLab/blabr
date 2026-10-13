@@ -453,7 +453,6 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
 #' using `get_cdi_spreadsheet()`, but wrangled to include summary values and 
 #' with options for which form to retrieve the dataframe. Clone said repo to 
 #' `~/BLAB_DATA` once before using this function.
-#' The norm conversion table was downloaded from [wordbank](https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles)
 #' 
 #' @param version version tag to checkout
 #' @param table Which subset of the output to include? 
