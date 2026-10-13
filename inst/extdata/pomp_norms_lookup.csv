@@ -1,0 +1,22 @@
+form,webcdi_section,seedlings_cdi_section,n_items
+"WG","First Signs",NA,3 
+"WG","Phrases","phrases",28  
+"WG","Words Understood",CDIcomp,396 
+"WG","Words Produced",CDIprod,396 
+"WG","First Gestures",first_gestures,12 
+"WG","Games Gestures",games_gestures,6 
+"WG","Object Gestures",object_gestures,17 
+"WG","Parent Gestures",parent_gestures,13 
+"WG","Adult Gestures",adult_gestures,15 
+"WG","Early Gestures",early_gestures,18 
+"WG","Later Gestures",later_gestures,45 
+"WG","Total Gestures",total_gestures,63 
+"WS","Words Produced",NA,680 
+"WS","Total Produced",NA,680
+"WS","How Children Use Words",NA,5 
+"WS","Word Endings 1",NA,4 
+"WS","Word Forms 1 Nouns",NA,5 
+"WS","Word Forms 1 Verbs",NA,20 
+"WS","Word Forms 2 Nouns",NA,14 
+"WS","Word Forms 2 Verbs",NA,31  
+"WS","Complexity",NA,37 

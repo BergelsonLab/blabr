@@ -142,6 +142,55 @@ wrangle_web_cdi <- function(cdi_df,
   return(cdi_df)
 }
 
+#' Convert summary scores in CDIs subsections into percentage of items selected over total number of items
+#' 
+#' @details
+#' This function takes the summary score of each subsection and divide it by the total number of items in that subsection, returning a percentage score. It will apply this calculation to any column that matches the name of a summary column (either from WebCDI output or from the SEEDLingS CDI spreadsheet). There's an option to either replace the original columns with the percentage scores (and rename it as `{original_col_name}-Percentage`) or to create new columns (named `{original_col_name}-Percentage`) with the percentage scores. The function uses a lookup table to determine the total number of items in each subsection, which is stored in a CSV file within the package.
+#' 
+#' @param df A wrangled CDI dataframe (either from WebCDI output or from the SEEDLingS CDI spreadsheet)
+#' @param in_place A boolean indicating whether to replace the original columns with the percentage scores (and rename them) or to create new columns with the percentage scores. Default is `FALSE`, which creates new columns
+#' @param is_seedlings A boolean indicating whether the dataframe is from the SEEDLingS CDI spreadsheet (`TRUE`) or from WebCDI output (`FALSE`), since these two formats have different column names. Default is `TRUE`.
+#' 
+#' @return A dataframe with the percentage scores for each subsection, either replacing the original columns or adding new columns depending on the `in_place` parameter
+#' 
+#' @export
+get_cdi_percentage_score <- function(df, in_place = FALSE, is_seedlings = TRUE){
+  pomp_lookup <- readr::read_csv(system.file("extdata", "pomp_norms_lookup.csv", package = "blabr"), show_col_types=FALSE)
+  
+  if (is_seedlings) {
+    pomp_by_cdi <- pomp_lookup %>% dplyr::rename(cdi_section = seedlings_cdi_section)
+  } else {
+    pomp_by_cdi <- pomp_lookup %>% dplyr::rename(cdi_section = webcdi_section)
+  }
+  pomp_by_cdi <- pomp_by_cdi %>% 
+    dplyr::filter(!is.na(cdi_section)) %>% 
+    dplyr::select(cdi_section, n_items)
+  
+  if (in_place) {
+    final_df <- df %>% 
+      dplyr::mutate(
+        dplyr::across(
+          dplyr::any_of(pomp_by_cdi$cdi_section),
+          ~round(.x / pomp_by_cdi$n_items[pomp_by_cdi$cdi_section == cur_column()], 2)
+        )
+      ) %>% 
+      dplyr::rename_with(
+        ~paste0(.x, "-Percentage"),
+        dplyr::any_of(pomp_by_cdi$cdi_section)
+      )
+  } else {
+    final_df <- df %>% 
+      dplyr::mutate(
+        dplyr::across(
+          dplyr::any_of(pomp_by_cdi$cdi_section),
+          ~round(.x / pomp_by_cdi$n_items[pomp_by_cdi$cdi_section == cur_column()], 2),
+          .names = "{.col}-Percentage"
+        )
+      )
+  }
+  
+  return(final_df)
+}
 
 #' Load VIHI cdi output from BLAB_SHARE 
 #' 
