@@ -1,6 +1,13 @@
 # Meant to work with SEEDLingS CDI spreadsheet, but potentially useful for other CDI that lacks norms.
 #' The norm conversion table was downloaded from [wordbank](https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles)
 
+#' TODO: 
+#'  Add documentations to everything
+#'  Add comments to explain the methods for wrangling norms and the method for iteratively adding norms values 
+#'  for each col
+#'  maybe change load_cdi for wg and ws respectively
+#'  maybe add option for giving col map for potential use in the future
+
 #'
 #'
 #'@export
