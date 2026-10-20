@@ -153,7 +153,7 @@ wrangle_web_cdi <- function(cdi_df,
 #' @return A dataframe with a new column with percentage scores for each subsection. The new column is added right after the original column
 #' 
 #' @export
-get_cdi_percentage_score <- function(df, is_seedlings = TRUE){
+add_cdi_percentage_score <- function(df, is_seedlings = TRUE){
   pomp_lookup <- readr::read_csv(system.file("extdata", "pomp_lookup.csv", package = "blabr"), show_col_types=FALSE)
   
   if (is_seedlings) {

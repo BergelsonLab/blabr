@@ -1,3 +1,15 @@
+# blabr 0.26.9
+
+## Fixed
+
+- fix error where `get_r01_cdi()` is getting unneeded column when there's only either WG or WS
+
+## Added
+
+- New functions `add_cdi_percentage_score()` in `cdi_wrangling()` for calculating POMP scores for each subsection
+
+- New module `cdi_norms()` with functions for getting norm conversion table and adding percentile scores to SEEDLingS CDI spreadsheet: `get_norm_path()`, `wrangle_norm()`, `load_cdi_norms_wg()`, `calculate_percentile()`, `add_norms_to_cdi()`, and `add_cdi_percentage_score()`
+
 # blabr 0.26.8
 
 ## Fixed
