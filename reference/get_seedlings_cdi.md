@@ -59,5 +59,4 @@ Get the seedlings CDI table from the BLAB_DATA
 [`get_cdi_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_cdi_spreadsheet.md),
 but wrangled to include summary values and with options for which form
 to retrieve the dataframe. Clone said repo to `~/BLAB_DATA` once before
-using this function. The norm conversion table was downloaded from
-[wordbank](https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles)
+using this function.

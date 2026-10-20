@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">blabr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,10 +42,24 @@
 
       <dl><dt>
 
+          <code><a href="add_cdi_percentage_score.html">add_cdi_percentage_score()</a></code>
+
+        </dt>
+        <dd>Convert summary scores in CDIs subsections into percentage of items selected over total number of items</dd>
+
+        <dt>
+
           <code><a href="add_lena_stats.html">add_lena_stats()</a></code>
 
         </dt>
         <dd>Add LENA stats to each interval in a dataframe</dd>
+
+        <dt>
+
+          <code><a href="add_norms_to_cdi.html">add_norms_to_cdi()</a></code>
+
+        </dt>
+        <dd>Adding percentile scores to existing SEEDLingS CDI spreadsheet</dd>
 
         <dt>
 
@@ -88,6 +102,13 @@
 
         </dt>
         <dd>Calculate stats similar to those in LENA's 5min.csv files</dd>
+
+        <dt>
+
+          <code><a href="calculate_percentile.html">calculate_percentile()</a></code>
+
+        </dt>
+        <dd>Calculate percentile scores for each metric in SEEDLingS CDI spreadsheet and add them as new column.</dd>
 
         <dt>
 
@@ -287,6 +308,13 @@
 
         <dt>
 
+          <code><a href="get_norm_path.html">get_norm_path()</a></code>
+
+        </dt>
+        <dd>Load in the correct norm table based on gender and metric. The norm conversion table was downloaded from <a href="https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles" class="external-link">wordbank</a></dd>
+
+        <dt>
+
           <code><a href="get_r01_cdi.html">get_r01_cdi()</a></code>
 
         </dt>
@@ -403,6 +431,13 @@
 
         </dt>
         <dd><code><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">dplyr::rename</a></code> for lists</dd>
+
+        <dt>
+
+          <code><a href="load_cdi_norms_wg.html">load_cdi_norms_wg()</a></code>
+
+        </dt>
+        <dd>Load CDI norms for all metrics and all genders for WG form</dd>
 
         <dt>
 
@@ -571,6 +606,13 @@
 
         </dt>
         <dd>Standardize and clean up local subject IDs for blab participants</dd>
+
+        <dt>
+
+          <code><a href="wrangle_norm.html">wrangle_norm()</a></code>
+
+        </dt>
+        <dd>Wrangling norm conversion tables into one row for each percentile (1-99) for each age</dd>
 
         <dt>
 

@@ -6,13 +6,16 @@
 <url><loc>http://bergelsonlab.com/blabr/authors.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/index.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/news/index.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/add_cdi_percentage_score.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/add_lena_stats.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/add_norms_to_cdi.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/add_vtc_speaker_stats.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/add_vtc_stats.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/all_errors.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/assign_time_windows.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/big_aggregate.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/calculate_lena_like_stats.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/calculate_percentile.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/cdi_get_words.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/characters_to_factors.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/checkout_tag.html</loc></url>
@@ -43,6 +46,7 @@
 <url><loc>http://bergelsonlab.com/blabr/reference/get_mesrep.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_metrics_and_inventory.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_motor_spreadsheet.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/get_norm_path.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_r01_cdi.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_reliability.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/get_repo_path.html</loc></url>
@@ -61,6 +65,7 @@
 <url><loc>http://bergelsonlab.com/blabr/reference/keypress_retrieved.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/late_target_retrieved.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/list_rename.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/load_cdi_norms_wg.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/make_five_min_approximation.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/match_intervals_to_vtc_annotations.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/merge_split_reports.html</loc></url>
@@ -90,6 +95,7 @@
 <url><loc>http://bergelsonlab.com/blabr/reference/update_global_basic_levels.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/update_tags.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/wrangle_blab_participants.html</loc></url>
+<url><loc>http://bergelsonlab.com/blabr/reference/wrangle_norm.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/wrangle_web_cdi.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/write_rttm.html</loc></url>
 <url><loc>http://bergelsonlab.com/blabr/reference/write_seedlings_audio_annotations.html</loc></url>

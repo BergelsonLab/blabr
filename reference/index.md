@@ -2,8 +2,15 @@
 
 ## All functions
 
+- [`add_cdi_percentage_score()`](http://bergelsonlab.com/blabr/reference/add_cdi_percentage_score.md)
+  : Convert summary scores in CDIs subsections into percentage of items
+  selected over total number of items
+
 - [`add_lena_stats()`](http://bergelsonlab.com/blabr/reference/add_lena_stats.md)
   : Add LENA stats to each interval in a dataframe
+
+- [`add_norms_to_cdi()`](http://bergelsonlab.com/blabr/reference/add_norms_to_cdi.md)
+  : Adding percentile scores to existing SEEDLingS CDI spreadsheet
 
 - [`add_vtc_speaker_stats()`](http://bergelsonlab.com/blabr/reference/add_vtc_speaker_stats.md)
   :
@@ -28,6 +35,10 @@
 
 - [`calculate_lena_like_stats()`](http://bergelsonlab.com/blabr/reference/calculate_lena_like_stats.md)
   : Calculate stats similar to those in LENA's 5min.csv files
+
+- [`calculate_percentile()`](http://bergelsonlab.com/blabr/reference/calculate_percentile.md)
+  : Calculate percentile scores for each metric in SEEDLingS CDI
+  spreadsheet and add them as new column.
 
 - [`cdi_get_words()`](http://bergelsonlab.com/blabr/reference/cdi_get_words.md)
   : Select all word item columns for a cdi spreadsheet
@@ -121,6 +132,13 @@
 - [`get_motor_spreadsheet()`](http://bergelsonlab.com/blabr/reference/get_motor_spreadsheet.md)
   : The the motor questionaire spreadsheet for the SEEDLingS babies
 
+- [`get_norm_path()`](http://bergelsonlab.com/blabr/reference/get_norm_path.md)
+  :
+
+  Load in the correct norm table based on gender and metric. The norm
+  conversion table was downloaded from
+  [wordbank](https://github.com/langcog/wordbank-shiny/tree/main/apps/scoring/norms/percentiles/English%20Percentiles)
+
 - [`get_r01_cdi()`](http://bergelsonlab.com/blabr/reference/get_r01_cdi.md)
   : Load CDI output from all RO1 studies and SemPhonD
 
@@ -184,6 +202,9 @@
 
   [`dplyr::rename`](https://dplyr.tidyverse.org/reference/rename.html)
   for lists
+
+- [`load_cdi_norms_wg()`](http://bergelsonlab.com/blabr/reference/load_cdi_norms_wg.md)
+  : Load CDI norms for all metrics and all genders for WG form
 
 - [`make_five_min_approximation()`](http://bergelsonlab.com/blabr/reference/make_five_min_approximation.md)
   : Approximate LENA's 5min.csv output
@@ -259,6 +280,10 @@
 
 - [`wrangle_blab_participants()`](http://bergelsonlab.com/blabr/reference/wrangle_blab_participants.md)
   : Standardize and clean up local subject IDs for blab participants
+
+- [`wrangle_norm()`](http://bergelsonlab.com/blabr/reference/wrangle_norm.md)
+  : Wrangling norm conversion tables into one row for each percentile
+  (1-99) for each age
 
 - [`wrangle_web_cdi()`](http://bergelsonlab.com/blabr/reference/wrangle_web_cdi.md)
   : Clean up raw CDI output (item + summary) for any project
