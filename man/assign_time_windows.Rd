@@ -25,8 +25,8 @@ The input dataframe with the following columns added:
 \item \code{prewin} (factor): Whether a time bin comes before the target onset. Values are "Y" and "N".
 \item For each window defined by \code{t_starts[i]} and \code{t_ends[i]}, the following columns are added:
 \itemize{
-\item \verb{window_\{t_starts[i]\}_\{t_ends[i]\}ms} (factor): Whether a time bin is in the window from \code{t_starts[i]} to \code{t_ends[i]} milliseconds after target onset. Values are "Y" and "N".
-\item \verb{which_window_\{t_starts[i]\}_\{t_ends[i]\}ms} (factor): Indicates whether the time bin is in the window (labeled as \verb{\{t_starts[i]\}_\{t_ends[i]\}ms}), comes before the target onset ("pre"), or neither ("neither").
+\item \verb{window_<t_starts[i]>_<t_ends[i]>ms} (factor): Whether a time bin is in the window from \code{t_starts[i]} to \code{t_ends[i]} milliseconds after target onset. Values are "Y" and "N".
+\item \verb{which_window_<t_starts[i]>_<t_ends[i]>ms} (factor): Indicates whether the time bin is in the window (labeled as \verb{<t_starts[i]>_<t_ends[i]>ms}), comes before the target onset ("pre"), or neither ("neither").
 }
 \item \code{t_onset} (numeric): Time (in milliseconds) from the target onset rounded up to the nearest multiple of \code{t_step}.
 }
@@ -37,8 +37,8 @@ Assigns binned fixations to specified time windows
 \details{
 The function assigns each time bin in \code{fixation_timeseries} to specified time windows defined by \code{t_starts} and \code{t_ends} relative to the target onset. For each window, it creates two new columns:
 \itemize{
-\item \verb{window_\{start\}_\{end\}ms}: Indicates whether the time bin falls within the window from \code{start} to \code{end} milliseconds after target onset. Values are "Y" or "N".
-\item \verb{which_window_\{start\}_\{end\}ms}: Indicates whether the time bin is in the window (labeled as "{start}_{end}ms"), comes before the target onset ("pre"), or neither ("neither").
+\item \verb{window_<start>_<end>ms}: Indicates whether the time bin falls within the window from \code{start} to \code{end} milliseconds after target onset. Values are "Y" or "N".
+\item \verb{which_window_<start>_<end>ms}: Indicates whether the time bin is in the window (labeled as `\if{html}{\out{<start>}}_\if{html}{\out{<end>}}ms``), comes before the target onset ("pre"), or neither ("neither").
 }
 
 Time bins located exactly at \code{t_starts[i]} or \code{t_ends[i]} are included in the corresponding window (i.e., the intervals are inclusive of the endpoints).

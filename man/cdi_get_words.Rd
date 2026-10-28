@@ -17,3 +17,7 @@ New dataframe containing only vocabulary item column
 \description{
 Select all word item columns for a cdi spreadsheet
 }
+\details{
+This function was used to generate the current seedlings cdi spreadsheet
+as retrieved by \code{get_cdi_spreadsheet()}.
+}

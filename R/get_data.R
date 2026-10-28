@@ -108,7 +108,7 @@ get_all_basiclevel <- function(version = NULL,
   return(all_bl)
 }
 
-#' Get the CDI spreadsheet for SEEDLingS babies
+#' Get the CDI spreadsheet for SEEDLingS babies (raw form)
 #'
 #' @param version version tag to checkout
 #' @param type "feather" or "csv". defaults to "feather"
@@ -125,6 +125,13 @@ get_cdi_spreadsheet <- function(version = NULL, type="feather") {
     CDIcomp = readr::col_double(),
     CDIprod = readr::col_double()
   )
+  if (is.null(version)) {
+    warning(glue::glue(
+      "This is an old function for getting SEEDLingS CDIs in its raw form.\n",
+      "For more options for wrangling the CDI table, such as getting 
+      summary values for gestures, or getting the table in long format,\n",
+      "consider using the new blabr function `get_seedlings_cdi()`."))
+  }
   switch(type,
          "csv" = get_df_file('cdi_spreadsheet', "cdi.csv", version = version,
                              col_types = col_types),

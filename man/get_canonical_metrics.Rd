@@ -13,6 +13,9 @@ get_canonical_metrics(df)
 A dataframe with these new metrics as new columns
 }
 \description{
+Calculate canonical related metrics for each recording.
+}
+\details{
 The metrics calculated are:
 \itemize{
 \item Canonical utterances (per utterance and per syllable): n_canonical/all

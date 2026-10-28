@@ -3,8 +3,7 @@
 \name{pivot_to_phoneme}
 \alias{pivot_to_phoneme}
 \title{Wrangling the babar dataframe into long form, one row per phoneme
-with sonority value. Whether a sound is considered a phoneme is determined by
-the minimum count parameter.}
+with sonority value.}
 \usage{
 pivot_to_phoneme(df, minimum_count = 50)
 }
@@ -19,6 +18,9 @@ A dataframe with one row per phoneme per recording
 }
 \description{
 Wrangling the babar dataframe into long form, one row per phoneme
-with sonority value. Whether a sound is considered a phoneme is determined by
+with sonority value.
+}
+\details{
+Whether a sound is considered a phoneme is determined by
 the minimum count parameter.
 }

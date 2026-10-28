@@ -1,8 +1,31 @@
-#' Clean up raw CDI output (item + summary) for any project administered through 
+#' Get the legends for the item columns for CDI forms, with which category they belong to. 
+#' 
+#' @details
+#' Items include the vocabulary checklist items, gesture items, and sentence items.
+#' These two csv (for WG and WS) was downloaded from WebCDI's GitHub [repo](https://github.com/langcog/web-cdi/tree/master/webcdi/cdi_form_csv/cdi_forms), 
+#' specifically the files `[English_WG].csv` and `[English_WS].csv`.
+#' 
+#' @param form Which kind of cdi form is this (`WG` or `WS`)?
+#' 
+#' @export
+get_cdi_dict <- function(form = c("WG", "WS")) {
+  form <- match.arg(form)
+  
+  wg_key <- readr::read_csv(system.file("extdata", "English_WG_dictionary.csv", package = "blabr"), show_col_types=FALSE)
+  ws_key <- readr::read_csv(system.file("extdata", "English_WS_dictionary.csv", package = "blabr"), show_col_types=FALSE)
+  
+  if (form == "WG") {
+    return(wg_key)
+  } else if (form == "WS") {
+    return(ws_key)
+  }
+}
+
+#' Clean up raw CDI output (item + summary) for any project administered through
 #' WebCDI.
 #' 
-#' @param filepath Dataframe of the csv file downloaded from WebCDI 
-#' (you should use the csv with both item level and sumary data)
+#' @param cdi_df Dataframe of the csv file downloaded from WebCDI 
+#' (you should use the csv with both item level and summary data)
 #' @param form Which kind of cdi form is this (`WG` or `WS`). 
 #' Will only include columns from each form.
 #' @param table Which subset of the output to include? 
@@ -16,9 +39,13 @@
 #' each item and columns for aggregated score, 
 #' as well as metadata columns (e.g. date created, webcdi link, admin id, etc.). 
 #' Is not affected by `withDemographic` and `justWord` parameters.
+#' @param new_cols a vector of string, names of new colummns added to the output 
+#' from WebCDI (if any). Will count these new columns as ID and keep them in every 
+#' version of the CDI tables. Useful for any unique id columns generated from
+#' the WebCDI output
 #' @param withDemographic Should the data include answers to demographic questions 
 #' (e.g. sibling count, birth order, caregive info, etc.)? These columns are not 
-#' treated as item, so if you select `wordlevel_long` table, the demographic 
+#' treated as item, so if you select `wordlevel` table, the demographic 
 #' answers will be included in every row. If you select `raw` table, demographic 
 #' columns will always be included. `FALSE` is default. 
 #' @param justWord Should the data include only vocabulary checklist item? If 
@@ -40,14 +67,15 @@
 wrangle_web_cdi <- function(cdi_df,
                             form = c("WG", "WS"),
                             table = c("summary", "wordlevel", "raw"),
+                            new_cols = NULL,
                             withDemographic = FALSE,
                             justWord = TRUE,
                             rename = TRUE) {
   form <- match.arg(form)
   table <- match.arg(table)
   
-  wg_key <- readr::read_csv(system.file("extdata", "English_WG_dictionary.csv", package = "blabr"))
-  ws_key <- readr::read_csv(system.file("extdata", "English_WS_dictionary.csv", package = "blabr"))
+  wg_key <- get_cdi_dict("WG")
+  ws_key <- get_cdi_dict("WS")
   wg_cols <- wg_key$item
   ws_cols <- ws_key$item
   
@@ -56,6 +84,9 @@ wrangle_web_cdi <- function(cdi_df,
   
   all_cols <- colnames(cdi_df)
   id_cols <- c("study_name", "subject_id", "repeat_num")
+  if (!is.null(new_cols)) {
+    id_cols <- c(id_cols, new_cols)
+  }
   admin_cols <- c("opt_out", "local_lab_id", "administration_id", "link", "completed", "completedBackgroundInfo", "due_date", "last_modified", "created_date", "completed_date", "event_id")
   demographic_cols <- all_cols[!all_cols %in% c(id_cols, admin_cols, summary_cols, item_cols)]
   
@@ -81,7 +112,7 @@ wrangle_web_cdi <- function(cdi_df,
     item_cols <- wg_cols
     summary_cols <- wg_summary_cols
   } else if (form == "WS") {
-    if (rename) {
+    if (rename == TRUE) {
       cdi_df <- cdi_df %>% 
         dplyr::rename(
           `Words Produced` = `Total Produced`, 
@@ -90,7 +121,7 @@ wrangle_web_cdi <- function(cdi_df,
         ) # so we have the same name for form WG and WS
     }
     item_cols <- ws_cols
-    summary_cols <- ws_summary_cols
+    summary_cols <- ws_summary_cols 
   } 
   
   if (table != "wordlevel") {
@@ -100,22 +131,72 @@ wrangle_web_cdi <- function(cdi_df,
       cols_to_keep <- all_cols
     }
     cdi_df <- cdi_df %>% 
-      dplyr::select(all_of(cols_to_keep))
+      dplyr::select(dplyr::any_of(cols_to_keep))
     
   } else {
     cdi_df <- cdi_df %>% 
-      dplyr::select(c(cols_to_keep, item_cols)) %>% 
-      tidyr::pivot_longer(cols = all_of(item_cols), names_to = "item", values_to = "response")
+      dplyr::select(dplyr::any_of(c(cols_to_keep, item_cols))) %>% 
+      tidyr::pivot_longer(cols = dplyr::all_of(item_cols), names_to = "item", values_to = "response")
   }
   
   return(cdi_df)
 }
 
-#' Load VIHI cdi output from BLAB_SHARE (server will need to be mounted)
+#' Convert summary scores in CDIs subsections into percentage of items selected over total number of items
+#' 
+#' @details
+#' This function takes the summary score of each subsection and divide it by the total number of items in that subsection, returning a percentage score. It will apply this calculation to any column that matches the name of a summary column (either from WebCDI output or from the SEEDLingS CDI spreadsheet). E.g., for column `CDIcomp` in the SEEDLingS CDI spreadsheet, the new column will be called `CDIcomp-percentage`, while for column `Words Produced` in a WebCDI output, it will be named `Words Produced Percentage`, to stay consistent with other columns naming convention. The function uses a lookup table to determine the total number of items in each subsection, which is stored in a CSV file within the package.
+#' 
+#' @param df A wrangled CDI dataframe (either from WebCDI output or from the SEEDLingS CDI spreadsheet)
+#' @param is_seedlings A boolean indicating whether the dataframe is from the SEEDLingS CDI spreadsheet (`TRUE`) or from WebCDI output (`FALSE`), since these two formats have different column names. Default is `TRUE`.
+#' 
+#' @return A dataframe with a new column with percentage scores for each subsection. The new column is added right after the original column
+#' 
+#' @export
+add_cdi_percentage_score <- function(df, is_seedlings = TRUE){
+  pomp_lookup <- readr::read_csv(system.file("extdata", "pomp_lookup.csv", package = "blabr"), show_col_types=FALSE)
+  
+  if (is_seedlings) {
+    pomp_by_cdi <- pomp_lookup %>% dplyr::rename(cdi_section = seedlings_cdi_section)
+    suffix <- "-percentage"
+  } else {
+    pomp_by_cdi <- pomp_lookup %>% dplyr::rename(cdi_section = webcdi_section)
+    suffix <- " Percentage"
+  }
+  pomp_by_cdi <- pomp_by_cdi %>% 
+    dplyr::filter(!is.na(cdi_section)) %>% 
+    dplyr::select(cdi_section, n_items)
+  
+  old_columns <- pomp_by_cdi$cdi_section
+
+  final_df <- df %>% 
+    dplyr::mutate(
+      dplyr::across(
+        dplyr::any_of(pomp_by_cdi$cdi_section),
+        ~round(.x / pomp_by_cdi$n_items[pomp_by_cdi$cdi_section == cur_column()], 2),
+        .names = "{.col}{suffix}"
+      )
+    ) 
+  
+  # The original mutate across functions add all the new columns to the end. Use relocate to move them behind their original column, and reduce to iteratively apply this relocation to every possible column that has a percentage score (if any)
+  final_df <- purrr::reduce(
+    old_columns,
+    \(d, col) relocate(d, any_of(paste0(col, suffix)), .after = any_of(col)),
+    .init = final_df
+  ) 
+
+  
+  return(final_df)
+}
+
+#' Load VIHI cdi output from BLAB_SHARE 
+#' 
+#' (blab_share server will need to be mounted)
+#' 
 #' @inheritParams wrangle_web_cdi
-#' @param population Which group of participants to include (`VI`, `HI`, or 
-#' `VIHI` (which will include both))?
-#' @param form Which kind of cdi forms to include (`WG`, `WS`, or `both`)? 
+#' @param population Which group of participants to include (`VI`, `HI`, `TD`, or 
+#' `VIHI` (which will include all three, default))?
+#' @param form Which kind of cdi forms to include (`WG`, `WS`, or `both` (default))? 
 #' The data will only include items that are featured on said form.
 #' 
 #' @export
@@ -130,7 +211,7 @@ get_vihi_cdi <- function(population = c("VIHI", "VI", "HI", "TD"),
   table <- match.arg(table)
   
   cdi_path <- file.path(get_blab_share_path(), "VIHI/Surveys/CDI/VIHI/VIHI_CDI_wordlevel.csv")
-  cdi_full <- readr::read_csv(cdi_path) %>% 
+  cdi_full <- readr::read_csv(cdi_path, show_col_types=FALSE) %>% 
     dplyr::mutate(Population = stringr::str_sub(VIHI_ID, 1, 2)) 
   
   vihi_id_key <- cdi_full %>%
@@ -183,7 +264,96 @@ get_vihi_cdi <- function(population = c("VIHI", "VI", "HI", "TD"),
   return(final_cdi)
 }
 
+#' Load CDI output from all RO1 studies and SemPhonD
+#' 
+#' @details
+#' Clone BLAB-private [r01_cdi_spreadsheet](https://github.com/bergelsonlab/r01_cdi_spreadsheet.git)
+#' repo to `~/BLAB_DATA` once before using this function. 
+#' 
+#' @inheritParams wrangle_web_cdi
+#' @param study Which study(s) to include among (`WFR`, `CLF`, `PBS`, `MISCOM`, 
+#' `ProsPr`, `PreFunc`, `SemPhonD`, or `SPARKED`)? Provide either a string (if only 
+#' selecting one study) or a vector of strings (for multiple studies)
+#' If `NULL` (default), will include all studies. 
+#' @param version version tag to checkout
+#' 
+#' @export
+#'
+get_r01_cdi <- function(table = c("summary", "wordlevel", "raw"),
+                        study = NULL,
+                        withDemographic = FALSE,
+                        justWord = TRUE,
+                        version=NULL) {
+  ro1_cdi <- get_df_file('r01_cdi_spreadsheet', "all_cdi.csv",
+                         version = version)
+  
+  all_studies = c("WFR", "CLF", "PBS", "MISCOM", "ProsPr", "PreFunc", "SemPhonD", "SPARKED")
+  if (is.null(study)) {
+    message(glue::glue(
+      "Reading CDIs from all R01 project (WFR, CLF, PBS, MISCOM, ProsPr, PreFunc, SPAKRED) and SemPhonD.\n",
+      "If you want to only get a subset of them, provide the `study` parameter.\n",
+      "For example, add ', study=c('WFR', 'MISCOM')' to get the CDIs from WFR and MISCOM")
+    )
+    study <- all_studies
+  } else {
+    study <- match.arg(study, all_studies, several.ok = TRUE)
+  }
+  message("Reading CDIs from the following projects:")
+  print(study)
+  message(glue::glue(
+    "\nAny misspelled or unknown studies are ignored. If this is not what you are expecting, make sure that the name of the study is spelled correctly (including capitalization) as follows:\n",
+    "WFR, CLF, PBS, MISCOM, ProsPr, PreFunc, SemPhonD, SPARKED\n",
+    "Remove the 'study' parameter to get all studies by default.")
+  )
+  
+  table <- match.arg(table)
+  new_cols = c("study_id", "study_name_webcdi", "unique_cdi_id")
+  
+  cdi_wg <- ro1_cdi %>%
+    dplyr::filter(form == "WG") %>%
+    dplyr::select(-form) %>% 
+    wrangle_web_cdi(form = "WG",
+                    new_cols = new_cols,
+                    table = table,
+                    withDemographic = withDemographic,
+                    justWord = justWord,
+                    rename = FALSE) %>%
+    dplyr::mutate(form = "WG") %>% 
+    dplyr::filter(study_id %in% study)
+  
+  cdi_ws <- ro1_cdi %>%
+    dplyr::filter(form == "WS") %>%
+    dplyr::select(-form) %>% 
+    wrangle_web_cdi(form = "WS",
+                    new_cols = new_cols,
+                    table = table,
+                    withDemographic = withDemographic,
+                    justWord = justWord,
+                    rename = FALSE) %>%
+    dplyr::mutate(form = "WS") %>% 
+    dplyr::filter(study_id %in% study)
+  
+  if (nrow(cdi_wg) == 0 & nrow(cdi_ws) == 0) {
+    stop("No CDIs found for the specified study/studies. Please check the spelling and capitalization of the study name(s).")
+  } else if (nrow(cdi_ws) == 0) {
+    final_cdi <- cdi_wg
+  } else if (nrow(cdi_wg) == 0) {
+    final_cdi <- cdi_ws
+  } else {
+    final_cdi <- dplyr::bind_rows(cdi_wg, cdi_ws)
+  }
+  
+  final_cdi <- final_cdi %>% 
+    dplyr::select(study_id, study_name, subject_id, repeat_num, form, unique_cdi_id, dplyr::everything()) 
+  
+  return(final_cdi)
+}
+
 #' Select all word item columns for a cdi spreadsheet
+#' 
+#' @details
+#' This function was used to generate the current seedlings cdi spreadsheet
+#' as retrieved by `get_cdi_spreadsheet()`.
 #'
 #' @param data a dataframe of the original cdi csv
 #' @param cdi_type Either wg or ws
@@ -215,6 +385,10 @@ cdi_get_words <- function(data, cdi_type = "wg") {
 }
 
 #' Calculate the vocabulary checklist score of a cdi spreadsheet
+#' 
+#' @details
+#' This function was used to generate the current seedlings cdi spreadsheet
+#' as retrieved by `get_cdi_spreadsheet()`.
 #'
 #' @param data a dataframe of the original cdi csv
 #' @param cdi_type Either wg or ws
@@ -223,7 +397,6 @@ cdi_get_words <- function(data, cdi_type = "wg") {
 #' @return New dataframe with vocab score
 #' @export
 get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
-
 
   if (remove_incomplete == T){
     data <- data %>%
@@ -268,4 +441,124 @@ get_vocab_score <- function(data, cdi_type, remove_incomplete = T) {
   }
   return(data)
 
+}
+
+#' Get the CDI spreadsheet for SEEDLingS babies (wrangled and with added summary values)
+#' 
+#' @details
+#' Get the seedlings CDI table from the BLAB_DATA [repo](https://github.com/BergelsonLab/cdi_spreadsheet) 
+#' using `get_cdi_spreadsheet()`, but wrangled to include summary values and 
+#' with options for which form to retrieve the dataframe. Clone said repo to 
+#' `~/BLAB_DATA` once before using this function.
+#' 
+#' @param version version tag to checkout
+#' @param table Which subset of the output to include? 
+#' All table include demographic related items: "ResponseID", "SubjectNumber", 
+#' "subj", "month", "Date_Completed", "AgeMonthUncorrected", 
+#' "SeedlingsFinalSample", "Relation_to_child", "Child_gender"
+#' - "summary" (default): each row is one CDI form, including aggregated score 
+#' for for each section of the CDI (CDIcomp, game gestures, later gestures). If
+#' a section does not have an aggregate (i.e. first signs, starting to talk), 
+#' will include them as separate items with binary values (1 or 0).
+#' - "wordlevel": each row is an item on one cdi form, with an "item" column 
+#' for the name of the item and a "response" column.
+#' - "raw": this is the rawest form of the data as saved in BLAB_DATA, with one 
+#' row for each CDI form, including demographic columns, items columns, and 
+#' CDIcomp, CDIprod. Is not affected by `justWord` parameters.
+#' @param justWord Should the data include only vocabulary checklist item? If 
+#' `TRUE` (default), returns only `CDIcomp` and `CDIprod` related  for `summary` 
+#' table and only vocabulary items for `wordlevel` table. If 
+#' `FALSE`, will include gestures-related items.  If you select `raw` table, all 
+#' items will be included regardless of this variable. 
+#' 
+#' @return A dataframe of the wrangled CDI output according to the parameters
+#' @export
+#' 
+get_seedlings_cdi <- function(version=NULL, table = c("summary", "wordlevel", "raw"), justWord = TRUE) {
+
+  table <- match.arg(table)
+  
+  demographic_cols <- c("ResponseID", "SubjectNumber", "subj", "month", 
+                     "Date_Completed", "AgeMonthUncorrected", "SeedlingsFinalSample", 
+                     "Relation_to_child", "Child_gender") 
+                      # Does not include CDIcomp and CDIprod
+  
+  cdi_raw <- get_cdi_spreadsheet(version=version) %>% 
+    dplyr::select(dplyr::all_of(demographic_cols), CDIcomp, CDIprod, dplyr::everything())
+  
+  if (table == "raw") {
+    return(cdi_raw)
+  }
+  
+  all_cols <- colnames(cdi_raw)
+  item_cols <- all_cols[
+    startsWith(all_cols, "Talk_") | 
+    startsWith(all_cols, "Understand_") | 
+    startsWith(all_cols, "Gestures_")
+  ]
+  first_signs_cols <- c("Understand_childname", "Understand_nono", "Understand_theresmommy")
+  phrases_cols <- all_cols[startsWith(all_cols, "Understand_") & ! all_cols %in% first_signs_cols]
+  starting_to_talk_cols <- c("Talk_parroting", "Talk_labeling")
+  vocabulary_cols <- all_cols[startsWith(all_cols, "Talk_") & ! all_cols %in% starting_to_talk_cols]
+  
+  if (table == "wordlevel") {
+    if (justWord == TRUE) {
+      wrangled_cdi <- cdi_raw %>% 
+        dplyr::select(dplyr::all_of(demographic_cols), vocabulary_cols) %>% 
+        tidyr::pivot_longer(cols = dplyr::all_of(vocabulary_cols), names_to = "item", values_to = "response")
+    } else {
+      wrangled_cdi <- cdi_raw %>% 
+        dplyr::select(-CDIcomp, CDIprod) %>% 
+        tidyr::pivot_longer(cols = dplyr::all_of(item_cols), names_to = "item", values_to = "response")
+    }
+  } else if (table == "summary") {
+    if (justWord == TRUE) {
+      wrangled_cdi <- cdi_raw %>%
+        dplyr::select(dplyr::all_of(demographic_cols), CDIcomp, CDIprod)
+    } else {
+      wrangled_cdi <- cdi_raw %>%
+        dplyr::mutate(
+          dplyr::across(
+            dplyr::all_of(first_signs_cols), 
+            ~ifelse(.x == "Yes", 1, 0)),
+          dplyr::across(
+            dplyr::all_of(starting_to_talk_cols), 
+            ~ifelse(.x != "Never", 1, 0))
+        ) %>% 
+        dplyr::mutate(
+          phrases = rowSums(
+            dplyr::across(dplyr::all_of(phrases_cols), ~.x == "Understands"), 
+                            na.rm = TRUE),
+          
+          first_gestures = rowSums(
+            dplyr::across(Gestures_showobject:Gestures_allgone, ~.x != "Never"), 
+                                   na.rm = TRUE),
+          games_gestures = rowSums(
+            dplyr::across(Gestures_allgone:Gestures_dance, ~.x == "Yes"), 
+                                   na.rm = TRUE),
+          object_gestures = rowSums(
+            dplyr::across(Gestures_spoonfork:Gestures_pretendstir, ~.x == "Yes"), 
+                                    na.rm = TRUE),
+          parent_gestures = rowSums(
+            dplyr::across(Gestures_puttobed:Gestures_diaper, ~.x == "Yes"), 
+                                    na.rm = TRUE),
+          adult_gestures = rowSums(
+            dplyr::across(Gestures_sweep:Gestures_wearglasses, ~.x == "Yes"), 
+                                   na.rm = TRUE),
+          
+          early_gestures = first_gestures + games_gestures,
+          later_gestures = object_gestures + parent_gestures + adult_gestures,
+          total_gestures = early_gestures + later_gestures
+        ) %>% 
+      dplyr::select(
+        dplyr::all_of(demographic_cols), dplyr::all_of(first_signs_cols), 
+        phrases, dplyr::all_of(starting_to_talk_cols), CDIcomp, CDIprod, 
+        first_gestures, games_gestures, object_gestures, 
+        parent_gestures, adult_gestures, 
+        early_gestures, later_gestures, total_gestures
+      )
+    }
+  }
+  
+  return(wrangled_cdi)
 }

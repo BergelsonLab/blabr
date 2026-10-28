@@ -1,3 +1,61 @@
+# blabr 0.26.9
+
+## Fixed
+
+- fix error where `get_r01_cdi()` is getting unneeded column when there's only either WG or WS
+
+## Added
+
+- New functions `add_cdi_percentage_score()` in `cdi_wrangling()` for calculating POMP scores for each subsection
+
+- New module `cdi_norms()` with functions for getting norm conversion table and adding percentile scores to SEEDLingS CDI spreadsheet: `get_norm_path()`, `wrangle_norm()`, `load_cdi_norms_wg()`, `calculate_percentile()`, `add_norms_to_cdi()`, and `add_cdi_percentage_score()`
+
+# blabr 0.26.8
+
+## Fixed
+
+- Exporting `parse_raw_id()`, `get_blab_participants()`, and `get_blab_excluded_participants()`
+
+- Fix uncaught error in CDI methods documentations
+
+# blabr 0.26.7
+
+## Changed
+
+- Added `SPARKED` as an option for `get_r01_cdi`, and merging `biWFR` and `WFR` into one option. Reflected in documentations
+
+- New column name change to `study_name_webcdi` and adding more metadata to `all_cdi.csv`
+
+# blabr 0.26.6
+
+## Added
+
+- Allow `get_r01_cdi` to select multiple studies, adding warning messages about which study it is reading.
+
+## Fixed
+
+- Fixing formatting issues for a lot of function documentations, leaving a short description and moving the rest to the detail section.
+
+# blabr 0.26.5
+
+## Added
+
+- `get_r01_cdi` to get the new R01 CDI data from the new BLAB_DATA repo raw_r01_cdi, along with features for filtering out which studies and what form, `get_cdi_cols` for retrieving CDI keys, and `get_seedlings_cdi()` for adding summary values to seedlings cdi
+
+- Add warnings in `get_cdi_spreadsheet()` to let users know to use new `get_seedlings_cdi()` function
+
+- New `blab-partitipants` module (with test), still in progress, but allow retrieval of blab-wide participants spreadsheets and exclusion sheets, along with function for normalizing global id.
+
+## Fixed
+
+- Updating a handful of errorful documentations, including clarifications for`cdi_get_words()` and `get_vocab_score()` in `cdi_wrangling.R`, fixing brackets for `assign_time_window()` in `eyetracking.R`, disabling example in documentation for `get_vihi_annotations()`, and fix `get_clf_eyetracking()` examples in documentation
+
+- Found a bug in renaming parameter for `wrangle_web_cdi()`, fix column names of WS summary in `in_cdi.R` to ammend this.
+
+- Skipping tests for `test-lena.R` and `test-global_basic_level.r` for now, but make notes for future fixes
+
+- Add `show_col_types = FALSE` for `babar.R` and `cdi_wrangling.R` to remove distracting messages
+
 # blabr 0.26.4
 
 ## Added

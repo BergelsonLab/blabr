@@ -9,12 +9,16 @@ wrangle_web_cdi(
   cdi_df,
   form = c("WG", "WS"),
   table = c("summary", "wordlevel", "raw"),
+  new_cols = NULL,
   withDemographic = FALSE,
   justWord = TRUE,
   rename = TRUE
 )
 }
 \arguments{
+\item{cdi_df}{Dataframe of the csv file downloaded from WebCDI
+(you should use the csv with both item level and summary data)}
+
 \item{form}{Which kind of cdi form is this (\code{WG} or \code{WS}).
 Will only include columns from each form.}
 
@@ -32,9 +36,14 @@ as well as metadata columns (e.g. date created, webcdi link, admin id, etc.).
 Is not affected by \code{withDemographic} and \code{justWord} parameters.
 }}
 
+\item{new_cols}{a vector of string, names of new colummns added to the output
+from WebCDI (if any). Will count these new columns as ID and keep them in every
+version of the CDI tables. Useful for any unique id columns generated from
+the WebCDI output}
+
 \item{withDemographic}{Should the data include answers to demographic questions
 (e.g. sibling count, birth order, caregive info, etc.)? These columns are not
-treated as item, so if you select \code{wordlevel_long} table, the demographic
+treated as item, so if you select \code{wordlevel} table, the demographic
 answers will be included in every row. If you select \code{raw} table, demographic
 columns will always be included. \code{FALSE} is default.}
 
@@ -51,9 +60,6 @@ three summary columns in WS named \verb{Total Produced}, \verb{Total Produced Pe
 and \verb{Total Produced Percentile-both} will  changed to \verb{Words Produced},
 \verb{Words Produced Percentile-sex} and \verb{Words Produced Percentile-both}. Otherwise,
 they will remain unchanged}
-
-\item{filepath}{Dataframe of the csv file downloaded from WebCDI
-(you should use the csv with both item level and sumary data)}
 }
 \value{
 A dataframe of the wrangled CDI output according to the parameters

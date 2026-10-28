@@ -19,3 +19,7 @@ New dataframe with vocab score
 \description{
 Calculate the vocabulary checklist score of a cdi spreadsheet
 }
+\details{
+This function was used to generate the current seedlings cdi spreadsheet
+as retrieved by \code{get_cdi_spreadsheet()}.
+}
