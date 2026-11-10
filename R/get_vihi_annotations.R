@@ -1,3 +1,5 @@
+archived_version <- "0.0.0.9011"
+
 #' Load all tables from the vihi_annotations repo
 #' @noRd
 get_vihi_annotations_tables <- function(version = NULL) {
@@ -56,20 +58,29 @@ get_vihi_annotations_tables <- function(version = NULL) {
                 version = version,
                 col_types = col_types[[table_name]],
                 version_already_handled = TRUE)}
-
-  tables <- list(
-    annotations = get_table('annotations'),
-    intervals = get_table('intervals'),
-    matches = get_table('matches'),
-    recordings = get_table('recordings'),
-    subjects = get_table('subjects')
-  )
+  if (version <= archived_version) {
+    tables <- list(
+      annotations = get_table('annotations'),
+      intervals = get_table('intervals'),
+      matches = get_table('vi_td_matches')
+    )
+  } else {
+    tables <- list(
+      annotations = get_table('annotations'),
+      intervals = get_table('intervals'),
+      matches = get_table('matches'),
+      recordings = get_table('recordings'),
+      subjects = get_table('subjects_with_td'),
+      interval_groups = get_table('interval_groups')
+    )
+  }
 
   tables$intervals <- tables$intervals %>%
     dplyr::mutate(
       is_top_5_high_vol = (sampling_type == 'high-volubility')
       & (dplyr::dense_rank(rank) <= 5),
-      .by = eaf_filename)
+      .by = eaf_filename) %>% 
+    dplyr::rename(interval_onset = onset, interval_offset = offset)
 
   interval_0 <- tables$intervals %>%
     dplyr::select(eaf_filename) %>%
@@ -78,8 +89,8 @@ get_vihi_annotations_tables <- function(version = NULL) {
       code_num = "0",
       sampling_type = "initial",
       is_silent = NA,
-      onset = 0,
-      offset = 5400000,
+      interval_onset = 0,
+      interval_offset = 5400000,
       context_onset = 0,  # First 90 minute interval doesn't have context on/offset
       context_offset = 5400000,
       rank = NA,
@@ -88,7 +99,7 @@ get_vihi_annotations_tables <- function(version = NULL) {
 
   tables$intervals <- tables$intervals %>%
     rbind(interval_0) %>%
-    dplyr::arrange(eaf_filename, onset)
+    dplyr::arrange(eaf_filename, interval_onset)
 
   # tables$annotations <- tables$annotations
   tables$annotations <- tables$annotations %>%
@@ -251,17 +262,19 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 #' `all`, returns a named list of both tables.#'
 #'
 #' @param subset Which pre-defined subset of the data should be loaded?
-#' - 'random' (the default) loads the annotations from the 15 randomly sampled
-#' intervals from all recordings in the corpus.
-#' - 'VI+TD-VI' loads the annotations from the random, the top-5
+#' - 'random_hivol' (the default) loads the annotations from the 15 randomly sampled
+#' intervals and the top-5 high-volubility intervals from all recordings in the corpus.
+#' - 'VI_TD' loads the annotations from the random, the top-5
 #' high-volubility intervals, and the initial 90 minutes interval
 #' from VI recordings and their TD matches.
+#' - 'HI_TD' loads the annotations from the random and the top-5
+#' high-volubility intervals from HI recordings and their TD matches.
 #' - 'everything' loads all annotations from all tiers. Exercise caution with
 #' this option: the data will include incomplete and unchecked annotations.
 #'
 #' @param include_all_tier_types Should all tier types be included in the
 #' output? If `FALSE` (the default), only tiers that are relevant to the subset
-#' are returned. For the 'random' and 'VI+TD-VI' subsets, the relevant tier
+#' are returned. For the 'random', 'VI_TD', and 'HI_TD' subsets, the relevant tier
 #' types are: transcription, vcm, lex, mwu, xds. For the 'everything' subset,
 #' this parameter is ignored as all tier types are returned.
 #'
@@ -289,7 +302,7 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 #'
 get_vihi_annotations <- function(
     version = NULL,
-    subset = c('random', 'everything', 'VI+TD-VI'),
+    subset = c('random_hivol', 'VI_TD', 'everything'),
     table = c('annotations', 'intervals', 'merged', 'all'),
     include_all_tier_types = FALSE,
     allow_annotation_errors = FALSE,
@@ -297,21 +310,34 @@ get_vihi_annotations <- function(
 
   subset <- match.arg(subset)
   table <- match.arg(table)
+  
+  if (!is.null(version) && version <= archived_version) {
+    warning(glue::glue('You are using an archived version of the vihi_annotations dataset ({version}). \\
+                      This will only allow you get the raw table and does not support any new features. Please update to the latest version.'))
+  }
 
   tables <- get_vihi_annotations_tables(version)
 
-  if (subset %in% c('random', 'VI+TD-VI')) {
+  if (subset != "everything" & version > "0.0.0.9011") {
     # Select the intervals
-    if (subset == 'random') {
+    if (subset == 'random_hivol') {
       tables$intervals <- tables$intervals %>%
-        dplyr::filter(sampling_type == 'random')
-    } else if (subset == 'VI+TD-VI') {
+        dplyr::filter(sampling_type == 'random' | is_top_5_high_vol)
+    } else if (subset == 'VI_TD') {
       vi_td_matches <- tables$matches %>% 
         filter(population == "VI")
       tables$intervals <- tables$intervals %>%
         dplyr::filter(
           fs::path_ext_remove(eaf_filename) %in% c(vi_td_matches$VIHI_recording_id, vi_td_matches$TD_recording_id),
           sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
+        )
+    } else if (subset == 'HI_TD') {
+      hi_td_matches <- tables$matches %>% 
+        filter(population == "HI")
+      tables$intervals <- tables$intervals %>%
+        dplyr::filter(
+          fs::path_ext_remove(eaf_filename) %in% c(hi_td_matches$VIHI_recording_id, hi_td_matches$TD_recording_id),
+          sampling_type == 'random' | is_top_5_high_vol
         )
     }
 
@@ -332,8 +358,6 @@ get_vihi_annotations <- function(
     tables$annotations <- tables$annotations %>%
       dplyr::filter(is.na(PI))
   }
-
-
 
   # Run checks on annotations
   annotation_errors <- find_errors_in_vihi_annotations(tables$annotations)
@@ -383,7 +407,7 @@ get_vihi_annotations <- function(
 }
 
 get_vihi_new_tables <- function() {
-  version <- "0.0.0.9013-dev1"
+  version <- "0.0.0.9013-dev3"
   tables <- get_vihi_annotations_tables(version)
   
   annotations <- tables$annotations
@@ -392,81 +416,12 @@ get_vihi_new_tables <- function() {
   subjects <- tables$subjects
   recordings <- tables$recordings
   
-  subjects$exact_age = TRUE
-  subjects <- subjects %>% 
-    select(full_id, population, subject_id, exact_age, everything())
-  
-  subjects <- subjects %>% 
-    mutate(
-      is_babbling = ifelse(
-        is_babbling == TRUE,
-        "completed",
-        "none"
-      ),
-      is_repetition = ifelse(
-        is_repetition == TRUE,
-        "completed",
-        "none"
-      ),
-      is_interqual = ifelse(
-        is_interqual == TRUE,
-        "completed",
-        "none"
-      ),    
-    ) %>% 
-    mutate(
-      is_repetition = ifelse(
-        subject_id %in% c("052","053", "056", "057"),
-        "in_progress",
-        is_repetition
-      ),
-    )
-  
   recordings <- recordings %>% 
-    dplyr::mutate(full_id = str_sub(full_recording_id, 1, 6)) %>%
-    dplyr::left_join(
-      subjects %>% 
-        select(full_id, is_babbling, is_repetition, is_interqual), 
-      by = "full_id"
-    )
-  
-  intervals <- intervals %>% 
-    dplyr::mutate(full_id = str_sub(eaf_filename, 1, 6)) %>%
-    mutate(chi_tier = TRUE, other_tiers = TRUE) %>% 
-    dplyr::left_join(
-      subjects %>% 
-        select(full_id, is_babbling, is_repetition, is_interqual), 
-      by = "full_id"
-    ) %>% 
-    rename(
-      babbling = is_babbling,
-      repetition = is_repetition,
-      interqual = is_interqual
-    ) %>% 
-    mutate(
-      babbling = ifelse(
-        babbling == "completed",
-        TRUE,
-        FALSE
-      ),
-      repetition = ifelse(
-        repetition == "completed",
-        TRUE,
-        FALSE
-      ),
-      interqual = ifelse(
-        interqual == "completed",
-        TRUE,
-        FALSE
-      )
-    )
-  
-  selected_subjects <- subjects %>% 
-    dplyr::filter(is_babbling == "completed") 
+    dplyr::mutate(VIHI_id = str_sub(full_recording_id, 1, 6))
   
   selected_matches <- matches %>% 
-    dplyr::mutate(full_id = str_sub(VIHI_recording_id, 1, 6)) %>%
-    dplyr::right_join(selected_subjects, by = "full_id") 
+    dplyr::mutate(VIHI_id = str_sub(VIHI_recording_id, 1, 6)) %>%
+    dplyr::right_join(selected_subjects, by = "VIHI_id") 
   
   intervals <- intervals %>%
     dplyr::filter(
