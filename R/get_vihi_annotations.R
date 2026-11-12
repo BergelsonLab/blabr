@@ -302,7 +302,7 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 #'
 get_vihi_annotations <- function(
     version = NULL,
-    subset = c('random_hivol', 'VI_TD', 'everything'),
+    subset = c('random_hivol', 'VI_TD', "HI_TD", 'everything'),
     table = c('annotations', 'intervals', 'merged', 'all'),
     include_all_tier_types = FALSE,
     allow_annotation_errors = FALSE,
