@@ -101,7 +101,6 @@ get_vihi_annotations_tables <- function(version = NULL) {
     rbind(interval_0) %>%
     dplyr::arrange(eaf_filename, interval_onset)
 
-  # tables$annotations <- tables$annotations
   tables$annotations <- tables$annotations %>%
     dplyr::mutate(is_first_90_minutes = onset < 90*60*1000) %>%
     dplyr::mutate(
@@ -267,16 +266,18 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 #' - 'VI_TD' loads the annotations from the random, the top-5
 #' high-volubility intervals, and the initial 90 minutes interval
 #' from VI recordings and their TD matches.
-#' - 'HI_TD' loads the annotations from the random and the top-5
-#' high-volubility intervals from HI recordings and their TD matches.
+#' - 'HI_TD_HAM' loads the annotations from the random and the top-5
+#' high-volubility intervals from HI recordings and their TD hearing age matches.
+#' - 'HI_TD_CAM' loads the annotations from the random and the top-5
+#' high-volubility intervals from HI recordings and their TD chronological age matches.
 #' - 'everything' loads all annotations from all tiers. Exercise caution with
 #' this option: the data will include incomplete and unchecked annotations.
 #'
 #' @param include_all_tier_types Should all tier types be included in the
 #' output? If `FALSE` (the default), only tiers that are relevant to the subset
-#' are returned. For the 'random', 'VI_TD', and 'HI_TD' subsets, the relevant tier
-#' types are: transcription, vcm, lex, mwu, xds. For the 'everything' subset,
-#' this parameter is ignored as all tier types are returned.
+#' are returned. For all subsets but 'everything, the relevant tier types are: 
+#' transcription, vcm, lex, mwu, xds. For the 'everything' subset, this parameter 
+#' is ignored as all tier types are returned.
 #'
 #' @param allow_annotation_errors In case errors are found in the annotations,
 #' should the function throw an error (`FALSE`, the default) or add `error_n`
@@ -302,7 +303,7 @@ find_errors_in_vihi_annotations <- function(annotations, raise_error = TRUE) {
 #'
 get_vihi_annotations <- function(
     version = NULL,
-    subset = c('random_hivol', 'VI_TD', "HI_TD", 'everything'),
+    subset = c('random_hivol', 'VI_TD', "HI_TD_CAM", "HI_TD_HAM", "repetition", "babbling", 'everything'),
     table = c('annotations', 'intervals', 'merged', 'all'),
     include_all_tier_types = FALSE,
     allow_annotation_errors = FALSE,
@@ -325,33 +326,41 @@ get_vihi_annotations <- function(
         dplyr::filter(sampling_type == 'random' | is_top_5_high_vol)
     } else if (subset == 'VI_TD') {
       vi_td_matches <- tables$matches %>% 
-        filter(population == "VI")
+        filter(match_type == "VAM")
       tables$intervals <- tables$intervals %>%
         dplyr::filter(
           fs::path_ext_remove(eaf_filename) %in% c(vi_td_matches$VIHI_recording_id, vi_td_matches$TD_recording_id),
           sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
         )
-    } else if (subset == 'HI_TD') {
+    } else if (subset == 'HI_TD_CAM') {
       hi_td_matches <- tables$matches %>% 
-        filter(population == "HI")
+        filter(match_type == "CAM")
       tables$intervals <- tables$intervals %>%
         dplyr::filter(
           fs::path_ext_remove(eaf_filename) %in% c(hi_td_matches$VIHI_recording_id, hi_td_matches$TD_recording_id),
           sampling_type == 'random' | is_top_5_high_vol
         )
+    } else if (subset == 'HI_TD_HAM') {
+      hi_td_matches <- tables$matches %>% 
+        filter(match_type == "HAM")
+      tables$intervals <- tables$intervals %>%
+        dplyr::filter(
+          fs::path_ext_remove(eaf_filename) %in% c(hi_td_matches$VIHI_recording_id, hi_td_matches$TD_recording_id),
+          sampling_type == 'random' | is_top_5_high_vol
+        )
+    } else if (subset %in% c('repetition', 'babbling')) {
+      tables$intervals <- filter_by_subset(subset, tables$intervals, tables$interval_groups)
     }
 
     # Keep only annotations from the selected intervals
     tables$annotations <- tables$annotations %>%
       dplyr::semi_join(tables$intervals, by=c('eaf_filename', 'code_num'))
 
-
     # Select tiers, unless include_all_tier_types is TRUE
     if (!isTRUE(include_all_tier_types)) {
       tables$annotations <- tables$annotations %>%
         dplyr::select(-any_of(c('utt', 'inq', 'fun', 'pro', 'rep', 'cds')))
     }
-
   }
 
   if (!include_pi) {
@@ -406,29 +415,17 @@ get_vihi_annotations <- function(
   return(result)
 }
 
-get_vihi_new_tables <- function() {
-  version <- "0.0.0.9013-dev3"
-  tables <- get_vihi_annotations_tables(version)
+#' Filter `intervals` table for specific subset based on `interval_groups`
+#' @noRd
+filter_by_subset <- function(subset, intervals, interval_groups){
+  selected_groups <- interval_groups %>% 
+    dplyr::filter(.data[[subset]] == "finished")
   
-  annotations <- tables$annotations
-  intervals <- tables$intervals
-  matches <- tables$matches
-  subjects <- tables$subjects
-  recordings <- tables$recordings
+  selected_intervals <- intervals %>% 
+    dplyr::mutate(recording_id = fs::path_ext_remove(eaf_filename)) %>% 
+    dplyr::semi_join(selected_groups, by = c("recording_id", "sampling_type")) %>% 
+    dplyr::filter(sampling_type != "high-volubility" | is_top_5_high_vol) %>% 
+    dplyr::select(-recording_id)
   
-  recordings <- recordings %>% 
-    dplyr::mutate(VIHI_id = str_sub(full_recording_id, 1, 6))
-  
-  selected_matches <- matches %>% 
-    dplyr::mutate(VIHI_id = str_sub(VIHI_recording_id, 1, 6)) %>%
-    dplyr::right_join(selected_subjects, by = "VIHI_id") 
-  
-  intervals <- intervals %>%
-    dplyr::filter(
-      fs::path_ext_remove(eaf_filename) %in% c(selected_matches$VIHI_recording_id, selected_matches$TD_recording_id),
-      sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
-    )
-  
-  annotations <- annotations %>% 
-    dplyr::semi_join(intervals, by=c('eaf_filename', 'code_num'))
+  return(selected_intervals)
 }
