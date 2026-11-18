@@ -1,6 +1,7 @@
 archived_version <- "0.0.0.9011"
 
-#' Load all tables from the vihi_annotations repo
+#' Load all tables from the vihi_annotations repo, with preliminary cleaning
+#' for annotations and intervals table, adding top-5 and first-90 related columns
 #' @noRd
 get_vihi_annotations_tables <- function(version = NULL) {
   col_types <- list(
@@ -413,6 +414,40 @@ get_vihi_annotations <- function(
   }
 
   return(result)
+}
+
+#' 
+#' @noRd
+get_vihi_intervals <- function(tables, subset){
+  intervals <- tables$intervals
+  matches <- tables$matches
+  interval_groups <- tables$interval_groups
+  
+  if (subset == 'random_hivol') {
+    intervals <- intervals %>%
+      dplyr::filter(sampling_type == 'random' | is_top_5_high_vol)
+  } else if (subset == 'VI_TD') {
+    vi_td_matches <- matches %>% 
+      filter(match_type == "VAM")
+    intervals <- intervals %>%
+      dplyr::filter(
+        fs::path_ext_remove(eaf_filename) %in% c(vi_td_matches$VIHI_recording_id, vi_td_matches$TD_recording_id),
+        sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
+      )
+  } else if (stringr::str_starts(subset, "HI_TD")) {
+    subset_match_type <- str_split_i(test_str, "_", 3) 
+    hi_td_matches <- matches %>% 
+      filter(match_type == subset_match_type)
+    intervals <- intervals %>%
+      dplyr::filter(
+        fs::path_ext_remove(eaf_filename) %in% c(hi_td_matches$VIHI_recording_id, hi_td_matches$TD_recording_id),
+        sampling_type == 'random' | is_top_5_high_vol
+      )
+  } else if (subset %in% c('repetition', 'babbling')) {
+    intervals <- filter_by_subset(subset, intervals, interval_groups)
+  }
+
+  return(intervals)
 }
 
 #' Filter `intervals` table for specific subset based on `interval_groups`
