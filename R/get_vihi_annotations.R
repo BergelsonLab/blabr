@@ -322,36 +322,7 @@ get_vihi_annotations <- function(
 
   if (subset != "everything" & version > "0.0.0.9011") {
     # Select the intervals
-    if (subset == 'random_hivol') {
-      tables$intervals <- tables$intervals %>%
-        dplyr::filter(sampling_type == 'random' | is_top_5_high_vol)
-    } else if (subset == 'VI_TD') {
-      vi_td_matches <- tables$matches %>% 
-        filter(match_type == "VAM")
-      tables$intervals <- tables$intervals %>%
-        dplyr::filter(
-          fs::path_ext_remove(eaf_filename) %in% c(vi_td_matches$VIHI_recording_id, vi_td_matches$TD_recording_id),
-          sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
-        )
-    } else if (subset == 'HI_TD_CAM') {
-      hi_td_matches <- tables$matches %>% 
-        filter(match_type == "CAM")
-      tables$intervals <- tables$intervals %>%
-        dplyr::filter(
-          fs::path_ext_remove(eaf_filename) %in% c(hi_td_matches$VIHI_recording_id, hi_td_matches$TD_recording_id),
-          sampling_type == 'random' | is_top_5_high_vol
-        )
-    } else if (subset == 'HI_TD_HAM') {
-      hi_td_matches <- tables$matches %>% 
-        filter(match_type == "HAM")
-      tables$intervals <- tables$intervals %>%
-        dplyr::filter(
-          fs::path_ext_remove(eaf_filename) %in% c(hi_td_matches$VIHI_recording_id, hi_td_matches$TD_recording_id),
-          sampling_type == 'random' | is_top_5_high_vol
-        )
-    } else if (subset %in% c('repetition', 'babbling')) {
-      tables$intervals <- filter_by_subset(subset, tables$intervals, tables$interval_groups)
-    }
+    tables$intervals <- get_vihi_intervals(tables, subset)
 
     # Keep only annotations from the selected intervals
     tables$annotations <- tables$annotations %>%
@@ -366,7 +337,8 @@ get_vihi_annotations <- function(
 
   if (!include_pi) {
     tables$annotations <- tables$annotations %>%
-      dplyr::filter(is.na(PI))
+      dplyr::filter(is.na(PI)) %>% 
+      dplyr::select(-any_of(c("PI")))
   }
 
   # Run checks on annotations
@@ -444,23 +416,14 @@ get_vihi_intervals <- function(tables, subset){
         sampling_type == 'random' | is_top_5_high_vol
       )
   } else if (subset %in% c('repetition', 'babbling')) {
-    intervals <- filter_by_subset(subset, intervals, interval_groups)
+    selected_groups <- interval_groups %>% 
+      dplyr::filter(.data[[subset]] == "finished")
+    intervals <- intervals %>% 
+      dplyr::mutate(recording_id = fs::path_ext_remove(eaf_filename)) %>% 
+      dplyr::semi_join(selected_groups, by = c("recording_id", "sampling_type")) %>% 
+      dplyr::filter(sampling_type != "high-volubility" | is_top_5_high_vol) %>% 
+      dplyr::select(-recording_id)
   }
 
   return(intervals)
-}
-
-#' Filter `intervals` table for specific subset based on `interval_groups`
-#' @noRd
-filter_by_subset <- function(subset, intervals, interval_groups){
-  selected_groups <- interval_groups %>% 
-    dplyr::filter(.data[[subset]] == "finished")
-  
-  selected_intervals <- intervals %>% 
-    dplyr::mutate(recording_id = fs::path_ext_remove(eaf_filename)) %>% 
-    dplyr::semi_join(selected_groups, by = c("recording_id", "sampling_type")) %>% 
-    dplyr::filter(sampling_type != "high-volubility" | is_top_5_high_vol) %>% 
-    dplyr::select(-recording_id)
-  
-  return(selected_intervals)
 }
