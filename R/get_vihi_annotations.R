@@ -400,16 +400,16 @@ get_vihi_intervals <- function(tables, subset){
       dplyr::filter(sampling_type == 'random' | is_top_5_high_vol)
   } else if (subset == 'VI_TD') {
     vi_td_matches <- matches %>% 
-      filter(match_type == "VAM")
+      dplyr::filter(match_type == "VAM")
     intervals <- intervals %>%
       dplyr::filter(
         fs::path_ext_remove(eaf_filename) %in% c(vi_td_matches$VIHI_recording_id, vi_td_matches$TD_recording_id),
         sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
       )
   } else if (stringr::str_starts(subset, "HI_TD")) {
-    subset_match_type <- str_split_i(test_str, "_", 3) 
+    subset_match_type <- stringr::str_split_i(test_str, "_", 3) 
     hi_td_matches <- matches %>% 
-      filter(match_type == subset_match_type)
+      dplyr::filter(match_type == subset_match_type)
     intervals <- intervals %>%
       dplyr::filter(
         fs::path_ext_remove(eaf_filename) %in% c(hi_td_matches$VIHI_recording_id, hi_td_matches$TD_recording_id),
