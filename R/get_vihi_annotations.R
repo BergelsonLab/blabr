@@ -428,6 +428,31 @@ get_vihi_intervals <- function(tables, subset){
   return(intervals)
 }
 
+get_VIHI_recordings_with_matches <- function(
+    matches, 
+    paired=FALSE,
+    subset = c('VI_TD', "HI_TD", "HI_TD_CAM", "HI_TD_HAM")) {
+  
+  subset = match.arg(subset)
+  
+  if (subset == 'VI_TD') {
+    only_matches <- matches %>% 
+      dplyr::filter(match_type == "VAM")
+  } else if (stringr::str_starts(subset, "HI_TD")) {
+    subset_match_type <- stringr::str_split_i(subset, "_", 3) 
+    if (is.na(subset_match_type)) {
+      only_matches <- matches %>% 
+        dplyr::filter(match_type %in% c("CAM", "HAM"))
+    } else {
+      only_matches <- matches %>% 
+        dplyr::filter(match_type == subset_match_type)
+    }
+  }
+  if (paired) return(only_matches %>% dplyr::select(VIHI_recording_id, TD_recording_id))
+  return(unique(c(only_matches$VIHI_recording_id, only_matches$TD_recording_id)))
+  
+}
+
 check_intervals_for_tier <- function(){
   #' PSEUDOCODE
   #' annotations %>% 
