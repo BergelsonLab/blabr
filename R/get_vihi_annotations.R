@@ -407,7 +407,7 @@ get_vihi_intervals <- function(tables, subset){
         sampling_type == 'random' | is_top_5_high_vol | sampling_type == 'initial'
       )
   } else if (stringr::str_starts(subset, "HI_TD")) {
-    subset_match_type <- stringr::str_split_i(test_str, "_", 3) 
+    subset_match_type <- stringr::str_split_i(subset, "_", 3) 
     hi_td_matches <- matches %>% 
       dplyr::filter(match_type == subset_match_type)
     intervals <- intervals %>%
@@ -426,4 +426,32 @@ get_vihi_intervals <- function(tables, subset){
   }
 
   return(intervals)
+}
+
+check_intervals_for_tier <- function(){
+  #' PSEUDOCODE
+  #' annotations %>% 
+  #' Check for error
+  #' group by code num, sum count the number of "errors" or missing anno for each category 
+  #' Also count number of annotations
+  #' compare to see if unfinished or in progress
+  #' check for is_silent intervals
+  #' intervals %>% 
+  #' filter for top 5 and add initial
+  #' merged with error summary table from annotations
+  #' group by sampling type and sum count total number of errors/total number of errorful intervals
+  
+  
+  # cds test
+  merged %>% 
+    dplyr::filter(xds == "C" & is.na(cds)) %>% 
+    dplyr::select(eaf_filename, sampling_type) %>% 
+    dplyr::distinct()
+  
+  # interqual test
+  merged %>% 
+    dplyr::mutate(id = fs::path_ext_remove(eaf_filename)) %>% 
+    dplyr::filter(id %in% VI) %>% 
+    dplyr::filter(!participant %in% c("CHI", "EE1")) %>% 
+    dplyr::filter(is.na(utt) | is.na(inq))
 }
