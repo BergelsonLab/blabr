@@ -3,7 +3,7 @@
 #' @return 
 #' @export
 #' 
-wrangle_word_exposure <- function(df, with_metadata=FALSE, with_notes=FALSE) {
+wrangle_word_exposure <- function(df, with_metadata=FALSE, with_notes=FALSE, check_value=TRUE) {
   clean_col_df <- df %>% 
     dplyr::select(ResponseId, starts_with("Q")) %>% 
     janitor::row_to_names(1) %>%
@@ -20,12 +20,7 @@ wrangle_word_exposure <- function(df, with_metadata=FALSE, with_notes=FALSE) {
     dplyr::rename_with(~ str_replace(., "Vocabulary exposure - ", "")) %>% 
     dplyr::rename_with(~ str_replace(., " - Notes", "_notes")) %>% 
     dplyr::rename_with(~ str_replace(., " - Rating", "")) %>% 
-    # dplyr::mutate(across(-subject, as.numeric)) %>% 
     janitor::clean_names()
-  
-  word_list <- wrangled_df %>% 
-    dplyr::select(-response_id, -subject_number, -date, -experimenter_initials, -tidyselect::ends_with("_notes"), ) %>% 
-    colnames()
   
   if (!with_notes) {
     wrangled_df <- wrangled_df %>% 
@@ -37,4 +32,18 @@ wrangle_word_exposure <- function(df, with_metadata=FALSE, with_notes=FALSE) {
   }
   
   return(wrangled_df)
+}
+
+#' 
+#' 
+#' @return 
+#' @export
+#' 
+get_word_exposure_wordlist <- function(df) {
+  clean_df <- wrangle_word_exposure(df) 
+  
+  word_list <- wrangled_df %>% 
+    dplyr::select(-response_id, -subject_number, -date, -experimenter_initials, -tidyselect::ends_with("_notes"), ) %>% 
+    colnames()
+  return(word_list)
 }
