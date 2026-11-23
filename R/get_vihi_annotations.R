@@ -466,17 +466,49 @@ check_intervals_for_tier <- function(){
   #' merged with error summary table from annotations
   #' group by sampling type and sum count total number of errors/total number of errorful intervals
   
+  annotations_with_errors <- annotations %>% 
+    dplyr::mutate(
+      cds_anno = (xds == "C"),
+      cds_error = (xds == "C" & is.na(cds)),
+      interqual_anno = !participant %in% c("CHI", "EE1"),
+      interqual_error = (!participant %in% c("CHI", "EE1")) & (is.na(utt) | is.na(inq))
+    ) %>% 
+    group_by(eaf_filename, code_num) %>% 
+    # i need to calculate total number of anno that SHOULD be filled out, and number of anno that is not
+    summarize(
+      cds_count = sum(cds_anno, na.rm = TRUE), 
+      cds_error = sum(cds_error, na.rm = TRUE), 
+      interqual_count = sum(interqual_anno, na.rm = TRUE),
+      interqual_error = sum(interqual_error, na.rm = TRUE)
+    ) %>% 
+    mutate(
+      cds_tier = case_when(
+        cds_count != 0 & cds_error == 0 ~ "finished",
+        cds_count != 0 & cds_error < cds_count ~ "in_progress",
+        TRUE ~ "not_started"
+      ),
+      interqual = case_when(
+        interqual_count != 0 & interqual_error == 0 ~ "finished",
+        interqual_count != 0 & interqual_error < interqual_count ~ "in_progress",
+        TRUE ~ "not_started"
+      )
+    ) %>% 
+    select(eaf_filename, code_num, cds_tier, interqual)
   
-  # cds test
-  merged %>% 
-    dplyr::filter(xds == "C" & is.na(cds)) %>% 
-    dplyr::select(eaf_filename, sampling_type) %>% 
-    dplyr::distinct()
-  
-  # interqual test
-  merged %>% 
-    dplyr::mutate(id = fs::path_ext_remove(eaf_filename)) %>% 
-    dplyr::filter(id %in% VI) %>% 
-    dplyr::filter(!participant %in% c("CHI", "EE1")) %>% 
-    dplyr::filter(is.na(utt) | is.na(inq))
+  interval_groups_check <- intervals %>% 
+    filter(sampling_type %in% c("initial", "random") | is_top_5_high_vol) %>% 
+    left_join(annotations_with_errors, by = c("eaf_filename", "code_num")) %>% 
+    group_by(eaf_filename, sampling_type) %>%
+    summarize(
+      cds_tier = case_when(
+        all(cds_tier == "not_started" | is.na(cds_tier)) ~ "not_started",
+        all(cds_tier == "finished") ~ "finished",
+        TRUE ~ "in_progress"
+      ),
+      interqual = case_when(
+        all(interqual == "not_started" | is.na(interqual)) ~ "not_started",
+        all(interqual == "finished") ~ "finished",
+        TRUE ~ "in_progress"
+      ),
+    )
 }
